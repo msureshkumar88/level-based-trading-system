@@ -65,8 +65,10 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
             ],
         },
+
     },
 ]
+SESSION_ENGINE = 'django.contrib.sessions.backends.file'
 
 WSGI_APPLICATION = 'level_base_binary_options.wsgi.application'
 

@@ -2,6 +2,8 @@
 {%block heading%}Login{%endblock%}
 {%block content%}
 <div class="bd-example">
+
+    {{message}}
     <form method="post" action="">
         {% csrf_token%}
         <div class="form-group">
