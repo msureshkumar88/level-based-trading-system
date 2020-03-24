@@ -8,7 +8,15 @@ def home(request):
 
     return render(request, 'home.html')
 
+
 def login(request):
+
+    if request.method == "POST":
+        
+        email = request.POST['email']
+        password = request.POST['password']
+        print(email,password)
+
     return render(request, 'login.html')
 
 def register(request):
