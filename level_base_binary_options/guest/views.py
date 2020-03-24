@@ -9,7 +9,7 @@ def home(request):
     return render(request, 'home.html')
 
 def login(request):
-    return HttpResponse("login")
+    return render(request, 'login.html')
 
 def register(request):
-    return HttpResponse("register")
+    return render(request, 'register.html')
