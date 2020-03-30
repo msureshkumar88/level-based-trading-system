@@ -1,6 +1,10 @@
 from django.shortcuts import render, redirect
 from utilities.authentication import Authentication
+from .models import UserById
+from .models import UserCredential
 from django.http import HttpResponse
+
+from django.db import connection
 
 # Create your views here.
 
@@ -54,5 +58,33 @@ def register(request):
         country = request.POST['country']
         currency = request.POST['currency']
         virtual_currency = request.POST['virtual_currency']
-        print(username)
+
+        # TODO - add validations
+
+        # insert = User(email = email, address = address, password = password, country = country,currency = currency, fname = first_name,lname =last_name, mobile = mobile, username = username,  vcurrency = virtual_currency)
+        # insert.save()
+
+
+        # user_id = ""
+        # try:
+        #     q = UserCredential.objects.filter(email=email)
+        #     user_id = q.get().id
+        # except:
+        #     print("An exception occurred")
+        cursor = connection.cursor()
+        user = cursor.execute("SELECT id  FROM user_credential where email =" + "'" + email + "'")
+        # check whether email exists
+        if not user:
+            # create user credentials
+            insert = UserCredential(email=email, password=password, username=username)
+            insert.save()
+
+            # get newly created user id
+            user_id = UserCredential.objects.filter(email=email)
+            user_id = user_id.get().id
+
+            # save user general details
+            new_user = UserById(id = user_id, address = address, country = country,currency = currency, fname = first_name,lname =last_name, mobile = mobile, vcurrency = virtual_currency)
+            new_user.save()
+            
     return render(request, 'register.html')
