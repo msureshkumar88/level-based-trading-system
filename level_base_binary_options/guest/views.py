@@ -1,5 +1,10 @@
 from django.shortcuts import render, redirect
 from utilities.authentication import Authentication
+from utilities.helper import Helper
+
+from datetime import datetime
+
+
 from .models import UserById
 from .models import UserCredential
 from django.http import HttpResponse
@@ -59,6 +64,10 @@ def register(request):
         currency = request.POST['currency']
         virtual_currency = request.POST['virtual_currency']
 
+
+
+        # return render(request, 'register.html')
+
         # TODO - add validations
 
         # insert = User(email = email, address = address, password = password, country = country,currency = currency, fname = first_name,lname =last_name, mobile = mobile, username = username,  vcurrency = virtual_currency)
@@ -76,7 +85,7 @@ def register(request):
         # check whether email exists
         if not user:
             # create user credentials
-            insert = UserCredential(email=email, password=password, username=username)
+            insert = UserCredential(email=email, password=Helper.password_encrypt(password), username=username)
             insert.save()
 
             # get newly created user id
@@ -84,7 +93,7 @@ def register(request):
             user_id = user_id.get().id
 
             # save user general details
-            new_user = UserById(id = user_id, address = address, country = country,currency = currency, fname = first_name,lname =last_name, mobile = mobile, vcurrency = virtual_currency)
+            new_user = UserById(id = user_id, address = address, country = country,currency = currency, fname = first_name,lname =last_name, mobile = mobile, vcurrency = virtual_currency, created_date = datetime.now())
             new_user.save()
-            
+
     return render(request, 'register.html')
