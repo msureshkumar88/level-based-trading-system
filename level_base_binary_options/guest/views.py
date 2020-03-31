@@ -24,6 +24,7 @@ def login(request):
     # if ac.is_user_logged_in():
     #     return redirect('/account')
     # ac.logout()
+    # if user is logged in redirect to account page
     if ac.is_user_logged_in():
         return redirect('/account')
 
@@ -32,15 +33,21 @@ def login(request):
         email = request.POST['email']
         password = request.POST['password']
 
+        # encrypt user enter password in the login page to check with db password
         password_encrypted = Helper.password_encrypt(password)
 
         cursor = connection.cursor()
+
+        # check whether user exists in the DB
         user = cursor.execute("SELECT id  FROM user_credential where email =" + "'" + email + "' and password = " + "'" + password_encrypted + "'" )
 
         if user:
+            # get loged user details
             q = f"SELECT *  FROM user_by_id where id = {user[0]['id']}";
             user = cursor.execute(q)
             # print(user[0])
+
+            # create user session and store user id
             ac.save_user_session(str(user[0]['id']))
             print(ac.get_user_session())
             return redirect('/account')
