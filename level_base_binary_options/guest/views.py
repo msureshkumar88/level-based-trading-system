@@ -23,25 +23,47 @@ def login(request):
     ac = Authentication(request)
     # if ac.is_user_logged_in():
     #     return redirect('/account')
+    # ac.logout()
+    if ac.is_user_logged_in():
+        return redirect('/account')
+
     if request.method == "POST":
 
         email = request.POST['email']
         password = request.POST['password']
-        request.session['email'] = email
+
+        password_encrypted = Helper.password_encrypt(password)
+
+        cursor = connection.cursor()
+        user = cursor.execute("SELECT id  FROM user_credential where email =" + "'" + email + "' and password = " + "'" + password_encrypted + "'" )
+
+        if user:
+            q = f"SELECT *  FROM user_by_id where id = {user[0]['id']}";
+            user = cursor.execute(q)
+            # print(user[0])
+            ac.save_user_session(str(user[0]['id']))
+            print(ac.get_user_session())
+            return redirect('/account')
+
+        data['message'] = "User does not exists"
+
+
+        # return render(request, 'login.html', data)
+        # request.session['email'] = email
 
         # ac.save_user_session(email)
         # print(ac.get_user_session())
 
-        temp_email = "sam@gmail.com"
-        temp_pass = "123"
-        if ac.is_user_logged_in():
-            return redirect('/account')
-
-        if email == temp_email and password == temp_pass:
-            ac.save_user_session(email)
-
-        else:
-            data['message'] = "User does not exists"
+        # temp_email = "sam@gmail.com"
+        # temp_pass = "123"
+        # if ac.is_user_logged_in():
+        #     return redirect('/account')
+        #
+        # if email == temp_email and password == temp_pass:
+        #     ac.save_user_session(email)
+        #
+        # else:
+        #     data['message'] = "User does not exists"
 
         # del request.session['user_session']
         # print(ac.get_user_session())
