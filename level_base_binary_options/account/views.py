@@ -22,6 +22,7 @@ def account(request):
     return render(request, 'account.html', data)
 
 
+# start a trade
 def create_trade(req):
     post = req.POST
     start = post['start']
@@ -52,6 +53,7 @@ def create_trade(req):
         return error_messages
 
 
+# generate trade start time
 def get_trade_start_time(start, date, time):
     if start == "start now":
         return datetime.now()
@@ -60,12 +62,13 @@ def get_trade_start_time(start, date, time):
     return ""
 
 
+# generate trade end time
 def get_trade_end_time(time_to_close, date, time, time_slot, time_count):
     if time_to_close == 'end_time':
         if validate_binary_trade_times(make_date_time_stamp(date, time)):
             return make_date_time_stamp(date, time)
         return ""
-    if (time_slot == "seconds" and time_count < 5) or time_count<=1:
+    if (time_slot == "seconds" and time_count < 5) or time_count <= 1:
         return ""
     if time_slot == "seconds":
         return datetime.now() + timedelta(seconds=time_count)
@@ -77,6 +80,7 @@ def get_trade_end_time(time_to_close, date, time, time_slot, time_count):
         return datetime.now() + timedelta(days=time_count)
 
 
+# return static data for trade creation UI
 def load_static_data():
     cursor = connection.cursor()
     currencies = cursor.execute("SELECT * FROM currency")
@@ -90,11 +94,13 @@ def load_static_data():
     return data
 
 
+# check whether selected dates are greater than current date and time
 def validate_binary_trade_times(date_time):
     if datetime.now() >= date_time:
         return False
     return True
 
 
+# convert date and time to system's format
 def make_date_time_stamp(date, time):
     return datetime.strptime(date + " " + time + ":00", '%Y-%m-%d %H:%M:%S')
