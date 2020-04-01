@@ -49,7 +49,7 @@ def create_trade(req):
 def get_trade_start_time(start, date, time):
     if start == "start now":
         return datetime.now()
-    if validate_start_end_time(make_date_time_stamp(date, time)):
+    if validate_binary_trade_times(make_date_time_stamp(date, time)):
         return make_date_time_stamp(date, time)
     return ""
 
@@ -67,7 +67,7 @@ def load_static_data():
     return data
 
 
-def validate_start_end_time(date_time):
+def validate_binary_trade_times(date_time):
     if datetime.now() >= date_time:
         return False
     return True
