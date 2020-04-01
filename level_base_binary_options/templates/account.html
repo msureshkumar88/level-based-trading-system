@@ -23,6 +23,7 @@
     </select>
     <br>
     <select name="time_to_close" id="time_to_close">
+        <option value="">Select trade closing type</option>
         <option value="duration">Duration</option>
         <option value="end_time">End Time</option>
     </select>
@@ -39,8 +40,8 @@
     <br>
     <!--active when end time is selected-->
     <div>
-        <input type="text" name="end_date" placeholder="trade close date">
-        <input type="text" name="end_time" placeholder="trade close time">
+        <input type="date" name="end_date" placeholder="trade close date" value="{{today_date}}">
+        <input type="time" name="end_time" placeholder="trade close time" value="{{time_now}}">
     </div>
     <br>
     <input type="text" name="amount" placeholder="Amount">

@@ -3,6 +3,7 @@ from utilities.authentication import Authentication
 
 from django.db import connection
 from datetime import datetime
+from datetime import timedelta
 
 
 # Create your views here.
@@ -14,7 +15,7 @@ def account(request):
     if not ac.is_user_logged_in():
         return redirect('/login')
 
-    data = load_static_data();
+    data = load_static_data()
     if request.method == "POST":
         data["errors"] = create_trade(request)
 
@@ -29,6 +30,7 @@ def create_trade(req):
     currency = post['currency']
     time_to_close = post['time_to_close']
     time_slot = post['time_slot']
+    time_count = int(post['time_count'])
     end_date = post['end_date']
     end_time = post['end_time']
     amount = post['amount']
@@ -41,9 +43,13 @@ def create_trade(req):
     if not trade_start_time:
         error_messages.append("Invalid start date and time")
 
+    trade_end_time = get_trade_end_time(time_to_close, end_date, end_time, time_slot, time_count)
+    if not trade_end_time:
+        error_messages.append("Invalid end date and time")
+
+    print(trade_end_time)
     if error_messages:
         return error_messages
-    print(trade_start_time)
 
 
 def get_trade_start_time(start, date, time):
@@ -52,6 +58,23 @@ def get_trade_start_time(start, date, time):
     if validate_binary_trade_times(make_date_time_stamp(date, time)):
         return make_date_time_stamp(date, time)
     return ""
+
+
+def get_trade_end_time(time_to_close, date, time, time_slot, time_count):
+    if time_to_close == 'end_time':
+        if validate_binary_trade_times(make_date_time_stamp(date, time)):
+            return make_date_time_stamp(date, time)
+        return ""
+    if (time_slot == "seconds" and time_count < 5) or time_count<=1:
+        return ""
+    if time_slot == "seconds":
+        return datetime.now() + timedelta(seconds=time_count)
+    if time_slot == "minutes":
+        return datetime.now() + timedelta(minutes=time_count)
+    if time_slot == "hours":
+        return datetime.now() + timedelta(hours=time_count)
+    if time_slot == "days":
+        return datetime.now() + timedelta(days=time_count)
 
 
 def load_static_data():
