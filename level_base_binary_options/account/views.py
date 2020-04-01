@@ -51,6 +51,7 @@ def create_trade(req):
         error_messages.append("Invalid end date and time")
 
     purchase_type = get_trade_type(purchase)
+    status = get_trade_status(start)
 
     print(trade_end_time)
     if error_messages:
@@ -116,3 +117,10 @@ def get_trade_type(purchase):
     if purchase == 'Buy':
         return 'buy'
     return 'sell'
+
+
+# get the flag that determine trade start now or later
+def get_trade_status(start):
+    if start == "start now":
+        return "started"
+    return "pending"
