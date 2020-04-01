@@ -5,7 +5,7 @@ from django.db import connection
 from datetime import datetime
 from datetime import timedelta
 
-
+from utilities.helper import Helper
 # Create your views here.
 
 
@@ -37,7 +37,8 @@ def create_trade(req):
     amount = post['amount']
     purchase = post['purchase']
     trade_type = 'B'
-
+    price = Helper.get_current_price(currency)
+    
     error_messages = []
 
     trade_start_time = ""
