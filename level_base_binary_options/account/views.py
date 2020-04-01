@@ -3,6 +3,8 @@ from utilities.authentication import Authentication
 
 from django.db import connection
 from datetime import datetime
+
+
 # Create your views here.
 
 
@@ -25,7 +27,6 @@ def account(request):
     if request.method == "POST":
         create_trade(request)
 
-
     return render(request, 'account.html', data)
 
 
@@ -44,7 +45,6 @@ def create_trade(req):
 
 
 def get_trade_start_time(start, date, time):
-
     if start == "start now":
         return datetime.now()
-    return datetime.strptime(date+ " " +time+":00", '%Y-%m-%d %H:%M:%S')
+    return datetime.strptime(date + " " + time + ":00", '%Y-%m-%d %H:%M:%S')
