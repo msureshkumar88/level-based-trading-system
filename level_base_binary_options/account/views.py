@@ -31,10 +31,12 @@ def create_trade(req):
     currency = post['currency']
     time_to_close = post['time_to_close']
     time_slot = post['time_slot']
-    time_count = int(post['time_count'])
+    time_count = post['time_count']
     end_date = post['end_date']
     end_time = post['end_time']
     amount = post['amount']
+    purchase = post['purchase']
+    trade_type = 'B'
 
     error_messages = []
 
@@ -47,6 +49,8 @@ def create_trade(req):
     trade_end_time = get_trade_end_time(time_to_close, end_date, end_time, time_slot, time_count)
     if not trade_end_time:
         error_messages.append("Invalid end date and time")
+
+    purchase_type = get_trade_type(purchase)
 
     print(trade_end_time)
     if error_messages:
@@ -68,6 +72,7 @@ def get_trade_end_time(time_to_close, date, time, time_slot, time_count):
         if validate_binary_trade_times(make_date_time_stamp(date, time)):
             return make_date_time_stamp(date, time)
         return ""
+    time_count = int(time_count)
     if (time_slot == "seconds" and time_count < 5) or time_count <= 1:
         return ""
     if time_slot == "seconds":
@@ -104,3 +109,10 @@ def validate_binary_trade_times(date_time):
 # convert date and time to system's format
 def make_date_time_stamp(date, time):
     return datetime.strptime(date + " " + time + ":00", '%Y-%m-%d %H:%M:%S')
+
+
+# get user selected trade type
+def get_trade_type(purchase):
+    if purchase == 'Buy':
+        return 'buy'
+    return 'sell'
