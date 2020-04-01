@@ -15,9 +15,8 @@ def account(request):
         return redirect('/login')
 
     data = load_static_data();
-    print(data)
     if request.method == "POST":
-        create_trade(request)
+        data["errors"] = create_trade(request)
 
     return render(request, 'account.html', data)
 
@@ -33,13 +32,26 @@ def create_trade(req):
     end_date = post['end_date']
     end_time = post['end_time']
     amount = post['amount']
-    get_trade_start_time(start, start_date, start_time)
+
+    error_messages = []
+
+    trade_start_time = ""
+
+    trade_start_time = get_trade_start_time(start, start_date, start_time)
+    if not trade_start_time:
+        error_messages.append("Invalid start date and time")
+
+    if error_messages:
+        return error_messages
+    print(trade_start_time)
 
 
 def get_trade_start_time(start, date, time):
     if start == "start now":
         return datetime.now()
-    return datetime.strptime(date + " " + time + ":00", '%Y-%m-%d %H:%M:%S')
+    if validate_start_end_time(make_date_time_stamp(date, time)):
+        return make_date_time_stamp(date, time)
+    return ""
 
 
 def load_static_data():
@@ -53,3 +65,13 @@ def load_static_data():
     data['today_date'] = datetime.now().strftime("%Y-%m-%d")
     data['time_now'] = datetime.now().strftime("%H:%M")
     return data
+
+
+def validate_start_end_time(date_time):
+    if datetime.now() >= date_time:
+        return False
+    return True
+
+
+def make_date_time_stamp(date, time):
+    return datetime.strptime(date + " " + time + ":00", '%Y-%m-%d %H:%M:%S')
