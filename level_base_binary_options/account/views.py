@@ -14,15 +14,7 @@ def account(request):
     if not ac.is_user_logged_in():
         return redirect('/login')
 
-    cursor = connection.cursor()
-    currencies = cursor.execute("SELECT * FROM currency")
-    duration = cursor.execute("SELECT * FROM duration")
-
-    data = dict()
-    data['currency'] = currencies
-    data['duration'] = duration
-    data['today_date'] = datetime.now().strftime("%Y-%m-%d")
-    data['time_now'] = datetime.now().strftime("%H:%M")
+    data = load_static_data();
     print(data)
     if request.method == "POST":
         create_trade(request)
@@ -48,3 +40,16 @@ def get_trade_start_time(start, date, time):
     if start == "start now":
         return datetime.now()
     return datetime.strptime(date + " " + time + ":00", '%Y-%m-%d %H:%M:%S')
+
+
+def load_static_data():
+    cursor = connection.cursor()
+    currencies = cursor.execute("SELECT * FROM currency")
+    duration = cursor.execute("SELECT * FROM duration")
+
+    data = dict()
+    data['currency'] = currencies
+    data['duration'] = duration
+    data['today_date'] = datetime.now().strftime("%Y-%m-%d")
+    data['time_now'] = datetime.now().strftime("%H:%M")
+    return data
