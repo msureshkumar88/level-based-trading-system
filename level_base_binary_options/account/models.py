@@ -21,3 +21,21 @@ class UserTransactionsBinary(DjangoCassandraModel):
     time_close = columns.DateTime()
     outcome = columns.Text()
     status = columns.Text()
+
+
+class TransactionsByStatusBinary(DjangoCassandraModel):
+    status = columns.Text(primary_key=True)
+    id = columns.UUID()
+    user_id = columns.UUID()
+    created_date = columns.DateTime()
+    trade_type = columns.Text()
+    purchase_type = columns.Text()
+    currency = columns.Text()
+    staring_price = columns.Float()
+    closing_price = columns.Float()
+    amount = columns.Float()
+    start_time = columns.DateTime()
+    end_time = columns.DateTime()
+    time_close = columns.DateTime()
+    outcome = columns.Text()
+

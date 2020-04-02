@@ -7,6 +7,7 @@ from datetime import timedelta
 
 from utilities.helper import Helper
 from .models import UserTransactionsBinary
+from .models import TransactionsByStatusBinary
 
 from utilities.trade_status import Status
 
@@ -75,6 +76,12 @@ def create_trade(req):
                                    currency=currency, staring_price=price, amount=float(amount),
                                    start_time=trade_start_time, end_time=trade_end_time, status=status)
     trade.save()
+    trades_by_status = TransactionsByStatusBinary(user_id=user_id, created_date=datetime.now(),
+                                   trade_type=trade_type, purchase_type=purchase_type,
+                                   currency=currency, staring_price=price, amount=float(amount),
+                                   start_time=trade_start_time, end_time=trade_end_time, status=status)
+
+    trades_by_status.save()
 
 
 # generate trade start time
