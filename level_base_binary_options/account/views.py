@@ -41,7 +41,7 @@ def create_trade(req):
     end_time = post['end_time']
     amount = post['amount']
     purchase = post['purchase']
-    trade_type = 'Binary'
+    trade_type = 'binary'
     price = Helper.get_current_price(currency)
 
     error_messages = []
@@ -56,19 +56,24 @@ def create_trade(req):
     if not trade_end_time:
         error_messages.append("Invalid end date and time")
 
+    if validate_def_start_end_dates(trade_start_time, trade_end_time):
+        error_messages.append("Trade closing date must be future date")
+
+
+
     purchase_type = get_trade_type(purchase)
     status = get_trade_status(start)
 
-    print(trade_end_time)
+    print(error_messages)
     if error_messages:
         return error_messages
     # create new binary trade here
     ac = Authentication(req)
     user_id = ac.get_user_session()
     trade = UserTransactionsBinary(user_id=user_id, created_date=datetime.now(),
-                          trade_type=trade_type, purchase_type=purchase_type,
-                          currency=currency, staring_price=price, amount=float(amount),
-                          start_time=trade_start_time, end_time=trade_end_time, status=status)
+                                   trade_type=trade_type, purchase_type=purchase_type,
+                                   currency=currency, staring_price=price, amount=float(amount),
+                                   start_time=trade_start_time, end_time=trade_end_time, status=status)
     trade.save()
 
 
@@ -138,3 +143,10 @@ def get_trade_status(start):
     if start == "start now":
         return Status.STARTED.value
     return Status.PENDING.value
+
+
+# validate if the end date is greater start date
+def validate_def_start_end_dates(start_date, end_date):
+    if start_date >= end_date:
+        return "Trade closing date must be future date"
+    return ""
