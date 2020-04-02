@@ -8,7 +8,7 @@ class Authentication:
         # request.session['email'] = "my email"
 
     def get_user_session(self):
-        return self.request.session[ self.user_session]
+        return self.request.session[self.user_session]
         # return request.session[name]
 
     def is_user_logged_in(self):

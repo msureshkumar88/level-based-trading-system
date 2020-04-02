@@ -6,6 +6,11 @@ from datetime import datetime
 from datetime import timedelta
 
 from utilities.helper import Helper
+from .models import UserTransactionsBinary
+
+from utilities.trade_status import Status
+
+
 # Create your views here.
 
 
@@ -36,9 +41,9 @@ def create_trade(req):
     end_time = post['end_time']
     amount = post['amount']
     purchase = post['purchase']
-    trade_type = 'B'
+    trade_type = 'Binary'
     price = Helper.get_current_price(currency)
-    
+
     error_messages = []
 
     trade_start_time = ""
@@ -57,6 +62,14 @@ def create_trade(req):
     print(trade_end_time)
     if error_messages:
         return error_messages
+    # create new binary trade here
+    ac = Authentication(req)
+    user_id = ac.get_user_session()
+    trade = UserTransactionsBinary(user_id=user_id, created_date=datetime.now(),
+                          trade_type=trade_type, purchase_type=purchase_type,
+                          currency=currency, staring_price=price, amount=float(amount),
+                          start_time=trade_start_time, end_time=trade_end_time, status=status)
+    trade.save()
 
 
 # generate trade start time
@@ -75,7 +88,7 @@ def get_trade_end_time(time_to_close, date, time, time_slot, time_count):
             return make_date_time_stamp(date, time)
         return ""
     time_count = int(time_count)
-    if (time_slot == "seconds" and time_count < 5) or time_count <= 1:
+    if (time_slot == "seconds" and time_count < 5) or time_count < 1:
         return ""
     if time_slot == "seconds":
         return datetime.now() + timedelta(seconds=time_count)
@@ -123,5 +136,5 @@ def get_trade_type(purchase):
 # get the flag that determine trade start now or later
 def get_trade_status(start):
     if start == "start now":
-        return "started"
-    return "pending"
+        return Status.STARTED.value
+    return Status.PENDING.value

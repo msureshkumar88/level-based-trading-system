@@ -20,7 +20,7 @@ class Helper:
 
     @classmethod
     def get_current_price(cls, currency):
-        # check this function to get the value from database
+        # TODO: check this function to get the value from database
         with requests.Session() as s:
             download = s.get(Helper.fx_request_url(currency))
 
