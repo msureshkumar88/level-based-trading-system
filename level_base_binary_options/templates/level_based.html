@@ -1,8 +1,46 @@
-
 {% extends 'guest_base.html'%}
 {%block heading%}Trading dashboard{%endblock%}
 {%block content%}
 <div class="bd-example">
-
+    <!--TODO: add a chart show the selected level-->
+    <form name="" method="post">
+        <select name="currency">
+            <option value="">Select currency</option>
+            {% for c in currency%}
+            <option value="{{c.label}}">{{c.label}}</option>
+            {%endfor%}
+        </select>
+        <br>
+        <input type="number" name="gap_pips" placeholder="Level size" min="1">
+        <br>
+        <select name="select_level">
+            <option value="">Select level</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+        </select>
+        <br>
+        <!--active when duration is selected-->
+        <div>
+            <select name="time_slot">
+                <option value="">Select duration</option>
+                {% for c in duration%}
+                <option value="{{c.name}}">{{c.label}}</option>
+                {%endfor%}
+            </select><input type="text" name="time_count" placeholder="units">
+        </div>
+        <br>
+        <!--active when end time is selected-->
+        <div>
+            <input type="date" name="end_date" placeholder="trade close date" value="{{today_date}}">
+            <input type="time" name="end_time" placeholder="trade close time" value="{{time_now}}">
+        </div>
+        <br>
+        <input type="text" name="amount" placeholder="Amount">
+        <br>
+        <input type="submit" name="purchase" value="Buy">
+        <input type="submit" name="purchase" value="Sell">
+    </form>
 </div>
 {% endblock%}
