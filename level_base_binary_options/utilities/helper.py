@@ -1,6 +1,10 @@
 import hashlib
 import requests
 import csv
+import time
+import pytz
+from time import gmtime, strftime
+from datetime import datetime
 
 
 class Helper:
@@ -34,3 +38,12 @@ class Helper:
                     offer = float(row[4] + row[5])
                     mid_price = (bid + offer) / 2
                     return "%.5f" % mid_price
+
+    @classmethod
+    def get_current_time_formatted(cls):
+        time_now = datetime.now(pytz.utc)
+        mils = time_now.strftime('%f')[:-3]
+        zone = strftime("%z", gmtime())
+        if strftime("%z", gmtime()) == "-0000":
+            zone = "+0000"
+        return datetime.now().strftime('%Y-%m-%d %H:%M:%S.') + mils + zone

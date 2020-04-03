@@ -3,9 +3,7 @@ from utilities.authentication import Authentication
 
 from django.db import connection
 from datetime import datetime
-from datetime import timedelta
-import time
-import pytz
+
 from utilities.helper import Helper
 from utilities.trading import Trading
 from .models import UserTransactionsBinary
@@ -13,7 +11,6 @@ from .models import TransactionsByStatusBinary
 from .models import UserTransactionsIdBinary
 from cassandra.util import datetime_from_timestamp
 from utilities.trade_status import Status
-from time import gmtime, strftime
 
 
 # Create your views here.
@@ -75,7 +72,7 @@ def create_trade(req):
     ac = Authentication(req)
     user_id = ac.get_user_session()
 
-    time_now = get_current_time_formatted()
+    time_now = Helper.get_current_time_formatted()
     date_time_now = datetime.now()
     use_trade = UserTransactionsIdBinary(user_id=user_id, created_date=date_time_now)
 
@@ -86,7 +83,7 @@ def create_trade(req):
     # return
     cursor = connection.cursor()
     q = f"SELECT * FROM user_transactions_id_binary WHERE user_id = {user_id} and created_date = '{time_now}'"
-    print(q)
+    # print(q)
 
     transaction_id = cursor.execute(q)
     transaction_id = transaction_id[0]["id"]
@@ -104,11 +101,3 @@ def create_trade(req):
     trades_by_status.save()
 
 
-def get_current_time_formatted():
-    time_now = datetime.now(pytz.utc)
-    mils = time_now.strftime('%f')[:-3]
-    zone = strftime("%z", gmtime())
-    if strftime("%z", gmtime()) == "-0000":
-        zone = "+0000"
-
-    return datetime.now().strftime('%Y-%m-%d %H:%M:%S.') + mils + zone
