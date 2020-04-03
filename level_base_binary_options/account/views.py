@@ -4,12 +4,16 @@ from utilities.authentication import Authentication
 from django.db import connection
 from datetime import datetime
 from datetime import timedelta
-
+import time
+import pytz
 from utilities.helper import Helper
+from utilities.trading import Trading
 from .models import UserTransactionsBinary
 from .models import TransactionsByStatusBinary
-
+from .models import UserTransactionsIdBinary
+from cassandra.util import datetime_from_timestamp
 from utilities.trade_status import Status
+from time import gmtime, strftime
 
 
 # Create your views here.
@@ -21,7 +25,7 @@ def account(request):
     if not ac.is_user_logged_in():
         return redirect('/login')
 
-    data = load_static_data()
+    data = Trading.load_static_data()
     if request.method == "POST":
         data["errors"] = create_trade(request)
 
@@ -49,21 +53,20 @@ def create_trade(req):
 
     trade_start_time = ""
 
-    trade_start_time = get_trade_start_time(start, start_date, start_time)
+    trade_start_time = Trading.get_trade_start_time(start, start_date, start_time)
     if not trade_start_time:
         error_messages.append("Invalid start date and time")
 
-    trade_end_time = get_trade_end_time(time_to_close, end_date, end_time, time_slot, time_count)
+    trade_end_time = Trading.get_trade_end_time(time_to_close, end_date, end_time, time_slot, time_count, start,
+                                                trade_start_time)
     if not trade_end_time:
         error_messages.append("Invalid end date and time")
 
-    if validate_def_start_end_dates(trade_start_time, trade_end_time):
+    if Trading.validate_def_start_end_dates(trade_start_time, trade_end_time):
         error_messages.append("Trade closing date must be future date")
 
-
-
-    purchase_type = get_trade_type(purchase)
-    status = get_trade_status(start)
+    purchase_type = Trading.get_trade_type(purchase)
+    status = Trading.get_trade_status(start)
 
     print(error_messages)
     if error_messages:
@@ -71,89 +74,41 @@ def create_trade(req):
     # create new binary trade here
     ac = Authentication(req)
     user_id = ac.get_user_session()
-    trade = UserTransactionsBinary(user_id=user_id, created_date=datetime.now(),
+
+    time_now = get_current_time_formatted()
+    date_time_now = datetime.now()
+    use_trade = UserTransactionsIdBinary(user_id=user_id, created_date=date_time_now)
+
+    use_trade.save()
+
+    # new_d = time_now.strftime("%Y-%m-%d %H:%M:%S.%f%z")
+    # print(new_d)
+    # return
+    cursor = connection.cursor()
+    q = f"SELECT * FROM user_transactions_id_binary WHERE user_id = {user_id} and created_date = '{time_now}'"
+    print(q)
+
+    transaction_id = cursor.execute(q)
+    transaction_id = transaction_id[0]["id"]
+
+    trade = UserTransactionsBinary(id=transaction_id, user_id=user_id, created_date=date_time_now,
                                    trade_type=trade_type, purchase_type=purchase_type,
                                    currency=currency, staring_price=price, amount=float(amount),
                                    start_time=trade_start_time, end_time=trade_end_time, status=status)
     trade.save()
-    trades_by_status = TransactionsByStatusBinary(user_id=user_id, created_date=datetime.now(),
-                                   trade_type=trade_type, purchase_type=purchase_type,
-                                   currency=currency, staring_price=price, amount=float(amount),
-                                   start_time=trade_start_time, end_time=trade_end_time, status=status)
+    trades_by_status = TransactionsByStatusBinary(id=transaction_id, user_id=user_id, created_date=date_time_now,
+                                                  trade_type=trade_type, purchase_type=purchase_type,
+                                                  currency=currency, staring_price=price, amount=float(amount),
+                                                  start_time=trade_start_time, end_time=trade_end_time, status=status)
 
     trades_by_status.save()
 
 
-# generate trade start time
-def get_trade_start_time(start, date, time):
-    if start == "start now":
-        return datetime.now()
-    if validate_binary_trade_times(make_date_time_stamp(date, time)):
-        return make_date_time_stamp(date, time)
-    return ""
+def get_current_time_formatted():
+    time_now = datetime.now(pytz.utc)
+    mils = time_now.strftime('%f')[:-3]
+    zone = strftime("%z", gmtime())
+    if strftime("%z", gmtime()) == "-0000":
+        zone = "+0000"
 
-
-# generate trade end time
-def get_trade_end_time(time_to_close, date, time, time_slot, time_count):
-    if time_to_close == 'end_time':
-        if validate_binary_trade_times(make_date_time_stamp(date, time)):
-            return make_date_time_stamp(date, time)
-        return ""
-    time_count = int(time_count)
-    if (time_slot == "seconds" and time_count < 5) or time_count < 1:
-        return ""
-    if time_slot == "seconds":
-        return datetime.now() + timedelta(seconds=time_count)
-    if time_slot == "minutes":
-        return datetime.now() + timedelta(minutes=time_count)
-    if time_slot == "hours":
-        return datetime.now() + timedelta(hours=time_count)
-    if time_slot == "days":
-        return datetime.now() + timedelta(days=time_count)
-
-
-# return static data for trade creation UI
-def load_static_data():
-    cursor = connection.cursor()
-    currencies = cursor.execute("SELECT * FROM currency")
-    duration = cursor.execute("SELECT * FROM duration")
-
-    data = dict()
-    data['currency'] = currencies
-    data['duration'] = duration
-    data['today_date'] = datetime.now().strftime("%Y-%m-%d")
-    data['time_now'] = datetime.now().strftime("%H:%M")
-    return data
-
-
-# check whether selected dates are greater than current date and time
-def validate_binary_trade_times(date_time):
-    if datetime.now() >= date_time:
-        return False
-    return True
-
-
-# convert date and time to system's format
-def make_date_time_stamp(date, time):
-    return datetime.strptime(date + " " + time + ":00", '%Y-%m-%d %H:%M:%S')
-
-
-# get user selected trade type
-def get_trade_type(purchase):
-    if purchase == 'Buy':
-        return 'buy'
-    return 'sell'
-
-
-# get the flag that determine trade start now or later
-def get_trade_status(start):
-    if start == "start now":
-        return Status.STARTED.value
-    return Status.PENDING.value
-
-
-# validate if the end date is greater start date
-def validate_def_start_end_dates(start_date, end_date):
-    if start_date >= end_date:
-        return "Trade closing date must be future date"
-    return ""
+    return datetime.now().strftime('%Y-%m-%d %H:%M:%S.') + mils + zone

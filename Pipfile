@@ -9,6 +9,7 @@ verify_ssl = true
 django = "*"
 django-cassandra-engine = "*"
 requests = "*"
+pytz = "*"
 
 [requires]
 python_version = "3.8"

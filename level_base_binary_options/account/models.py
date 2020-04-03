@@ -7,7 +7,7 @@ from django_cassandra_engine.models import DjangoCassandraModel
 
 # Create your models here.
 class UserTransactionsBinary(DjangoCassandraModel):
-    id = columns.UUID(primary_key=True, default=uuid.uuid4)
+    id = columns.UUID(primary_key=True)
     user_id = columns.UUID()
     created_date = columns.DateTime()
     trade_type = columns.Text()
@@ -38,4 +38,10 @@ class TransactionsByStatusBinary(DjangoCassandraModel):
     end_time = columns.DateTime()
     time_close = columns.DateTime()
     outcome = columns.Text()
+
+
+class UserTransactionsIdBinary(DjangoCassandraModel):
+    id = columns.UUID(default=uuid.uuid4)
+    user_id = columns.UUID(primary_key=True)
+    created_date = columns.DateTime()
 
