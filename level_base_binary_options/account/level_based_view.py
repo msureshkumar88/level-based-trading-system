@@ -39,8 +39,19 @@ def create_trade(req):
     trade_type = 'levels'
 
     price = Helper.get_current_price(currency)
-    error_messages = []
+
     trade_start_time = datetime.now()
+    error_messages = []
+    error_messages.extend(validate_currency(currency))
+    error_messages.extend(validate_pip_gaps(gap_pips))
+    error_messages.extend(validate_levels(select_level))
+    error_messages.extend(validate_time_to_close(time_to_close))
+    error_messages.extend(validate_closing_types(time_to_close, time_slot, time_count, end_date, end_time))
+    error_messages.extend(validate_amount(amount))
+
+    if error_messages:
+        # print(error_messages)
+        return error_messages
 
 
 def validate_currency(currency):
@@ -89,8 +100,10 @@ def validate_closing_types(time_to_close, time_slot, time_count, end_date, end_t
             return ['Please fill both trade end date and time']
     return []
 
+
 def validate_amount(amount):
     if not amount:
         return ['Please enter amount']
-    if float(amount)< 1:
+    if float(amount) < 1:
         return ['Amount should be greater than 0']
+    return []

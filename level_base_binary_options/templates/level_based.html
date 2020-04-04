@@ -4,6 +4,7 @@
 <div class="bd-example">
     <!--TODO: add a chart show the selected level-->
     <form name="" method="post">
+        {% csrf_token%}
         <select name="currency">
             <option value="">Select currency</option>
             {% for c in currency%}
