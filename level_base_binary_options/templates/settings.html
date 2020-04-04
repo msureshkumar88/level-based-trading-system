@@ -1,0 +1,74 @@
+{% extends 'guest_base.html'%}
+{%block heading%}Settings{%endblock%}
+{%block content%}
+<div class="bd-example">
+    <div class="row">
+        <h2>General details</h2>
+    </div>
+    <form method="post" action="">
+        {% csrf_token%}
+        <div class="form-group">
+            <label for="first_name">First name</label>
+            <input type="text" class="form-control" name="first_name" id="first_name" placeholder="Enter first name"/>
+        </div>
+        <div class="form-group">
+            <label for="last_name">Last name</label>
+            <input type="text" class="form-control" name="last_name" id="last_name" placeholder="Enter last name"/>
+        </div>
+        <div class="form-group">
+            <label for="mobile">Mobile</label>
+            <input type="text" class="form-control" name="mobile" id="mobile" placeholder="Enter mobile"/>
+        </div>
+        <div class="form-group">
+            <label for="address">Address</label>
+            <input type="text" class="form-control" name="address" id="address" placeholder="Enter full address"/>
+        </div>
+        <div class="form-group">
+            <label for="mobile">Country</label>
+            <select class="form-control" name="country" id="country">
+                <option value="" selected>Select Country</option>
+                <option value="ireland">Ireland</option>
+                <option value="uk">United Kingdom</option>
+            </select>
+        </div>
+        <button type="submit" name="action" class="btn btn-primary">Update</button>
+    </form>
+    <div class="row">
+        <h2>Password</h2>
+    </div>
+    <form method="post" action="">
+        {% csrf_token%}
+        <div class="form-group">
+            <label for="crrpassword">Current password</label>
+            <input type="password" class="form-control" name="crrpassword" id="crrpassword"
+                   placeholder="Enter current password"/>
+        </div>
+        <div class="form-group">
+            <label for="password">New password</label>
+            <input type="password" class="form-control" name="password" id="password" placeholder="Enter new password"/>
+        </div>
+        <div class="form-group">
+            <label for="repassword">Retype Password</label>
+            <input type="password" class="form-control" name="repassword" id="repassword"
+                   placeholder="Retype new password"/>
+        </div>
+        <button type="submit" name="action" class="btn btn-primary">Change password</button>
+    </form>
+    <div class="row">
+        <h2>Add funds</h2>
+    </div>
+    <form method="post" action="">
+        {% csrf_token%}
+        <div class="input-group">
+
+            <input type="text" class="form-control" placeholder="Input group example"
+                   aria-label="Input group example" aria-describedby="btnGroupAddon">
+            <div class="input-group-prepend">
+                <button class="input-group-text" id="btnGroupAddon">Deposit</button>
+            </div>
+        </div>
+    </form>
+
+
+</div>
+{% endblock%}
