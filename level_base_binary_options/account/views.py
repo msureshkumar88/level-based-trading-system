@@ -101,3 +101,16 @@ def create_trade(req):
     trades_by_status.save()
 
 
+def search(request):
+    ac = Authentication(request)
+    # if user is not logged in redirect to login page
+    if not ac.is_user_logged_in():
+        return redirect('/login')
+
+    data = dict()
+    if request.method == "POST":
+        pass
+
+    return render(request, 'level_trade_search.html', data)
+
+

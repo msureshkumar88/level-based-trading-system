@@ -1,0 +1,72 @@
+{% extends 'guest_base.html'%}
+{%block heading%}Trading dashboard{%endblock%}
+{%block content%}
+<div class="bd-example">
+    <div class="row">
+        <form action="" method="post">
+            <div class="row">
+                <div class="col">
+                    <select class="form-control" name="currency">
+                        <option value="">Select currency</option>
+                        {% for c in currency%}
+                        <option value="{{c.label}}">{{c.label}}</option>
+                        {%endfor%}
+                    </select>
+                </div>
+                <div class="col">
+                    <input class="form-control" type="date" name="end_date" placeholder="Select closing date">
+                </div>
+                <div class="col">
+                    <input class="form-control" type="time" name="end_time" placeholder="Select closing time">
+                </div>
+                <div class="col">
+                    <input class="form-control" type="number" min="0.1" value="min_price" placeholder="Enter min price"
+                           step="0.1">
+                </div>
+                <div class="col">
+                    <input class="form-control" type="number" min="0.1" value="max_price" placeholder="Enter max price"
+                           step="0.1">
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="row">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Currency</th>
+                <th scope="col">Amount</th><!--Only show matching currencies in account ex:- usd, eur-->
+                <th scope="col">Level</th>
+                <th scope="col">Closing</th><!--trade closing time-->
+                <th scope="col">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <th scope="row">1</th>
+                <td>EUR/USD</td>
+                <td>$50</td>
+                <td>
+                    <select class="form-control" name="selected_level"> <!--TODO: show only available levels-->
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+
+                    </select>
+                </td>
+                <td>2020-04-05 15:05:06</td>
+                <td>
+                    <button type="button" class="btn btn-primary">View</button><!--TODO:view trade on the chart-->
+                    <button type="button" class="btn btn-success">Buy</button>
+                    <!--TODO:buy or sell according to the trade-->
+                </td>
+            </tr>
+
+
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock%}
