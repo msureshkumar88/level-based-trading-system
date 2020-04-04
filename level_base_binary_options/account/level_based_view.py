@@ -10,6 +10,9 @@ from .models import UserTransactionsBinary
 from .models import TransactionsByStatusBinary
 from utilities.trading import Trading
 
+import re
+import decimal
+
 
 def levels(request):
     ac = Authentication(request)
@@ -36,6 +39,7 @@ def create_trade(req):
     purchase = post['purchase']
     gap_pips = post['gap_pips']
     select_level = post['select_level']
+    purchase = post['purchase']
     trade_type = 'levels'
 
     price = Helper.get_current_price(currency)
@@ -107,3 +111,59 @@ def validate_amount(amount):
     if float(amount) < 1:
         return ['Amount should be greater than 0']
     return []
+
+
+def calculate_levels(currency, gap, purchase):
+    # get the current price
+    price = Helper.get_current_price(currency)
+
+    # get number of decimal points - returned a negative value
+    d = decimal.Decimal(price)
+
+    # convert negative number of decimal points to positive
+    decimal_point = abs(d.as_tuple().exponent)
+
+    # create dynamic decimal point regex
+    reg = "{:." + str(decimal_point) + "f}"
+
+    price_list = []
+    for p in range(1, 6):
+        # as similar gaps between levels, multiply gap by each level upto 4 levels
+        gap_multiplied = int(gap) * p
+
+        # convert integer gap to matching float value by price
+        price_to_add = gap_pips_to_float(price, gap_multiplied)
+
+        level_price = ""
+        if purchase == 'Buy':
+            # if purchase is buy then add gap value
+            level_price = float(price) + float(price_to_add)
+        if purchase == 'Sell':
+            # if purchase is sell then subtract gap value
+            level_price = float(price) - float(price_to_add)
+        # format new price level decimal point the same as original price
+        price_list.append(reg.format(level_price))
+    return price_list
+
+
+##
+#  replace all the digits with 0
+#  convert 1.25360 as 0.00000
+def price_to_zeroes(price):
+    return re.sub(r"[0-9]", "0", str(price))
+
+
+##
+# convert integer gap to matching float value by price
+# convert gap 10 pips as 0.00010
+def gap_pips_to_float(price, pips):
+    # convert float price to string
+    pips = str(pips)
+
+    # replace all the digits with 0
+    zero_priced = price_to_zeroes(price)
+
+    # remove last few digits dynamically according count of digits in the gap
+    # add gap number to the end
+    # convert gap 10 pips as 0.00010
+    return zero_priced[:-len(pips)] + pips
