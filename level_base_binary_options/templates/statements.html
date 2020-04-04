@@ -1,0 +1,74 @@
+{% extends 'guest_base.html'%}
+{%block heading%}Statements{%endblock%}
+{%block content%}
+<div class="bd-example">
+    <div class="row">
+        <form action="" method="post">
+            <div class="row">
+                <div class="col">
+                    <select class="form-control" name="status">
+                        <option value="">Select status</option>
+
+                        <option value="pending">Pending</option>
+
+                    </select>
+                </div>
+                <div class="col">
+                    <select class="form-control" name="outcome">
+                        <option value="">Select outcome</option>
+                        <option value="won">Won</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <input class="form-control" type="date" name="start_date" placeholder="Select start date">
+                </div>
+                <div class="col">
+                    <input class="form-control" type="date" name="end_date" placeholder="Select end time">
+                </div>
+                <div class="col">
+                    <input class="form-control" type="number" min="0.1" value="min_price" placeholder="Enter min price"
+                           step="0.1">
+                </div>
+                <div class="col">
+                    <input class="form-control" type="number" min="0.1" value="max_price" placeholder="Enter max price"
+                           step="0.1">
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="row">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Opened date</th>
+                <th scope="col">Currency</th><!--Only show matching currencies in account ex:- usd, eur-->
+                <th scope="col">Amount</th>
+                <th scope="col">Type</th><!--trade closing time-->
+                <th scope="col">Status</th>
+                <th scope="col">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <th scope="row">1</th>
+                <td>2020-04-05 15:05:06</td>
+                <td>EUR/USD</td>
+                <td>$50</td>
+                <td>Binary</td><!--binary or level based -->
+                <td>Pending</td><!--Pending, started , closed-->
+                <td>
+                    <button type="button" class="btn btn-primary">More</button>
+                    <!--TODO:model showing more detail of the trade-->
+                    <button type="button" class="btn btn-success">View</button><!--TODO:view trade on the chart-->
+                    <button type="button" class="btn btn-danger">Close</button>
+                    <!--TODO: allow only binary trades to close-->
+                </td>
+            </tr>
+
+
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock%}

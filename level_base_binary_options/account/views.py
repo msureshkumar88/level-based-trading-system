@@ -114,3 +114,15 @@ def search(request):
     return render(request, 'level_trade_search.html', data)
 
 
+def statements(request):
+    ac = Authentication(request)
+    # if user is not logged in redirect to login page
+    if not ac.is_user_logged_in():
+        return redirect('/login')
+
+    data = dict()
+    if request.method == "POST":
+        pass
+
+    return render(request, 'statements.html', data)
+
