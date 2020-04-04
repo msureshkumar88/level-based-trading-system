@@ -32,7 +32,9 @@
             <select name="time_slot">
                 <option value="">Select duration</option>
                 {% for c in duration%}
-                <option value="{{c.name}}">{{c.label}}</option>
+                    {% if c.name != 'seconds'%}
+                    <option value="{{c.name}}">{{c.label}}</option>
+                    {%endif%}
                 {%endfor%}
             </select><input type="text" name="time_count" placeholder="units">
         </div>
