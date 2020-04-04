@@ -11,5 +11,6 @@ urlpatterns = [
     path('account/search_trades', views.search, name='search'),
     path('account/statements', views.statements, name='statements'),
     path('account/settings', views.settings, name='settings'),
+    path('account/charts', views.charts, name='charts'),
 ]
 
