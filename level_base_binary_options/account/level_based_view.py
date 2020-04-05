@@ -52,7 +52,14 @@ def create_trade(req):
     error_messages.extend(validate_time_to_close(time_to_close))
     error_messages.extend(validate_closing_types(time_to_close, time_slot, time_count, end_date, end_time))
     error_messages.extend(validate_amount(amount))
-
+    # price_to_zeroes(str(1.02065))
+    # gap_pips_to_float(str(1.02065),str(10))
+    # return
+    # print(calculate_levels(currency, gap_pips, purchase))
+    # final method to get selected levels
+    # print(get_price_range_by_level(currency, gap_pips, purchase))
+    print(get_selected_level(select_level, currency, gap_pips, purchase))
+    return
     if error_messages:
         # print(error_messages)
         return error_messages
@@ -113,10 +120,33 @@ def validate_amount(amount):
     return []
 
 
-def calculate_levels(currency, gap, purchase):
-    # get the current price
-    price = Helper.get_current_price(currency)
+def get_selected_level(level, currency, gap, purchase):
+    level_gaps = get_price_range_by_level(currency, gap, purchase)
+    return list(filter(lambda person: person['level'] == int(level), level_gaps))[0]
 
+
+##
+# [{'level': 1, 'range': ['1.00000', '1.00010']}, {'level': 2, 'range': ['1.00010', '1.00020']},
+# {'level': 3, 'range': ['1.00020', '1.00030']}, {'level': 4, 'range': ['1.00030', '1.00040']}]
+def get_price_range_by_level(currency, gap, purchase):
+    level_gaps = []
+    price = Helper.get_current_price(currency)
+    price_gaps = calculate_levels(price, gap, purchase)
+
+    # ['1.00010', '1.00020', '1.00030', '1.00040']
+    for p in range(1, 5):
+        gap = dict()
+        gap["level"] = p
+        if p == 1:
+            gap["range"] = [price, price_gaps[0]]
+            level_gaps.append(gap)
+            continue
+        gap["range"] = [price_gaps[p - 2], price_gaps[p - 1]]
+        level_gaps.append(gap)
+    return level_gaps
+
+
+def calculate_levels(price, gap, purchase):
     # get number of decimal points - returned a negative value
     d = decimal.Decimal(price)
 
@@ -127,7 +157,7 @@ def calculate_levels(currency, gap, purchase):
     reg = "{:." + str(decimal_point) + "f}"
 
     price_list = []
-    for p in range(1, 6):
+    for p in range(1, 5):
         # as similar gaps between levels, multiply gap by each level upto 4 levels
         gap_multiplied = int(gap) * p
 
