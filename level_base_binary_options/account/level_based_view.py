@@ -44,6 +44,8 @@ def create_trade(req):
     start_time = datetime.now()
 
     price = Helper.get_current_price(currency)
+    ac = Authentication(req)
+    user_id = ac.get_user_session()
 
     trade_start_time = datetime.now()
     error_messages = []
@@ -52,7 +54,7 @@ def create_trade(req):
     error_messages.extend(validate_levels(select_level))
     error_messages.extend(validate_time_to_close(time_to_close))
     error_messages.extend(validate_closing_types(time_to_close, time_slot, time_count, end_date, end_time))
-    error_messages.extend(validate_amount(amount))
+    error_messages.extend(validate_amount(amount,user_id))
     error_messages.extend(validated_end_date(time_to_close, end_date, end_time, time_slot, time_count, start_time))
     # price_to_zeroes(str(1.02065))
     # gap_pips_to_float(str(1.02065),str(10))
@@ -117,11 +119,15 @@ def validate_closing_types(time_to_close, time_slot, time_count, end_date, end_t
     return []
 
 
-def validate_amount(amount):
+def validate_amount(amount, user_id):
     if not amount:
         return ['Please enter amount']
-    if float(amount) < 1:
+    amount = float(amount)
+    if amount < 1:
         return ['Amount should be greater than 0']
+    user = Helper.get_user_by_id(user_id)
+    if user['vcurrency'] < amount:
+        return ['Do not have enough fund please add funds']
     return []
 
 
