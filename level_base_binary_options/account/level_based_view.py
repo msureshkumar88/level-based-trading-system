@@ -41,6 +41,7 @@ def create_trade(req):
     select_level = post['select_level']
     purchase = post['purchase']
     trade_type = 'levels'
+    start_time = datetime.now()
 
     price = Helper.get_current_price(currency)
 
@@ -52,13 +53,17 @@ def create_trade(req):
     error_messages.extend(validate_time_to_close(time_to_close))
     error_messages.extend(validate_closing_types(time_to_close, time_slot, time_count, end_date, end_time))
     error_messages.extend(validate_amount(amount))
+    error_messages.extend(validated_end_date(time_to_close, end_date, end_time, time_slot, time_count, start_time))
     # price_to_zeroes(str(1.02065))
     # gap_pips_to_float(str(1.02065),str(10))
     # return
     # print(calculate_levels(currency, gap_pips, purchase))
     # final method to get selected levels
     # print(get_price_range_by_level(currency, gap_pips, purchase))
-    print(get_selected_level(select_level, currency, gap_pips, purchase))
+    # print(get_selected_level(select_level, currency, gap_pips, purchase))
+    # final method to get trade closing time
+    # print(get_trade_end_time(time_to_close, end_date, end_time, time_slot, time_count, start_time))
+    print(error_messages)
     return
     if error_messages:
         # print(error_messages)
@@ -117,6 +122,24 @@ def validate_amount(amount):
         return ['Please enter amount']
     if float(amount) < 1:
         return ['Amount should be greater than 0']
+    return []
+
+
+def validated_end_date(time_to_close, end_date, end_time, time_slot, time_count, start_time):
+    if time_to_close == 'end_time':
+        end_time = Trading.make_date_time_stamp(end_date, end_time)
+        if not Trading.validate_binary_trade_times(end_time):
+            return ["Trade ending date should be a future date"]
+        minutes_diff = (end_time - start_time).total_seconds() / 60.0
+        if minutes_diff < 15:
+            return ["The trade closing date should be place at lease 15 minutes in the future"]
+        return []
+
+    time_count = int(time_count)
+    if time_count < 1:
+        return ["the duration should be at lease 1"]
+    if (time_slot == "minutes" and time_count < 15):
+        return ["When minutes are selected the duration should be at least 15"]
     return []
 
 
@@ -197,3 +220,20 @@ def gap_pips_to_float(price, pips):
     # add gap number to the end
     # convert gap 10 pips as 0.00010
     return zero_priced[:-len(pips)] + pips
+
+
+# generate ending time
+def get_trade_end_time(time_to_close, date, time, time_slot, time_count, start_time):
+    if time_to_close == 'end_time':
+        if Trading.validate_binary_trade_times(Trading.make_date_time_stamp(date, time)):
+            return Trading.make_date_time_stamp(date, time)
+        return ""
+    time_count = int(time_count)
+    if (time_slot == "minutes" and time_count < 15) or time_count < 1:
+        return ""
+    if time_slot == "minutes":
+        return start_time + timedelta(minutes=time_count)
+    if time_slot == "hours":
+        return start_time + timedelta(hours=time_count)
+    if time_slot == "days":
+        return start_time + timedelta(days=time_count)
