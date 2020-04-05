@@ -64,8 +64,9 @@ def create_trade(req):
     # print(get_price_range_by_level(currency, gap_pips, purchase))
     # print(get_selected_level(select_level, currency, gap_pips, purchase))
     # final method to get trade closing time
-    # print(get_trade_end_time(time_to_close, end_date, end_time, time_slot, time_count, start_time))
-    print(error_messages)
+    trade_closing_time = get_trade_end_time(time_to_close, end_date, end_time, time_slot, time_count, start_time)
+    changes_allowed_time = Trading.get_trade_changing_blocked_time(start_time, trade_closing_time)
+    print(changes_allowed_time)
     return
     if error_messages:
         # print(error_messages)

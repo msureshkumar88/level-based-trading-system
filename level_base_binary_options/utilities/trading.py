@@ -89,3 +89,9 @@ class Trading:
         if start_date >= end_date:
             return "Trade closing date must be future date"
         return ""
+
+    @classmethod
+    # generate middle time between trade start and end time
+    # after this time edit trade is not allowed
+    def get_trade_changing_blocked_time(cls, start_date, end_date):
+        return start_date + (end_date - start_date) / 2
