@@ -95,3 +95,18 @@ class Trading:
     # after this time edit trade is not allowed
     def get_trade_changing_blocked_time(cls, start_date, end_date):
         return start_date + (end_date - start_date) / 2
+
+    @classmethod
+    # validate binary options trade start date and time
+    def validate_start_date(cls, start, start_date, start_time):
+        if start == "start later":
+            if not start_date and not start_time:
+                return ["please select trade start date and time "]
+            if not start_date:
+                return ["Please select trade start date"]
+            if not start_time:
+                return ["Please select trade start time"]
+        return []
+
+   
+
