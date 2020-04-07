@@ -19,9 +19,8 @@ class Trading:
     @classmethod
     def get_trade_end_time(cls, time_to_close, date, time, time_slot, time_count, start, start_time):
         if time_to_close == 'end_time':
-            if Trading.validate_binary_trade_times(Trading.make_date_time_stamp(date, time)):
-                return Trading.make_date_time_stamp(date, time)
-            return ""
+            return Trading.make_date_time_stamp(date, time)
+
         time_count = int(time_count)
         adding_time = datetime.now()
         if start == "start later":
@@ -88,8 +87,8 @@ class Trading:
         print(start_date)
         print(end_date)
         if start_date >= end_date:
-            return "Trade closing date must be future date"
-        return ""
+            return ["Trade closing date must be future date"]
+        return []
 
     @classmethod
     # generate middle time between trade start and end time

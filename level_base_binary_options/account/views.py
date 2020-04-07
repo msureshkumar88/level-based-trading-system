@@ -53,26 +53,17 @@ def create_trade(req):
     ac = Authentication(req)
     user_id = ac.get_user_session()
 
-    # if not trade_start_time:
-    #     error_messages.append("Invalid start date and time")
-
     # error_messages.extend(Trading.validate_start_date(start,start_date, start_time))
     # error_messages.extend(Trading.validate_currency(currency))
     # error_messages.extend(Trading.validate_time_to_close(time_to_close))
     # error_messages.extend(Trading.validate_closing_types(time_to_close, time_slot, time_count, end_date, end_time))
     # error_messages.extend(Trading.validate_amount(amount, user_id))
-    print(error_messages)
-    return
     trade_start_time = Trading.get_trade_start_time(start, start_date, start_time)
-
     trade_end_time = Trading.get_trade_end_time(time_to_close, end_date, end_time, time_slot, time_count, start,
                                                 trade_start_time)
-    if not trade_end_time:
-        error_messages.append("Invalid end date and time")
 
-    if Trading.validate_def_start_end_dates(trade_start_time, trade_end_time):
-        error_messages.append("Trade closing date must be future date")
-
+    error_messages.extend(Trading.validate_def_start_end_dates(trade_start_time, trade_end_time))
+    
     purchase_type = Trading.get_trade_type(purchase)
     status = Trading.get_trade_status(start)
 
@@ -80,8 +71,6 @@ def create_trade(req):
     if error_messages:
         return error_messages
     # create new binary trade here
-    ac = Authentication(req)
-    user_id = ac.get_user_session()
 
     time_now = Helper.get_current_time_formatted()
     date_time_now = datetime.now()
