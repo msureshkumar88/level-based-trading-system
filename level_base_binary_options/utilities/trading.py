@@ -108,5 +108,10 @@ class Trading:
                 return ["Please select trade start time"]
         return []
 
-   
+    @classmethod
+    # validate currency selection
+    def validate_currency(cls,currency):
+        if not currency:
+            return ['Please select a currency pair']
+        return []
 

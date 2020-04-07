@@ -60,7 +60,7 @@ def create_trade(req):
 
     trade_start_time = datetime.now()
     error_messages = []
-    error_messages.extend(validate_currency(currency))
+    error_messages.extend(Trading.validate_currency(currency))
     error_messages.extend(validate_pip_gaps(gap_pips))
     error_messages.extend(validate_levels(select_level))
     error_messages.extend(validate_time_to_close(time_to_close))
@@ -150,12 +150,6 @@ def create_trade(req):
                                                        level_pips=int(gap_pips), outcome=Outcome.NONE.value)
     users_owned_levels_status.save()
     return True
-
-
-def validate_currency(currency):
-    if not currency:
-        return ['Please select a currency pair']
-    return []
 
 
 def validate_pip_gaps(gap):
