@@ -72,9 +72,10 @@ def create_trade(req):
         return error_messages
     # create new binary trade here
 
-    time_now = Helper.get_current_time_formatted()
-    date_time_now = datetime.now()
-    use_trade = UserTransactionsIdBinary(user_id=user_id, created_date=date_time_now)
+    time_now_formatted = Helper.get_current_time_formatted()
+    time_now = datetime.strptime(time_now_formatted, '%Y-%m-%d %H:%M:%S.%f%z')
+
+    use_trade = UserTransactionsIdBinary(user_id=user_id, created_date=time_now)
 
     use_trade.save()
 
@@ -82,18 +83,18 @@ def create_trade(req):
     # print(new_d)
     # return
     cursor = connection.cursor()
-    q = f"SELECT * FROM user_transactions_id_binary WHERE user_id = {user_id} and created_date = '{time_now}'"
+    q = f"SELECT * FROM user_transactions_id_binary WHERE user_id = {user_id} and created_date = '{time_now_formatted}'"
     # print(q)
 
     transaction_id = cursor.execute(q)
     transaction_id = transaction_id[0]["id"]
 
-    trade = UserTransactionsBinary(id=transaction_id, user_id=user_id, created_date=date_time_now,
+    trade = UserTransactionsBinary(id=transaction_id, user_id=user_id, created_date=time_now,
                                    trade_type=trade_type, purchase_type=purchase_type,
                                    currency=currency, staring_price=price, amount=float(amount),
                                    start_time=trade_start_time, end_time=trade_end_time, status=status)
     trade.save()
-    trades_by_status = TransactionsByStatusBinary(id=transaction_id, user_id=user_id, created_date=date_time_now,
+    trades_by_status = TransactionsByStatusBinary(id=transaction_id, user_id=user_id, created_date=time_now,
                                                   trade_type=trade_type, purchase_type=purchase_type,
                                                   currency=currency, staring_price=price, amount=float(amount),
                                                   start_time=trade_start_time, end_time=trade_end_time, status=status)
