@@ -1,5 +1,8 @@
 from django.shortcuts import render, redirect
 from utilities.authentication import Authentication
+from utilities.helper import Helper
+
+from guest.models import UserById
 
 
 def settings(request):
@@ -8,16 +11,23 @@ def settings(request):
     if not ac.is_user_logged_in():
         return redirect('/login')
 
-    data = dict()
+    ac = Authentication(request)
+    user_id = ac.get_user_session()
+
     if request.method == "POST":
         action = request.POST['action']
         if action == "Update":
-            update_settings(request)
+            update_settings(request, user_id)
+
+    user_data = Helper.get_user_by_id(user_id)
+    data = dict()
+    data['user_data'] = user_data
+    data['countries'] = Helper.get_countries()
 
     return render(request, 'settings.html', data)
 
 
-def update_settings(request):
+def update_settings(request, user_id):
     first_name = request.POST['first_name']
     last_name = request.POST['last_name']
     mobile = request.POST['mobile']
@@ -33,8 +43,9 @@ def update_settings(request):
 
     if error_messages:
         return error_messages
-
-
+    user_settings = UserById(id=user_id, fname=first_name, lname=last_name, mobile=mobile, country=country,
+                             address=address)
+    user_settings.update()
 
 
 def validate_first_name(first_name):

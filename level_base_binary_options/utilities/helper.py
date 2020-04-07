@@ -65,3 +65,9 @@ class Helper:
         cursor = connection.cursor()
         user = cursor.execute("SELECT * FROM user_by_id where id =" + user_id)
         return user[0]
+
+    @classmethod
+    def get_countries(cls):
+        cursor = connection.cursor()
+        country = cursor.execute("SELECT * FROM country")
+        return country
