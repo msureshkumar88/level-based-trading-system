@@ -4,17 +4,16 @@ from utilities.helper import Helper
 
 from datetime import datetime
 
-
 from .models import UserById
 from .models import UserCredential
 from django.http import HttpResponse
 
 from django.db import connection
 
+
 # Create your views here.
 
 def home(request):
-
     return render(request, 'home.html')
 
 
@@ -39,9 +38,8 @@ def login(request):
         cursor = connection.cursor()
 
         # check whether user exists in the DB
-        user = cursor.execute("SELECT id  FROM user_credential where email =" + "'" + email + "' and password = " + "'" + password_encrypted + "'" )
-
-        if user:
+        user = cursor.execute("SELECT *  FROM user_credential where email =" + "'" + email + "' ")
+        if user[0]['password'] == Helper.password_encrypt(password):
             # get loged user details
             q = f"SELECT *  FROM user_by_id where id = {user[0]['id']}";
             user = cursor.execute(q)
@@ -53,7 +51,6 @@ def login(request):
             return redirect('/account')
 
         data['message'] = "User does not exists"
-
 
         # return render(request, 'login.html', data)
         # request.session['email'] = email
@@ -79,6 +76,7 @@ def login(request):
 
     return render(request, 'login.html', data)
 
+
 def register(request):
     if request.method == "POST":
         username = request.POST['username']
@@ -93,15 +91,12 @@ def register(request):
         currency = request.POST['currency']
         virtual_currency = request.POST['virtual_currency']
 
-
-
         # return render(request, 'register.html')
 
         # TODO - add validations
 
         # insert = User(email = email, address = address, password = password, country = country,currency = currency, fname = first_name,lname =last_name, mobile = mobile, username = username,  vcurrency = virtual_currency)
         # insert.save()
-
 
         # user_id = ""
         # try:
@@ -122,7 +117,9 @@ def register(request):
             user_id = user_id.get().id
 
             # save user general details
-            new_user = UserById(id = user_id, email=email, address = address, country = country,currency = currency, fname = first_name,lname =last_name, mobile = mobile, vcurrency = virtual_currency, created_date = datetime.now())
+            new_user = UserById(id=user_id, email=email, address=address, country=country, currency=currency,
+                                fname=first_name, lname=last_name, mobile=mobile, vcurrency=virtual_currency,
+                                created_date=datetime.now())
             new_user.save()
 
     data = dict()

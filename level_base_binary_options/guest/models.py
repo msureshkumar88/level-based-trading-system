@@ -22,7 +22,7 @@ class UserById(DjangoCassandraModel):
 
 
 class UserCredential(DjangoCassandraModel):
-    id = columns.UUID(primary_key=True, default=uuid.uuid4)
-    email = columns.Text(required=True)
-    username = columns.Text(required=True)
-    password = columns.Text(required=True)
+    id = columns.UUID(default=uuid.uuid4)
+    email = columns.Text(primary_key=True)
+    username = columns.Text()
+    password = columns.Text()
