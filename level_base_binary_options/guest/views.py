@@ -39,7 +39,11 @@ def login(request):
 
         # check whether user exists in the DB
         user = cursor.execute("SELECT *  FROM user_credential where email =" + "'" + email + "' ")
-        if user[0]['password'] == Helper.password_encrypt(password):
+
+        if not user:
+            data['message'] = "User does not exists"
+
+        if user and user[0]['password'] == Helper.password_encrypt(password):
             # get loged user details
             q = f"SELECT *  FROM user_by_id where id = {user[0]['id']}";
             user = cursor.execute(q)
@@ -50,7 +54,7 @@ def login(request):
             print(ac.get_user_session())
             return redirect('/account')
 
-        data['message'] = "User does not exists"
+        data['message'] = "invalid password"
 
         # return render(request, 'login.html', data)
         # request.session['email'] = email
