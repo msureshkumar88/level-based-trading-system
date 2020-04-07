@@ -53,17 +53,17 @@ def create_trade(req):
     ac = Authentication(req)
     user_id = ac.get_user_session()
 
-    # error_messages.extend(Trading.validate_start_date(start,start_date, start_time))
-    # error_messages.extend(Trading.validate_currency(currency))
-    # error_messages.extend(Trading.validate_time_to_close(time_to_close))
-    # error_messages.extend(Trading.validate_closing_types(time_to_close, time_slot, time_count, end_date, end_time))
-    # error_messages.extend(Trading.validate_amount(amount, user_id))
+    error_messages.extend(Trading.validate_start_date(start, start_date, start_time))
+    error_messages.extend(Trading.validate_currency(currency))
+    error_messages.extend(Trading.validate_time_to_close(time_to_close))
+    error_messages.extend(Trading.validate_closing_types(time_to_close, time_slot, time_count, end_date, end_time))
+    error_messages.extend(Trading.validate_amount(amount, user_id))
     trade_start_time = Trading.get_trade_start_time(start, start_date, start_time)
     trade_end_time = Trading.get_trade_end_time(time_to_close, end_date, end_time, time_slot, time_count, start,
                                                 trade_start_time)
 
     error_messages.extend(Trading.validate_def_start_end_dates(trade_start_time, trade_end_time))
-    
+
     purchase_type = Trading.get_trade_type(purchase)
     status = Trading.get_trade_status(start)
 
@@ -151,5 +151,3 @@ def charts(request):
         pass
 
     return render(request, 'charts.html', data)
-
-
