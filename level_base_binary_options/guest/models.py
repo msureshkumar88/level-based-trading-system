@@ -17,6 +17,7 @@ class UserById(DjangoCassandraModel):
     fname = columns.Text()
     lname = columns.Text()
     mobile = columns.Text()
+    email = columns.Text()
     vcurrency = columns.Float()
 
 

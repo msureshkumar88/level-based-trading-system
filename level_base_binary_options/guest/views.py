@@ -122,7 +122,10 @@ def register(request):
             user_id = user_id.get().id
 
             # save user general details
-            new_user = UserById(id = user_id, address = address, country = country,currency = currency, fname = first_name,lname =last_name, mobile = mobile, vcurrency = virtual_currency, created_date = datetime.now())
+            new_user = UserById(id = user_id, email=email, address = address, country = country,currency = currency, fname = first_name,lname =last_name, mobile = mobile, vcurrency = virtual_currency, created_date = datetime.now())
             new_user.save()
 
-    return render(request, 'register.html')
+    data = dict()
+    data['countries'] = Helper.get_countries()
+
+    return render(request, 'register.html', data)
