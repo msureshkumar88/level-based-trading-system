@@ -128,9 +128,6 @@ def statements(request):
     return render(request, 'statements.html', data)
 
 
-
-
-
 def charts(request):
     ac = Authentication(request)
     # if user is not logged in redirect to login page
@@ -142,3 +139,9 @@ def charts(request):
         pass
 
     return render(request, 'charts.html', data)
+
+
+def logout(request):
+    ac = Authentication(request)
+    ac.logout()
+    return redirect('/login')

@@ -14,5 +14,6 @@ urlpatterns = [
     path('account/statements', views.statements, name='statements'),
     path('account/settings', setting_view.settings, name='settings'),
     path('account/charts', views.charts, name='charts'),
+    path('account/logout', views.logout, name='logout'),
 ]
 
