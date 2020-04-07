@@ -3,6 +3,7 @@ from utilities.authentication import Authentication
 from utilities.helper import Helper
 
 from guest.models import UserById
+from django.db import connection
 
 
 def settings(request):
@@ -18,6 +19,8 @@ def settings(request):
         action = request.POST['action']
         if action == "Update":
             update_settings(request, user_id)
+        if action == "Change password":
+            update_password(request, user_id)
 
     user_data = Helper.get_user_by_id(user_id)
     data = dict()
@@ -48,6 +51,19 @@ def update_settings(request, user_id):
     user_settings.update()
 
 
+def update_password(request, user_id):
+    crrpassword = request.POST['crrpassword']
+    password = request.POST['password']
+    repassword = request.POST['repassword']
+    error_message = []
+    error_message.extend(validate_current_password(crrpassword, user_id))
+    error_message.extend(validate_new_password(password, repassword))
+
+    if error_message:
+        return error_message
+
+
+
 def validate_first_name(first_name):
     if not first_name:
         return ["Please enter first name"]
@@ -75,4 +91,31 @@ def validate_address(address):
 def validate_country(country):
     if not country:
         return ["Please enter mobile"]
+    return []
+
+
+def validate_current_password(password, user_id):
+    if not password:
+        return ["Current password cannot be empty"]
+    user_data = Helper.get_user_by_id(user_id)
+    password = Helper.password_encrypt(password)
+
+    q = f"SELECT * FROM user_credential WHERE email = '{user_data['email']}' AND password = '{password}'"
+    cursor = connection.cursor()
+    result = cursor.execute(q)
+
+    if not result:
+        return ["Current password is invalid please reenter"]
+    return []
+
+
+def validate_new_password(pass1, pass2):
+    if not pass1 and not pass2:
+        return ["Please enter both new password and retype password"]
+    if not pass1:
+        return ["Please enter new password"]
+    if not pass2:
+        return ["please retype password"]
+    if pass1 != pass2:
+        return ["new and retype password do not match"]
     return []
