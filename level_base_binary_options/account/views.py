@@ -55,7 +55,9 @@ def create_trade(req):
     #     error_messages.append("Invalid start date and time")
 
     # error_messages.extend(Trading.validate_start_date(start,start_date, start_time))
-    error_messages.extend(Trading.validate_currency(currency))
+    # error_messages.extend(Trading.validate_currency(currency))
+    error_messages.extend(Trading.validate_time_to_close(time_to_close))
+    error_messages.extend(Trading.validate_closing_types(time_to_close, time_slot, time_count, end_date, end_time))
     print(error_messages)
     return
     trade_start_time = Trading.get_trade_start_time(start, start_date, start_time)

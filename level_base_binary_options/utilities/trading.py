@@ -115,3 +115,29 @@ class Trading:
             return ['Please select a currency pair']
         return []
 
+    @classmethod
+    # validate trade closing time selection
+    def validate_time_to_close(cls, time_to_close):
+        if not time_to_close:
+            return ['Please select a closing type']
+        return []
+
+    @classmethod
+    # validate each trade closing option
+    def validate_closing_types(cls, time_to_close, time_slot, time_count, end_date, end_time):
+        if time_to_close == "duration":
+            if not time_slot and not time_count:
+                return ['Please fill both type of end time and duration units']
+            if not time_slot:
+                return ['Please select a type of duration']
+            if not time_count:
+                return ['Please enter end duration']
+        if time_to_close == "end_time":
+            if not end_date and not end_time:
+                return ['Please fill both trade end date and time']
+            if not end_date:
+                return ['Please fill trade end date']
+            if not end_time:
+                return ['Please fill trade end time']
+        return []
+
