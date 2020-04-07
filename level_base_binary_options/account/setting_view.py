@@ -3,6 +3,7 @@ from utilities.authentication import Authentication
 from utilities.helper import Helper
 
 from guest.models import UserById
+from guest.models import UserCredential
 from django.db import connection
 
 
@@ -56,12 +57,17 @@ def update_password(request, user_id):
     password = request.POST['password']
     repassword = request.POST['repassword']
     error_message = []
-    error_message.extend(validate_current_password(crrpassword, user_id))
-    error_message.extend(validate_new_password(password, repassword))
+    user_data = Helper.get_user_by_id(user_id)
 
+    error_message.extend(validate_current_password(crrpassword, user_data['email']))
+    error_message.extend(validate_new_password(password, repassword))
+    print(error_message)
     if error_message:
         return error_message
 
+    new_pass = Helper.password_encrypt(password)
+    q = UserCredential(email=user_data['email'], password=new_pass)
+    q.update()
 
 
 def validate_first_name(first_name):
@@ -94,17 +100,15 @@ def validate_country(country):
     return []
 
 
-def validate_current_password(password, user_id):
+def validate_current_password(password, email):
     if not password:
         return ["Current password cannot be empty"]
-    user_data = Helper.get_user_by_id(user_id)
     password = Helper.password_encrypt(password)
 
-    q = f"SELECT * FROM user_credential WHERE email = '{user_data['email']}' AND password = '{password}'"
+    q = f"SELECT * FROM user_credential WHERE email = '{email}'"
     cursor = connection.cursor()
     result = cursor.execute(q)
-
-    if not result:
+    if result[0]['password'] != password:
         return ["Current password is invalid please reenter"]
     return []
 
