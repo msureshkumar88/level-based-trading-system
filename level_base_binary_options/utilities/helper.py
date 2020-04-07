@@ -5,6 +5,7 @@ import time
 import pytz
 from time import gmtime, strftime
 from datetime import datetime
+from django.db import connection
 
 
 class Helper:
@@ -25,6 +26,7 @@ class Helper:
     @classmethod
     def get_current_price(cls, currency):
         # TODO: check this function to get the value from database
+        # TODO: change this function to work with get_current_price_instance
         with requests.Session() as s:
             download = s.get(Helper.fx_request_url(currency))
 
@@ -47,3 +49,19 @@ class Helper:
         if strftime("%z", gmtime()) == "-0000":
             zone = "+0000"
         return datetime.now().strftime('%Y-%m-%d %H:%M:%S.') + mils + zone
+
+    @classmethod
+    def get_time_formatted(cls, date_time):
+        time_now = date_time.now(pytz.utc)
+        mils = time_now.strftime('%f')[:-3]
+        zone = strftime("%z", gmtime())
+        if strftime("%z", gmtime()) == "-0000":
+            zone = "+0000"
+        return date_time.now().strftime('%Y-%m-%d %H:%M:%S.') + mils + zone
+
+    @classmethod
+    # returns user details by user_id
+    def get_user_by_id(cls, user_id):
+        cursor = connection.cursor()
+        user = cursor.execute("SELECT * FROM user_by_id where id =" + user_id)
+        return user[0]

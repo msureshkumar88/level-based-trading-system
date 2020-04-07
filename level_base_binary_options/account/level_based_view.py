@@ -6,12 +6,23 @@ from datetime import datetime
 from datetime import timedelta
 
 from utilities.helper import Helper
-from .models import UserTransactionsBinary
-from .models import TransactionsByStatusBinary
+
+from .models import LevelBasedById
+from .models import UsersOwnedLevels
+from .models import LevelBasedByStatus
+from .models import UsersOwnedLevelsStatus
+from .models import UserTransactionsIdLevels
+
 from utilities.trading import Trading
+from utilities.trade_status import Status
+from utilities.trade_outcome import Outcome
+
+from django.db import connection
 
 import re
 import decimal
+
+import json
 
 
 def levels(request):
@@ -54,23 +65,91 @@ def create_trade(req):
     error_messages.extend(validate_levels(select_level))
     error_messages.extend(validate_time_to_close(time_to_close))
     error_messages.extend(validate_closing_types(time_to_close, time_slot, time_count, end_date, end_time))
-    error_messages.extend(validate_amount(amount,user_id))
+    error_messages.extend(validate_amount(amount, user_id))
     error_messages.extend(validated_end_date(time_to_close, end_date, end_time, time_slot, time_count, start_time))
     # price_to_zeroes(str(1.02065))
     # gap_pips_to_float(str(1.02065),str(10))
     # return
     # print(calculate_levels(currency, gap_pips, purchase))
     # final method to get selected levels
-    # print(get_price_range_by_level(currency, gap_pips, purchase))
-    # print(get_selected_level(select_level, currency, gap_pips, purchase))
+    levels_price = get_price_range_by_level(currency, gap_pips, purchase)
+
+    # final method to get selected level
+    selected_level = get_selected_level(select_level, currency, gap_pips, purchase)
+
     # final method to get trade closing time
     trade_closing_time = get_trade_end_time(time_to_close, end_date, end_time, time_slot, time_count, start_time)
     changes_allowed_time = Trading.get_trade_changing_blocked_time(start_time, trade_closing_time)
-    print(changes_allowed_time)
-    return
+    level_owners = get_level_owner(select_level, user_id)
+
+    # encode as a json string
+    # cc = json.dumps(levels_price)
+    # decode a json string
+    # pp = json.loads(cc)
+
     if error_messages:
         # print(error_messages)
         return error_messages
+    # time_now = datetime.now()
+    time_now_formatted = Helper.get_current_time_formatted()
+
+    time_now = datetime.strptime(time_now_formatted, '%Y-%m-%d %H:%M:%S.%f%z')
+
+    purchase_type = Trading.get_trade_type(purchase)
+
+    user_transactions_id_levels = UserTransactionsIdLevels(user_id=user_id, created_date=time_now)
+    user_transactions_id_levels.save()
+
+    query = f"SELECT * FROM user_transactions_id_levels WHERE user_id = {user_id} and created_date = '{time_now_formatted}'"
+
+    cursor = connection.cursor()
+    transaction_id = cursor.execute(query)
+    transaction_id = transaction_id[0]["id"]
+
+    levels_by_id = LevelBasedById(transaction_id=transaction_id, created_date=time_now, created_by=user_id,
+                                  purchase_type=purchase_type,
+                                  currency=currency, staring_price=float(price), amount=float(amount),
+                                  start_time=start_time, end_time=trade_closing_time,
+                                  changes_allowed_time=changes_allowed_time, status=Status.STARTED.value,
+                                  level_pips=int(gap_pips), levels_price=json.dumps(levels_price),
+                                  level_owners=level_owners, user_count=1)
+    levels_by_id.save()
+
+    users_owned_levels = UsersOwnedLevels(user_id=user_id, transaction_id=transaction_id, created_date=time_now,
+                                          currency=currency,
+                                          level_selected=selected_level["level"],
+                                          level_start_price=selected_level["range"][0],
+                                          level_end_price=selected_level["range"][1], owner=True,
+                                          status=Status.STARTED.value,
+                                          changes_allowed_time=changes_allowed_time, staring_price=float(price),
+                                          start_time=start_time, end_time=trade_closing_time, amount=float(amount), outcome=Outcome.NONE.value)
+
+    users_owned_levels.save()
+
+    level_based_by_status = LevelBasedByStatus(status=Status.STARTED.value, transaction_id=transaction_id,
+                                               created_date=time_now,
+                                               purchase_type=purchase_type, currency=currency,
+                                               staring_price=float(price), amount=float(amount),
+                                               start_time=start_time, end_time=trade_closing_time,
+                                               changes_allowed_time=changes_allowed_time,
+                                               level_pips=int(gap_pips), levels_price=json.dumps(levels_price),
+                                               level_owners=level_owners,
+                                               user_count=1)
+    level_based_by_status.save()
+
+    users_owned_levels_status = UsersOwnedLevelsStatus(status=Status.STARTED.value, user_id=user_id,
+                                                       transaction_id=transaction_id,
+                                                       created_date=time_now,
+                                                       currency=currency,
+                                                       staring_price=float(price), amount=float(amount),
+                                                       level_selected=selected_level["level"],
+                                                       level_start_price=selected_level["range"][0],
+                                                       level_end_price=selected_level["range"][1], owner=True,
+                                                       start_time=start_time, end_time=trade_closing_time,
+                                                       changes_allowed_time=changes_allowed_time,
+                                                       level_pips=int(gap_pips), outcome=Outcome.NONE.value)
+    users_owned_levels_status.save()
+    return True
 
 
 def validate_currency(currency):
@@ -152,7 +231,7 @@ def validated_end_date(time_to_close, end_date, end_time, time_slot, time_count,
 
 def get_selected_level(level, currency, gap, purchase):
     level_gaps = get_price_range_by_level(currency, gap, purchase)
-    return list(filter(lambda person: person['level'] == int(level), level_gaps))[0]
+    return list(filter(lambda obj: obj['level'] == int(level), level_gaps))[0]
 
 
 ##
@@ -244,3 +323,11 @@ def get_trade_end_time(time_to_close, date, time, time_slot, time_count, start_t
         return start_time + timedelta(hours=time_count)
     if time_slot == "days":
         return start_time + timedelta(days=time_count)
+
+
+def get_level_owner(selected_level, user_id):
+    owner = dict()
+    owner["user_id"] = user_id
+    owner["selected_level"] = selected_level
+    owners = [owner]
+    return json.dumps(owners)
