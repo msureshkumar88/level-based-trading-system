@@ -63,8 +63,8 @@ def create_trade(req):
     error_messages.extend(Trading.validate_currency(currency))
     error_messages.extend(validate_pip_gaps(gap_pips))
     error_messages.extend(validate_levels(select_level))
-    error_messages.extend(validate_time_to_close(time_to_close))
-    error_messages.extend(validate_closing_types(time_to_close, time_slot, time_count, end_date, end_time))
+    error_messages.extend(Trading.validate_time_to_close(time_to_close))
+    error_messages.extend(Trading.validate_closing_types(time_to_close, time_slot, time_count, end_date, end_time))
     error_messages.extend(validate_amount(amount, user_id))
     error_messages.extend(validated_end_date(time_to_close, end_date, end_time, time_slot, time_count, start_time))
     # price_to_zeroes(str(1.02065))
@@ -166,30 +166,6 @@ def validate_levels(level):
     level = int(level)
     if level < 1 or level > 4:
         return ['Please select a valid level']
-    return []
-
-
-def validate_time_to_close(time_to_close):
-    if not time_to_close:
-        return ['Please select a closing type']
-    return []
-
-
-def validate_closing_types(time_to_close, time_slot, time_count, end_date, end_time):
-    if time_to_close == "Duration":
-        if not time_slot:
-            return ['Please select a type of duration']
-        if not time_count:
-            return ['Please enter end duration']
-        if not time_slot and not time_count:
-            return ['Please fill both type of end time and duration units']
-    if time_to_close == "End Time":
-        if not end_date:
-            return ['Please fill trade end date']
-        if not end_time:
-            return ['Please fill trade end time']
-        if not end_date and not end_time:
-            return ['Please fill both trade end date and time']
     return []
 
 
