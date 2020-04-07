@@ -3,6 +3,7 @@ from datetime import datetime
 from datetime import timedelta
 from django.db import connection
 
+from .helper import Helper
 
 class Trading:
     # generate trade start time
@@ -139,5 +140,19 @@ class Trading:
                 return ['Please fill trade end date']
             if not end_time:
                 return ['Please fill trade end time']
+        return []
+
+    @classmethod
+    def validate_amount(cls, amount, user_id):
+        if not amount:
+            return ['Please enter amount']
+        if not amount.isnumeric():
+            return ['Please enter a valid amount']
+        amount = float(amount)
+        if amount < 1:
+            return ['Amount should be greater than 0']
+        user = Helper.get_user_by_id(user_id)
+        if user['vcurrency'] < amount:
+            return ['Do not have enough fund please add funds']
         return []
 
