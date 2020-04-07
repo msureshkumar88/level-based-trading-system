@@ -133,6 +133,8 @@ class Trading:
                 return ['Please select a type of duration']
             if not time_count:
                 return ['Please enter end duration']
+            if not time_count.isnumeric():
+                return ['Please enter a valid units']
         if time_to_close == "end_time":
             if not end_date and not end_time:
                 return ['Please fill both trade end date and time']
