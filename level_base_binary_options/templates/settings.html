@@ -61,11 +61,11 @@
     <form method="post" action="">
         {% csrf_token%}
         <div class="input-group">
-
-            <input type="text" class="form-control" placeholder="Input group example"
+            <input type="text" disabled class="form-control" value="Balance: {{user_data.vcurrency}} {{user_data.currency}}" size="10">
+            <input type="text" class="form-control" name="vcurrency" placeholder="Enter Amount"
                    aria-label="Input group example" aria-describedby="btnGroupAddon">
             <div class="input-group-prepend">
-                <button class="input-group-text" id="btnGroupAddon">Deposit</button>
+                <button class="btn btn-success" type="submit" name="action" value="Deposit" id="btnGroupAddon">Deposit</button>
             </div>
         </div>
     </form>

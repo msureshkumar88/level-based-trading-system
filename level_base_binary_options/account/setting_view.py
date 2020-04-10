@@ -22,6 +22,8 @@ def settings(request):
             update_settings(request, user_id)
         if action == "Change password":
             update_password(request, user_id)
+        if action == "Deposit":
+            deposit(request, user_id)
 
     user_data = Helper.get_user_by_id(user_id)
     data = dict()
@@ -68,6 +70,27 @@ def update_password(request, user_id):
     new_pass = Helper.password_encrypt(password)
     q = UserCredential(email=user_data['email'], password=new_pass)
     q.update()
+
+
+def deposit(request, user_id):
+    amount = request.POST['vcurrency']
+    error_messages = []
+    error_messages.extend(validate_amount(amount))
+    if error_messages:
+        return error_messages
+    
+    pass
+
+
+def validate_amount(amount):
+    if not amount:
+        return ["Please enter amount to deposit"]
+    if not amount.isnumeric():
+        return ['Please enter a valid amount']
+    amount = float(amount)
+    if amount < 1:
+        return ['Amount should be greater than 0']
+    return []
 
 
 def validate_first_name(first_name):
