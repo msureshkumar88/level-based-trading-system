@@ -24,5 +24,4 @@ class UserById(DjangoCassandraModel):
 class UserCredential(DjangoCassandraModel):
     id = columns.UUID(default=uuid.uuid4)
     email = columns.Text(primary_key=True)
-    username = columns.Text()
     password = columns.Text()

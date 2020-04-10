@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from utilities.authentication import Authentication
 from utilities.helper import Helper
+from utilities.user_helper import UserHelper
 
 from datetime import datetime
 
@@ -83,50 +84,54 @@ def login(request):
 
 def register(request):
     if request.method == "POST":
-        username = request.POST['username']
-        email = request.POST['email']
-        password = request.POST['password']
-        repassword = request.POST['repassword']
-        first_name = request.POST['first_name']
-        last_name = request.POST['last_name']
-        mobile = request.POST['mobile']
-        address = request.POST['address']
-        country = request.POST['country']
-        currency = request.POST['currency']
-        virtual_currency = request.POST['virtual_currency']
-
-        # return render(request, 'register.html')
-
-        # TODO - add validations
-
-        # insert = User(email = email, address = address, password = password, country = country,currency = currency, fname = first_name,lname =last_name, mobile = mobile, username = username,  vcurrency = virtual_currency)
-        # insert.save()
-
-        # user_id = ""
-        # try:
-        #     q = UserCredential.objects.filter(email=email)
-        #     user_id = q.get().id
-        # except:
-        #     print("An exception occurred")
-        cursor = connection.cursor()
-        user = cursor.execute("SELECT id  FROM user_credential where email =" + "'" + email + "'")
-        # check whether email exists
-        if not user:
-            # create user credentials
-            insert = UserCredential(email=email, password=Helper.password_encrypt(password), username=username)
-            insert.save()
-
-            # get newly created user id
-            user_id = UserCredential.objects.filter(email=email)
-            user_id = user_id.get().id
-
-            # save user general details
-            new_user = UserById(id=user_id, email=email, address=address, country=country, currency=currency,
-                                fname=first_name, lname=last_name, mobile=mobile, vcurrency=virtual_currency,
-                                created_date=datetime.now())
-            new_user.save()
-
+        create_user(request)
     data = dict()
     data['countries'] = Helper.get_countries()
 
     return render(request, 'register.html', data)
+
+
+def create_user(request):
+    email = request.POST['email']
+    password = request.POST['password']
+    repassword = request.POST['repassword']
+    first_name = request.POST['first_name']
+    last_name = request.POST['last_name']
+    mobile = request.POST['mobile']
+    address = request.POST['address']
+    country = request.POST['country']
+    currency = request.POST['currency']
+    virtual_currency = request.POST['virtual_currency']
+    error_messages = []
+
+    error_messages.extend(UserHelper.validate_email(email))
+    error_messages.extend(UserHelper.validate_password(password, repassword))
+    error_messages.extend(UserHelper.validate_first_name(first_name))
+    error_messages.extend(UserHelper.validate_last_name(last_name))
+    error_messages.extend(UserHelper.validate_mobile(mobile))
+    error_messages.extend(UserHelper.validate_address(address))
+    error_messages.extend(UserHelper.validate_country(country))
+    error_messages.extend(UserHelper.validate_currency(currency))
+    error_messages.extend(UserHelper.validate_amount(virtual_currency))
+    print(error_messages)
+    if error_messages:
+        return error_messages
+    # return render(request, 'register.html')
+
+    cursor = connection.cursor()
+    user = cursor.execute("SELECT id  FROM user_credential where email =" + "'" + email + "'")
+    # check whether email exists
+    if not user:
+        # create user credentials
+        insert = UserCredential(email=email, password=Helper.password_encrypt(password))
+        insert.save()
+
+        # get newly created user id
+        user_id = UserCredential.objects.filter(email=email)
+        user_id = user_id.get().id
+
+        # save user general details
+        new_user = UserById(id=user_id, email=email, address=address, country=country, currency=currency,
+                            fname=first_name, lname=last_name, mobile=mobile, vcurrency=virtual_currency,
+                            created_date=datetime.now())
+        new_user.save()
