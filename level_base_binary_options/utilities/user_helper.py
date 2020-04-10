@@ -1,6 +1,6 @@
 import re
 from django.db import connection
-
+from .helper import Helper
 
 class UserHelper:
     @classmethod
@@ -69,4 +69,19 @@ class UserHelper:
     def validate_currency(cls, currency):
         if not currency:
             return ["Please select a currency"]
+        return []
+
+    @classmethod
+    def validate_guest_email(cls, email):
+        if not email:
+            return ["Please enter email"]
+        regex = '^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$'
+        if not re.search(regex, email):
+            return ["Please enter a valid email"]
+        return []
+
+    @classmethod
+    def validate_guest_password(cls, password):
+        if not password:
+            return ["Please enter password"]
         return []

@@ -21,9 +21,6 @@ def home(request):
 def login(request):
     data = {}
     ac = Authentication(request)
-    # if ac.is_user_logged_in():
-    #     return redirect('/account')
-    # ac.logout()
     # if user is logged in redirect to account page
     if ac.is_user_logged_in():
         return redirect('/account')
@@ -33,6 +30,10 @@ def login(request):
         email = request.POST['email']
         password = request.POST['password']
 
+        error_messages = []
+        error_messages.extend(UserHelper.validate_guest_email(email))
+        error_messages.extend(UserHelper.validate_guest_password(password))
+
         # encrypt user enter password in the login page to check with db password
         password_encrypted = Helper.password_encrypt(password)
 
@@ -40,9 +41,6 @@ def login(request):
 
         # check whether user exists in the DB
         user = cursor.execute("SELECT *  FROM user_credential where email =" + "'" + email + "' ")
-
-        if not user:
-            data['message'] = "User does not exists"
 
         if user and user[0]['password'] == Helper.password_encrypt(password):
             # get loged user details
@@ -55,7 +53,8 @@ def login(request):
             print(ac.get_user_session())
             return redirect('/account')
 
-        data['message'] = "invalid password"
+        error_messages.append("Invalid email or password")
+        data["error_messages"] = error_messages
 
         # return render(request, 'login.html', data)
         # request.session['email'] = email
