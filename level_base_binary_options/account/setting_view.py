@@ -78,7 +78,12 @@ def deposit(request, user_id):
     error_messages.extend(validate_amount(amount))
     if error_messages:
         return error_messages
-    
+
+    user_data = Helper.get_user_by_id(user_id)
+    amount = float(amount)
+    balance = user_data['vcurrency'] + amount
+    user_settings = UserById(id=user_id, vcurrency=balance)
+    user_settings.update()
     pass
 
 
