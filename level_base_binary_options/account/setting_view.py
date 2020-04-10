@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect
 from utilities.authentication import Authentication
 from utilities.helper import Helper
+from utilities.user_helper import UserHelper
 
 from guest.models import UserById
 from guest.models import UserCredential
+
 from django.db import connection
 
 
@@ -41,11 +43,11 @@ def update_settings(request, user_id):
     country = request.POST['country']
 
     error_messages = []
-    error_messages.extend(validate_first_name(first_name))
-    error_messages.extend(validate_last_name(last_name))
-    error_messages.extend(validate_mobile(mobile))
-    error_messages.extend(validate_address(address))
-    error_messages.extend(validate_country(country))
+    error_messages.extend(UserHelper.validate_first_name(first_name))
+    error_messages.extend(UserHelper.validate_last_name(last_name))
+    error_messages.extend(UserHelper.validate_mobile(mobile))
+    error_messages.extend(UserHelper.validate_address(address))
+    error_messages.extend(UserHelper.validate_country(country))
 
     if error_messages:
         return error_messages
@@ -75,7 +77,7 @@ def update_password(request, user_id):
 def deposit(request, user_id):
     amount = request.POST['vcurrency']
     error_messages = []
-    error_messages.extend(validate_amount(amount))
+    error_messages.extend(UserHelper.validate_amount(amount))
     if error_messages:
         return error_messages
 
@@ -85,47 +87,6 @@ def deposit(request, user_id):
     user_settings = UserById(id=user_id, vcurrency=balance)
     user_settings.update()
     pass
-
-
-def validate_amount(amount):
-    if not amount:
-        return ["Please enter amount to deposit"]
-    if not amount.isnumeric():
-        return ['Please enter a valid amount']
-    amount = float(amount)
-    if amount < 1:
-        return ['Amount should be greater than 0']
-    return []
-
-
-def validate_first_name(first_name):
-    if not first_name:
-        return ["Please enter first name"]
-    return []
-
-
-def validate_last_name(last_name):
-    if not last_name:
-        return ["Please enter first name"]
-    return []
-
-
-def validate_mobile(mobile):
-    if not mobile:
-        return ["Please enter mobile"]
-    return []
-
-
-def validate_address(address):
-    if not address:
-        return ["Please enter mobile"]
-    return []
-
-
-def validate_country(country):
-    if not country:
-        return ["Please enter mobile"]
-    return []
 
 
 def validate_current_password(password, email):
