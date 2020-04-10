@@ -83,6 +83,9 @@ def login(request):
 
 
 def register(request):
+    ac = Authentication(request)
+    if ac.is_user_logged_in():
+        return redirect('/account')
     if request.method == "POST":
         create_user(request)
     data = dict()
