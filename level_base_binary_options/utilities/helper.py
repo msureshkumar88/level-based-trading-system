@@ -25,6 +25,7 @@ class Helper:
 
     @classmethod
     def get_current_price(cls, currency):
+        return 1.00000
         # TODO: check this function to get the value from database
         # TODO: change this function to work with get_current_price_instance
         with requests.Session() as s:
@@ -52,12 +53,11 @@ class Helper:
 
     @classmethod
     def get_time_formatted(cls, date_time):
-        time_now = date_time.now(pytz.utc)
-        mils = time_now.strftime('%f')[:-3]
+        mils = date_time.strftime('%f')[:-3]
         zone = strftime("%z", gmtime())
         if strftime("%z", gmtime()) == "-0000":
             zone = "+0000"
-        return date_time.now().strftime('%Y-%m-%d %H:%M:%S.') + mils + zone
+        return date_time.strftime('%Y-%m-%d %H:%M:%S.') + mils + zone
 
     @classmethod
     # returns user details by user_id
