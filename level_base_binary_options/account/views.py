@@ -9,8 +9,14 @@ from utilities.trading import Trading
 from .models import UserTransactionsBinary
 from .models import TransactionsByStatusBinary
 from .models import UserTransactionsIdBinary
+
+from .models import TransactionsByUser
+from .models import UserTransactions
+
 from cassandra.util import datetime_from_timestamp
 from utilities.trade_status import Status
+from utilities.trade_type import Types
+from utilities.trade_outcome import Outcome
 
 
 # Create your views here.
@@ -74,32 +80,54 @@ def create_trade(req):
 
     time_now_formatted = Helper.get_current_time_formatted()
     time_now = datetime.strptime(time_now_formatted, '%Y-%m-%d %H:%M:%S.%f%z')
+    changes_allowed_time = Trading.get_trade_changing_blocked_time(trade_start_time, trade_end_time)
 
-    use_trade = UserTransactionsIdBinary(user_id=user_id, created_date=time_now)
+    # print(trade_start_time)
+    # print(Helper.get_time_formatted(trade_start_time))
 
-    use_trade.save()
+    # use_trade = UserTransactionsIdBinary(user_id=user_id, created_date=time_now)
+    user_transaction = TransactionsByUser(user_id=user_id, created_date=time_now)
+
+    user_transaction.save()
 
     # new_d = time_now.strftime("%Y-%m-%d %H:%M:%S.%f%z")
     # print(new_d)
     # return
     cursor = connection.cursor()
-    q = f"SELECT * FROM user_transactions_id_binary WHERE user_id = {user_id} and created_date = '{time_now_formatted}'"
+    # q = f"SELECT * FROM user_transactions_id_binary WHERE user_id = {user_id} and created_date = '{time_now_formatted}'"
+    q = f"SELECT * FROM transactions_by_user WHERE user_id = {user_id} and created_date = '{time_now_formatted}'"
     # print(q)
 
     transaction_id = cursor.execute(q)
     transaction_id = transaction_id[0]["id"]
 
-    trade = UserTransactionsBinary(id=transaction_id, user_id=user_id, created_date=time_now,
-                                   trade_type=trade_type, purchase_type=purchase_type,
-                                   currency=currency, staring_price=price, amount=float(amount),
-                                   start_time=trade_start_time, end_time=trade_end_time, status=status)
-    trade.save()
-    trades_by_status = TransactionsByStatusBinary(id=transaction_id, user_id=user_id, created_date=time_now,
-                                                  trade_type=trade_type, purchase_type=purchase_type,
-                                                  currency=currency, staring_price=price, amount=float(amount),
-                                                  start_time=trade_start_time, end_time=trade_end_time, status=status)
+    # trade = UserTransactionsBinary(id=transaction_id, user_id=user_id, created_date=time_now,
+    #                                trade_type=trade_type, purchase_type=purchase_type,
+    #                                currency=currency, staring_price=price, amount=float(amount),
+    #                                start_time=trade_start_time, end_time=trade_end_time, status=status)
+    # trade.save()
+    # trades_by_status = TransactionsByStatusBinary(id=transaction_id, user_id=user_id, created_date=time_now,
+    #                                               trade_type=trade_type, purchase_type=purchase_type,
+    #                                               currency=currency, staring_price=price, amount=float(amount),
+    #                                               start_time=trade_start_time, end_time=trade_end_time, status=status)
+    #
+    # trades_by_status.save()
 
-    trades_by_status.save()
+    # trade = UserTransactions(transaction_id=transaction_id, user_id=user_id, created_date=time_now,
+    #                          trade_type=Types.BINARY.value,
+    #                          purchase_type=purchase_type, currency=currency, staring_price=price, amount=float(amount),
+    #                          start_time=trade_start_time, end_time=trade_end_time,
+    #                          changes_allowed_time=changes_allowed_time, outcome=Outcome.NONE.value, status=status)
+    # trade.save()
+    user_transactions = f"insert into user_transactions (transaction_id, user_id,created_date," \
+         f"trade_type,purchase_type, currency,staring_price,amount,start_time,end_time," \
+         f"changes_allowed_time,outcome,status) values ({transaction_id},{user_id}," \
+         f"'{time_now_formatted}','{Types.BINARY.value}'," \
+         f"'{purchase_type}','{currency}',{float(price)},{float(amount)}," \
+         f"'{Helper.get_time_formatted(trade_start_time)}','{Helper.get_time_formatted(trade_end_time)}'," \
+         f"'{Helper.get_time_formatted(changes_allowed_time)}','{Outcome.NONE.value}','{status}')"
+    # print(user_transactions)
+    cursor.execute(user_transactions)
 
 
 def search(request):
