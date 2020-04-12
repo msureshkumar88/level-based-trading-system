@@ -13,9 +13,13 @@ from .models import LevelBasedByStatus
 from .models import UsersOwnedLevelsStatus
 from .models import UserTransactionsIdLevels
 
+from .models import TransactionsByUser
+
 from utilities.trading import Trading
 from utilities.trade_status import Status
 from utilities.trade_outcome import Outcome
+from utilities.trade_type import Types
+from utilities.trade_levels import Levels
 
 from django.db import connection
 
@@ -97,58 +101,121 @@ def create_trade(req):
 
     purchase_type = Trading.get_trade_type(purchase)
 
-    user_transactions_id_levels = UserTransactionsIdLevels(user_id=user_id, created_date=time_now)
-    user_transactions_id_levels.save()
+    # user_transactions_id_levels = UserTransactionsIdLevels(user_id=user_id, created_date=time_now)
+    # user_transactions_id_levels.save()
 
-    query = f"SELECT * FROM user_transactions_id_levels WHERE user_id = {user_id} and created_date = '{time_now_formatted}'"
+    available_levels = get_available_levels(Levels.levels.value, select_level)
 
+    user_transaction = TransactionsByUser(user_id=user_id, created_date=time_now)
+    user_transaction.save()
+
+    # query = f"SELECT * FROM user_transactions_id_levels WHERE user_id = {user_id} and created_date = '{time_now_formatted}'"
+
+    query = f"SELECT * FROM transactions_by_user WHERE user_id = {user_id} and created_date = '{time_now_formatted}'"
     cursor = connection.cursor()
     transaction_id = cursor.execute(query)
     transaction_id = transaction_id[0]["id"]
 
-    levels_by_id = LevelBasedById(transaction_id=transaction_id, created_date=time_now, created_by=user_id,
-                                  purchase_type=purchase_type,
-                                  currency=currency, staring_price=float(price), amount=float(amount),
-                                  start_time=start_time, end_time=trade_closing_time,
-                                  changes_allowed_time=changes_allowed_time, status=Status.STARTED.value,
-                                  level_pips=int(gap_pips), levels_price=json.dumps(levels_price),
-                                  level_owners=level_owners, user_count=1)
-    levels_by_id.save()
+    user_transactions = f"INSERT INTO user_transactions " \
+                        f"(transaction_id,user_id,created_date,trade_type,purchase_type,currency,staring_price,amount," \
+                        f"start_time,end_time,changes_allowed_time,outcome,status,level_pips, levels_price,level_owners," \
+                        f"join_date,level_start_price,level_end_price,level_selected,created_by,child," \
+                        f"available_levels) " \
+                        f"VALUES " \
+                        f"({transaction_id},{user_id},'{time_now_formatted}','{Types.LEVELS.value}','{purchase_type}'," \
+                        f"'{currency}',{float(price)},{float(amount)},'{Helper.get_time_formatted(trade_start_time)}'," \
+                        f"'{Helper.get_time_formatted(trade_closing_time)}'," \
+                        f"'{Helper.get_time_formatted(changes_allowed_time)}','{Outcome.NONE.value}'," \
+                        f"'{Status.STARTED.value}',{int(gap_pips)},'{json.dumps(levels_price)}','{level_owners}'," \
+                        f"'{time_now_formatted}',{selected_level['range'][0]},{selected_level['range'][1]}," \
+                        f"{selected_level['level']},{user_id},{False},{available_levels})"
+    cursor.execute(user_transactions)
 
-    users_owned_levels = UsersOwnedLevels(user_id=user_id, transaction_id=transaction_id, created_date=time_now,
-                                          currency=currency,
-                                          level_selected=selected_level["level"],
-                                          level_start_price=selected_level["range"][0],
-                                          level_end_price=selected_level["range"][1], owner=True,
-                                          status=Status.STARTED.value,
-                                          changes_allowed_time=changes_allowed_time, staring_price=float(price),
-                                          start_time=start_time, end_time=trade_closing_time, amount=float(amount), outcome=Outcome.NONE.value)
+    transactions_by_state = f"INSERT INTO transactions_by_state " \
+                            f"(transaction_id,user_id,currency,purchase_type,outcome,status,created_date,amount," \
+                            f"trade_type) " \
+                            f"VALUES " \
+                            f"({transaction_id},{user_id},'{currency}','{purchase_type}','{Outcome.NONE.value}'," \
+                            f"'{Status.STARTED.value}','{time_now_formatted}',{float(amount)},'{Types.LEVELS.value}')"
+    cursor.execute(transactions_by_state)
 
-    users_owned_levels.save()
+    transactions_levels_status = f"INSERT INTO transactions_levels_status " \
+                                 f"(transaction_id,user_id,outcome,purchase_type,currency,status,created_date,amount," \
+                                 f"trade_type,start_time,end_time,available_levels) " \
+                                 f"VALUES " \
+                                 f"({transaction_id},{user_id},'{Outcome.NONE.value}','{purchase_type}','{currency}'," \
+                                 f"'{Status.STARTED.value}','{time_now_formatted}',{float(amount)}," \
+                                 f"'{Types.LEVELS.value}','{Helper.get_time_formatted(trade_start_time)}'," \
+                                 f"'{Helper.get_time_formatted(trade_closing_time)}',{available_levels})"
 
-    level_based_by_status = LevelBasedByStatus(status=Status.STARTED.value, transaction_id=transaction_id,
-                                               created_date=time_now,
-                                               purchase_type=purchase_type, currency=currency,
-                                               staring_price=float(price), amount=float(amount),
-                                               start_time=start_time, end_time=trade_closing_time,
-                                               changes_allowed_time=changes_allowed_time,
-                                               level_pips=int(gap_pips), levels_price=json.dumps(levels_price),
-                                               level_owners=level_owners,
-                                               user_count=1)
-    level_based_by_status.save()
+    cursor.execute(transactions_levels_status)
 
-    users_owned_levels_status = UsersOwnedLevelsStatus(status=Status.STARTED.value, user_id=user_id,
-                                                       transaction_id=transaction_id,
-                                                       created_date=time_now,
-                                                       currency=currency,
-                                                       staring_price=float(price), amount=float(amount),
-                                                       level_selected=selected_level["level"],
-                                                       level_start_price=selected_level["range"][0],
-                                                       level_end_price=selected_level["range"][1], owner=True,
-                                                       start_time=start_time, end_time=trade_closing_time,
-                                                       changes_allowed_time=changes_allowed_time,
-                                                       level_pips=int(gap_pips), outcome=Outcome.NONE.value)
-    users_owned_levels_status.save()
+    transactions_by_end_time = f"INSERT INTO transactions_by_end_time " \
+                               f"(transaction_id,user_id,status,trade_type,end_time) " \
+                               f"VALUES " \
+                               f"({transaction_id},{user_id},'{Status.STARTED.value}','{Types.LEVELS.value}'," \
+                               f"'{Helper.get_time_formatted(trade_closing_time)}')"
+
+    cursor.execute(transactions_by_end_time)
+
+    transactions_changes_allowed_time = f"INSERT INTO transactions_changes_allowed_time " \
+                                        f"(transaction_id,user_id,status,changes_allowed_time) " \
+                                        f"VALUES " \
+                                        f"({transaction_id},{user_id},'{Status.STARTED.value}'," \
+                                        f"'{Helper.get_time_formatted(changes_allowed_time)}')"
+
+    cursor.execute(transactions_changes_allowed_time)
+
+    level_based_user_counts = f"INSERT INTO level_based_user_counts " \
+                              f"(transaction_id,user_count) " \
+                              f"VALUES " \
+                              f"({transaction_id},1)"
+
+    cursor.execute(level_based_user_counts)
+
+    # levels_by_id = LevelBasedById(transaction_id=transaction_id, created_date=time_now, created_by=user_id,
+    #                               purchase_type=purchase_type,
+    #                               currency=currency, staring_price=float(price), amount=float(amount),
+    #                               start_time=start_time, end_time=trade_closing_time,
+    #                               changes_allowed_time=changes_allowed_time, status=Status.STARTED.value,
+    #                               level_pips=int(gap_pips), levels_price=json.dumps(levels_price),
+    #                               level_owners=level_owners, user_count=1)
+    # levels_by_id.save()
+
+    # users_owned_levels = UsersOwnedLevels(user_id=user_id, transaction_id=transaction_id, created_date=time_now,
+    #                                       currency=currency,
+    #                                       level_selected=selected_level["level"],
+    #                                       level_start_price=selected_level["range"][0],
+    #                                       level_end_price=selected_level["range"][1], owner=True,
+    #                                       status=Status.STARTED.value,
+    #                                       changes_allowed_time=changes_allowed_time, staring_price=float(price),
+    #                                       start_time=start_time, end_time=trade_closing_time, amount=float(amount), outcome=Outcome.NONE.value)
+    #
+    # users_owned_levels.save()
+    #
+    # level_based_by_status = LevelBasedByStatus(status=Status.STARTED.value, transaction_id=transaction_id,
+    #                                            created_date=time_now,
+    #                                            purchase_type=purchase_type, currency=currency,
+    #                                            staring_price=float(price), amount=float(amount),
+    #                                            start_time=start_time, end_time=trade_closing_time,
+    #                                            changes_allowed_time=changes_allowed_time,
+    #                                            level_pips=int(gap_pips), levels_price=json.dumps(levels_price),
+    #                                            level_owners=level_owners,
+    #                                            user_count=1)
+    # level_based_by_status.save()
+    #
+    # users_owned_levels_status = UsersOwnedLevelsStatus(status=Status.STARTED.value, user_id=user_id,
+    #                                                    transaction_id=transaction_id,
+    #                                                    created_date=time_now,
+    #                                                    currency=currency,
+    #                                                    staring_price=float(price), amount=float(amount),
+    #                                                    level_selected=selected_level["level"],
+    #                                                    level_start_price=selected_level["range"][0],
+    #                                                    level_end_price=selected_level["range"][1], owner=True,
+    #                                                    start_time=start_time, end_time=trade_closing_time,
+    #                                                    changes_allowed_time=changes_allowed_time,
+    #                                                    level_pips=int(gap_pips), outcome=Outcome.NONE.value)
+    # users_owned_levels_status.save()
     return True
 
 
@@ -289,3 +356,8 @@ def get_level_owner(selected_level, user_id):
     owner["selected_level"] = selected_level
     owners = [owner]
     return json.dumps(owners)
+
+
+def get_available_levels(level_list, selected_level):
+    level_list.remove(int(selected_level))
+    return level_list
