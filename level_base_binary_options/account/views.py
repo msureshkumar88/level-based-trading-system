@@ -12,6 +12,10 @@ from .models import UserTransactionsIdBinary
 
 from .models import TransactionsByUser
 from .models import UserTransactions
+from .models import TransactionsByState
+from .models import TransactionsByStartTime
+from .models import TransactionsByEndTime
+from .models import TransactionsChangesAllowedTime
 
 from cassandra.util import datetime_from_timestamp
 from utilities.trade_status import Status
@@ -120,14 +124,54 @@ def create_trade(req):
     #                          changes_allowed_time=changes_allowed_time, outcome=Outcome.NONE.value, status=status)
     # trade.save()
     user_transactions = f"insert into user_transactions (transaction_id, user_id,created_date," \
-         f"trade_type,purchase_type, currency,staring_price,amount,start_time,end_time," \
-         f"changes_allowed_time,outcome,status) values ({transaction_id},{user_id}," \
-         f"'{time_now_formatted}','{Types.BINARY.value}'," \
-         f"'{purchase_type}','{currency}',{float(price)},{float(amount)}," \
-         f"'{Helper.get_time_formatted(trade_start_time)}','{Helper.get_time_formatted(trade_end_time)}'," \
-         f"'{Helper.get_time_formatted(changes_allowed_time)}','{Outcome.NONE.value}','{status}')"
+                        f"trade_type,purchase_type, currency,staring_price,amount,start_time,end_time," \
+                        f"changes_allowed_time,outcome,status) values ({transaction_id},{user_id}," \
+                        f"'{time_now_formatted}','{Types.BINARY.value}'," \
+                        f"'{purchase_type}','{currency}',{float(price)},{float(amount)}," \
+                        f"'{Helper.get_time_formatted(trade_start_time)}','{Helper.get_time_formatted(trade_end_time)}'," \
+                        f"'{Helper.get_time_formatted(changes_allowed_time)}','{Outcome.NONE.value}','{status}')"
     # print(user_transactions)
     cursor.execute(user_transactions)
+
+    state_transactions = TransactionsByState(transaction_id=transaction_id, user_id=user_id,
+                                             purchase_type=purchase_type, currency=currency, outcome=Outcome.NONE.value,
+                                             status=status, created_date=time_now, amount=float(amount),
+                                             trade_type=Types.BINARY.value)
+    state_transactions.save()
+
+    # transactions_by_start_time = TransactionsByStartTime(transaction_id=transaction_id, user_id=user_id, status=status,
+    #                                                      start_time=Helper.get_time_formatted(trade_start_time))
+    # transactions_by_start_time.save()
+
+    transactions_by_start_time = f"INSERT INTO transactions_by_start_time (transaction_id,user_id,status,start_time) " \
+                                 f"VALUES ({transaction_id},{user_id},'{status}'," \
+                                 f"'{Helper.get_time_formatted(trade_start_time)}')"
+
+    cursor.execute(transactions_by_start_time)
+
+    # transactions_by_end_time = TransactionsByEndTime(transaction_id=transaction_id, user_id=user_id, status=status,
+    #                                                  end_time=Helper.get_time_formatted(trade_end_time),
+    #                                                  trade_type=Types.BINARY.value)
+    #
+    # transactions_by_end_time.save()
+    transactions_by_end_time = f"INSERT INTO transactions_by_end_time (transaction_id,user_id,status,end_time," \
+                               f"trade_type) VALUES ({transaction_id},{user_id},'{status}'," \
+                               f"'{Helper.get_time_formatted(trade_end_time)}','{Types.BINARY.value}')"
+
+    cursor.execute(transactions_by_end_time)
+
+    # transactions_changes_allowed_time = TransactionsChangesAllowedTime(transaction_id=transaction_id, user_id=user_id,
+    #                                                                    status=status,
+    #                                                                    changes_allowed_time=Helper.get_time_formatted(
+    #                                                                        changes_allowed_time))
+    # transactions_changes_allowed_time.save()
+
+    transactions_changes_allowed_time = f"INSERT INTO transactions_changes_allowed_time " \
+                                        f"(transaction_id,user_id,status,changes_allowed_time) " \
+                                        f"VALUES ({transaction_id},{user_id},'{status}'," \
+                                        f"'{Helper.get_time_formatted(changes_allowed_time)}')"
+
+    cursor.execute(transactions_changes_allowed_time)
 
 
 def search(request):
