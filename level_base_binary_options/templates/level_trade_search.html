@@ -4,30 +4,37 @@
 <div class="bd-example">
     <div class="row">
         <form action="" method="post">
+            {% csrf_token%}
             <div class="row">
                 <div class="col">
                     <select class="form-control" name="currency">
-                        <option value="">Select currency</option>
-                        {% for c in currency%}
-                        <option value="{{c.label}}">{{c.label}}</option>
+                        <option value="">Select Currency pair</option>
+                        {% for c in currency_pairs%}
+                        <option value="{{c.name}}">{{c.value|capfirst}}</option>
                         {%endfor%}
                     </select>
                 </div>
                 <div class="col">
-                    <input class="form-control" type="date" name="end_date" placeholder="Select closing date">
+                    <select class="form-control" name="purchase_type">
+                        <option value="">Select purchase type</option>
+                        {% for p in purchase_type%}
+                        <option value="{{p}}">{{p|capfirst}}</option>
+                        {%endfor%}
+                    </select>
                 </div>
                 <div class="col">
-                    <input class="form-control" type="time" name="end_time" placeholder="Select closing time">
+                    <input class="form-control" type="date" name="closing_date" placeholder="Select closing date">
                 </div>
                 <div class="col">
-                    <input class="form-control" type="number" min="0.1" value="min_price" placeholder="Enter min price"
+                    <input class="form-control" type="number" min="0.1" name="min_amount" placeholder="Enter min price"
                            step="0.1">
                 </div>
                 <div class="col">
-                    <input class="form-control" type="number" min="0.1" value="max_price" placeholder="Enter max price"
+                    <input class="form-control" type="number" min="0.1" name="max_amount" placeholder="Enter max price"
                            step="0.1">
                 </div>
             </div>
+            <input type="submit" value="Search">
         </form>
     </div>
     <div class="row">
