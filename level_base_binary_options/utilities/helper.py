@@ -77,3 +77,9 @@ class Helper:
         cursor = connection.cursor()
         currency_pairs = cursor.execute("SELECT * FROM currency_pairs")
         return currency_pairs
+
+    @classmethod
+    def get_currency(cls):
+        cursor = connection.cursor()
+        currency = cursor.execute("SELECT * FROM currency")
+        return currency
