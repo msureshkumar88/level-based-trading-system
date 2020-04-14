@@ -4,6 +4,7 @@ from datetime import timedelta
 from django.db import connection
 
 from .helper import Helper
+from .purchase_type import PurchaseTypes
 
 class Trading:
     # generate trade start time
@@ -71,8 +72,8 @@ class Trading:
     @classmethod
     def get_trade_type(cls, purchase):
         if purchase == 'Buy':
-            return 'buy'
-        return 'sell'
+            return PurchaseTypes.BUY.value
+        return PurchaseTypes.SELL.value
 
     # get the flag that determine trade start now or later
     @classmethod
