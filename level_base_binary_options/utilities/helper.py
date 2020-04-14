@@ -25,7 +25,7 @@ class Helper:
 
     @classmethod
     def get_current_price(cls, currency):
-        return 1.00000
+        # TODO: should be returned as string
         # TODO: check this function to get the value from database
         # TODO: change this function to work with get_current_price_instance
         with requests.Session() as s:
@@ -71,3 +71,9 @@ class Helper:
         cursor = connection.cursor()
         country = cursor.execute("SELECT * FROM country")
         return country
+
+    @classmethod
+    def get_currency_pairs(cls):
+        cursor = connection.cursor()
+        currency_pairs = cursor.execute("SELECT * FROM currency_pairs")
+        return currency_pairs
