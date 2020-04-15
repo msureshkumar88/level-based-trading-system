@@ -87,6 +87,8 @@ def create_trade(req):
     time_now = datetime.strptime(time_now_formatted, '%Y-%m-%d %H:%M:%S.%f%z')
     changes_allowed_time = Trading.get_trade_changing_blocked_time(trade_start_time, trade_end_time)
 
+    current_user = Helper.get_user_by_id(user_id)
+
     # print(trade_start_time)
     # print(Helper.get_time_formatted(trade_start_time))
 
@@ -174,6 +176,10 @@ def create_trade(req):
 
     cursor.execute(transactions_changes_allowed_time)
 
+    # update account balance
+    updated_amount = float(current_user['vcurrency']) - float(amount)
+    user_vcurrency = f"UPDATE  user_by_id SET vcurrency = {updated_amount} WHERE id = {user_id}"
+    cursor.execute(user_vcurrency)
 
 
 def statements(request):
