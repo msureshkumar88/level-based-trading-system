@@ -42,7 +42,7 @@ class Trading:
     @classmethod
     def load_static_data(cls):
         cursor = connection.cursor()
-        currencies = cursor.execute("SELECT * FROM currency")
+        currencies = cursor.execute("SELECT * FROM currency_pairs")
         duration = cursor.execute("SELECT * FROM duration")
 
         data = dict()
