@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "f9da5d1e23417028566c727c3e4bfb24989cc1f4ace7b0c7079c8ab9ae6237d0"
+            "sha256": "cc4db116c938fca24baf5f620aa902ee7ec7e957dd2d88d6fd71e736b25c9d14"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -74,6 +74,13 @@
                 "sha256:e345d143d80bf5ee7534056164e5e112ea5e22716bbb1ce727941f4c8b471b9a"
             ],
             "version": "==7.1.1"
+        },
+        "currencyconverter": {
+            "hashes": [
+                "sha256:486f6a6d46216fbe10e03aec1e3248b132853188015820b30baa0a9b07df1493"
+            ],
+            "index": "pypi",
+            "version": "==0.14.1"
         },
         "cycler": {
             "hashes": [

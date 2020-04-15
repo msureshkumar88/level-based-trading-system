@@ -15,6 +15,7 @@ pyspark = "*"
 pandas = "*"
 matplotlib = "*"
 plotly = "*"
+currencyconverter = "*"
 
 [requires]
 python_version = "3.7"
