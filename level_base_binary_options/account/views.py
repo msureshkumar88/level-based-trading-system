@@ -55,7 +55,8 @@ def create_trade(req):
     purchase = post['purchase']
     trade_type = 'binary'
     price = Helper.get_current_price(currency)
-
+    # TODO: fix the price for pending trades -don't add price for pending trades, add when the trade start only binary options
+    # TODO: load currency pair from currency_pairs table and add currency paris there
     error_messages = []
 
     trade_start_time = ""
@@ -173,18 +174,6 @@ def create_trade(req):
 
     cursor.execute(transactions_changes_allowed_time)
 
-
-def search(request):
-    ac = Authentication(request)
-    # if user is not logged in redirect to login page
-    if not ac.is_user_logged_in():
-        return redirect('/login')
-
-    data = dict()
-    if request.method == "POST":
-        pass
-
-    return render(request, 'level_trade_search.html', data)
 
 
 def statements(request):
