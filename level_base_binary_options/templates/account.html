@@ -18,7 +18,7 @@
     <select name="currency">
         <option value="">Select currency</option>
         {% for c in currency%}
-        <option value="{{c.label}}">{{c.label}}</option>
+        <option value="{{c.value}}">{{c.value}}</option>
         {%endfor%}
     </select>
     <br>
