@@ -10,7 +10,7 @@
                     <select class="form-control" name="currency">
                         <option value="">Select Currency pair</option>
                         {% for c in currency_pairs%}
-                        <option value="{{c.name}}">{{c.value|capfirst}}</option>
+                        <option value="{{c.value}}">{{c.value|capfirst}}</option>
                         {%endfor%}
                     </select>
                 </div>
