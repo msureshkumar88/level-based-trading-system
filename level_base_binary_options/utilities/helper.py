@@ -8,6 +8,7 @@ from datetime import datetime
 from django.db import connection
 
 from .purchase_type import PurchaseTypes
+from .trade_levels import Levels
 
 class Helper:
     @classmethod
@@ -90,6 +91,10 @@ class Helper:
         purchase_type = []
         [purchase_type.append(e.value) for e in PurchaseTypes]
         return purchase_type
+
+    @classmethod
+    def get_trade_level_list(cls):
+        return Levels.levels.value
 
     @classmethod
     def get_currency(cls):

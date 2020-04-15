@@ -50,6 +50,7 @@ class Trading:
         data['duration'] = duration
         data['today_date'] = datetime.now().strftime("%Y-%m-%d")
         data['time_now'] = datetime.now().strftime("%H:%M")
+        data['level_list'] = Helper.get_trade_level_list()
         return data
 
     # check whether selected dates are greater than current date and time

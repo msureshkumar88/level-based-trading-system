@@ -16,10 +16,9 @@
         <br>
         <select name="select_level">
             <option value="">Select level</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
+            {% for level in level_list%}
+            <option value="{{level}}">{{level}}</option>
+            {%endfor%}
         </select>
         <br>
         <select name="time_to_close" id="time_to_close">
@@ -33,9 +32,9 @@
             <select name="time_slot">
                 <option value="">Select duration</option>
                 {% for c in duration%}
-                    {% if c.name != 'seconds'%}
-                    <option value="{{c.name}}">{{c.label}}</option>
-                    {%endif%}
+                {% if c.name != 'seconds'%}
+                <option value="{{c.name}}">{{c.label}}</option>
+                {%endif%}
                 {%endfor%}
             </select><input type="text" name="time_count" placeholder="units">
         </div>
