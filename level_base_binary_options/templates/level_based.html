@@ -6,9 +6,9 @@
     <form name="" method="post">
         {% csrf_token%}
         <select name="currency">
-            <option value="">Select currency</option>
+            <option value="">Select currency pair</option>
             {% for c in currency%}
-            <option value="{{c.label}}">{{c.label}}</option>
+            <option value="{{c.value}}">{{c.value}}</option>
             {%endfor%}
         </select>
         <br>
