@@ -359,5 +359,6 @@ def get_level_owner(selected_level, user_id):
 
 
 def get_available_levels(level_list, selected_level):
-    level_list.remove(int(selected_level))
-    return level_list
+    all_levels = level_list.copy()
+    all_levels.remove(int(selected_level))
+    return all_levels
