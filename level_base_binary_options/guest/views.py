@@ -89,7 +89,7 @@ def register(request):
         create_user(request)
     data = dict()
     data['countries'] = Helper.get_countries()
-
+    data['currency'] = Helper.get_currency()
     return render(request, 'register.html', data)
 
 

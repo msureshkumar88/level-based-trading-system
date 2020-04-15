@@ -48,9 +48,9 @@
             <label for="currency">Currency</label>
             <select class="form-control" name="currency" id="currency">
                 <option value="" selected>Select currency</option>
-                <option value="eur">Euro</option>
-                <option value="usd">US Dollars</option>
-                <option value="gbp">Great Britain Pound</option>
+                 {%for cur in currency%}
+                <option value="{{cur.iso}}">{{cur.name}} ({{cur.iso}})</option>
+                {%endfor%}
             </select>
         </div>
         <div class="form-group">
