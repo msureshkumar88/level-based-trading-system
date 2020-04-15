@@ -7,6 +7,7 @@ from time import gmtime, strftime
 from datetime import datetime
 from django.db import connection
 
+from .purchase_type import PurchaseTypes
 
 class Helper:
     @classmethod
@@ -83,6 +84,12 @@ class Helper:
         pairs = []
         [pairs.append(p['value']) for p in Helper.get_currency_pairs()]
         return pairs
+
+    @classmethod
+    def get_purchase_type_list(cls):
+        purchase_type = []
+        [purchase_type.append(e.value) for e in PurchaseTypes]
+        return purchase_type
 
     @classmethod
     def get_currency(cls):
