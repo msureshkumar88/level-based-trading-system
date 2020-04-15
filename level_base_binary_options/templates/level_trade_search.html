@@ -1,5 +1,6 @@
 {% extends 'guest_base.html'%}
 {%block heading%}Trading dashboard{%endblock%}
+{% load finance %}
 {%block content%}
 <div class="bd-example">
     <div class="row">
@@ -50,26 +51,30 @@
             </tr>
             </thead>
             <tbody>
+            {% for result in results %}
             <tr>
                 <th scope="row">1</th>
-                <td>EUR/USD</td>
-                <td>$50</td>
+                <td>{{result.currency}}</td>
+
+                <td>
+                    {%convert_currency result.amount result.amount_currency user_currency%}
+                     {{user_currency}} ({{result.amount}} {{result.amount_currency }})
+                </td>
                 <td>
                     <select class="form-control" name="selected_level"> <!--TODO: show only available levels-->
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-
+                        {% for al in result.available_levels %}
+                        <option value="{{al}}">{{al}}</option>
+                        {%endfor%}
                     </select>
                 </td>
-                <td>2020-04-05 15:05:06</td>
+                <td>{{result.end_time}}</td>
                 <td>
                     <button type="button" class="btn btn-primary">View</button><!--TODO:view trade on the chart-->
-                    <button type="button" class="btn btn-success">Buy</button>
+                    <button type="button" class="btn btn-success" value="{{result.purchase_type}}">{{result.purchase_type|capfirst}}</button>
                     <!--TODO:buy or sell according to the trade-->
                 </td>
             </tr>
+            {%endfor%}
 
 
             </tbody>

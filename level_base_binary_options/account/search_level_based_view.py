@@ -15,12 +15,15 @@ def level_based_search(request):
         return redirect('/login')
 
     data = dict()
+    data['results'] = []
     if request.method == "POST":
-        search(request)
+        data['results'] = search(request)
 
     data['purchase_type'] = Helper.get_purchase_type_list()
     data['currency_pairs'] = Helper.get_currency_pairs()
-
+    user_id = ac.get_user_session()
+    current_user = Helper.get_user_by_id(user_id)
+    data['user_currency'] = current_user["currency"]
     return render(request, 'level_trade_search.html', data)
 
 
@@ -30,7 +33,7 @@ def search(request):
     closing_date = request.POST['closing_date']
     min_amount = request.POST['min_amount']
     max_amount = request.POST['max_amount']
-
+    # TODO: Don't show user own trades show only from others
     error_messages = []
     error_messages.extend(search_all_inputs(request))
     print(error_messages)
@@ -61,9 +64,8 @@ def search(request):
     results = cursor.execute(initial_query)
     if not results:
         return []
+    return results
 
-    for r in results:
-        print(r)
 
 
 def filter_where_currency_pair(currency_pair):
