@@ -175,6 +175,11 @@ def create_trade(req):
 
     cursor.execute(level_based_user_counts)
 
+    updated_amount = float(current_user['vcurrency']) - float(amount)
+    # update account balance
+    user_vcurrency = f"UPDATE  user_by_id SET vcurrency = {updated_amount} WHERE id = {user_id}"
+    cursor.execute(user_vcurrency)
+
     # levels_by_id = LevelBasedById(transaction_id=transaction_id, created_date=time_now, created_by=user_id,
     #                               purchase_type=purchase_type,
     #                               currency=currency, staring_price=float(price), amount=float(amount),
