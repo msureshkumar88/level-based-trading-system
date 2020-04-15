@@ -79,6 +79,12 @@ class Helper:
         return currency_pairs
 
     @classmethod
+    def get_currency_pairs_list(cls):
+        pairs = []
+        [pairs.append(p['value']) for p in Helper.get_currency_pairs()]
+        return pairs
+
+    @classmethod
     def get_currency(cls):
         cursor = connection.cursor()
         currency = cursor.execute("SELECT * FROM currency")
