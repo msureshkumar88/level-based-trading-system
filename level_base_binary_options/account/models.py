@@ -181,6 +181,7 @@ class TransactionsLevelsStatus(DjangoCassandraModel):
     status = columns.Text(primary_key=True)
     purchase_type = columns.Text()
     currency = columns.Text()
+    amount_currency = columns.Text()
     created_date = columns.DateTime()
     amount = columns.Float()
     trade_type = columns.Text()

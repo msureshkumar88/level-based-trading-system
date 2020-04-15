@@ -106,6 +106,8 @@ def create_trade(req):
 
     available_levels = get_available_levels(Levels.levels.value, select_level)
 
+    current_user = Helper.get_user_by_id(user_id)
+    user_currency = current_user['currency']
     user_transaction = TransactionsByUser(user_id=user_id, created_date=time_now)
     user_transaction.save()
 
@@ -141,12 +143,12 @@ def create_trade(req):
 
     transactions_levels_status = f"INSERT INTO transactions_levels_status " \
                                  f"(transaction_id,user_id,outcome,purchase_type,currency,status,created_date,amount," \
-                                 f"trade_type,start_time,end_time,available_levels) " \
+                                 f"trade_type,start_time,end_time,available_levels,amount_currency) " \
                                  f"VALUES " \
                                  f"({transaction_id},{user_id},'{Outcome.NONE.value}','{purchase_type}','{currency}'," \
                                  f"'{Status.STARTED.value}','{time_now_formatted}',{float(amount)}," \
                                  f"'{Types.LEVELS.value}','{Helper.get_time_formatted(trade_start_time)}'," \
-                                 f"'{Helper.get_time_formatted(trade_closing_time)}',{available_levels})"
+                                 f"'{Helper.get_time_formatted(trade_closing_time)}',{available_levels}, '{user_currency}')"
 
     cursor.execute(transactions_levels_status)
 
