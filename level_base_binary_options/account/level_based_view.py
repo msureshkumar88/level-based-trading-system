@@ -122,7 +122,7 @@ def create_trade(req):
                         f"(transaction_id,user_id,created_date,trade_type,purchase_type,currency,staring_price,amount," \
                         f"start_time,end_time,changes_allowed_time,outcome,status,level_pips, levels_price,level_owners," \
                         f"join_date,level_start_price,level_end_price,level_selected,created_by,child," \
-                        f"available_levels) " \
+                        f"available_levels,amount_currency) " \
                         f"VALUES " \
                         f"({transaction_id},{user_id},'{time_now_formatted}','{Types.LEVELS.value}','{purchase_type}'," \
                         f"'{currency}',{float(price)},{float(amount)},'{Helper.get_time_formatted(trade_start_time)}'," \
@@ -130,7 +130,7 @@ def create_trade(req):
                         f"'{Helper.get_time_formatted(changes_allowed_time)}','{Outcome.NONE.value}'," \
                         f"'{Status.STARTED.value}',{int(gap_pips)},'{json.dumps(levels_price)}','{level_owners}'," \
                         f"'{time_now_formatted}',{selected_level['range'][0]},{selected_level['range'][1]}," \
-                        f"{selected_level['level']},{user_id},{False},{available_levels})"
+                        f"{selected_level['level']},{user_id},{False},{available_levels},'{current_user['currency']}')"
     cursor.execute(user_transactions)
 
     transactions_by_state = f"INSERT INTO transactions_by_state " \
