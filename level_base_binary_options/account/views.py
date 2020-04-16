@@ -38,7 +38,7 @@ def account(request):
 
     return render(request, 'account.html', data)
 
-
+# TODO: trade closing date cannot be a weekend - because on closing price available
 # start a trade
 def create_trade(req):
     post = req.POST

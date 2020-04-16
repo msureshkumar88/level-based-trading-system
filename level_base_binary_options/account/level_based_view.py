@@ -41,7 +41,7 @@ def levels(request):
 
     return render(request, 'level_based.html', data)
 
-
+# TODO: trade closing date cannot be a weekend - because on closing price available
 def create_trade(req):
     post = req.POST
     currency = post['currency']
