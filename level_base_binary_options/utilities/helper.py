@@ -107,5 +107,5 @@ class Helper:
     @classmethod
     def convert_currency(cls, amount, from_currency, to_currency):
         c = CurrencyConverter()
-        amount = float(c.convert(amount, from_currency, to_currency))
+        amount = float(c.convert(amount, from_currency.upper(), to_currency.upper()))
         return "%.2f" % round(amount, 2)
