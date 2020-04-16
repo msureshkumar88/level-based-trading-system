@@ -17,7 +17,11 @@ def level_based_search(request):
     data = dict()
     data['results'] = []
     if request.method == "POST":
-        data['results'] = search(request)
+        form = request.POST['form']
+        if form == "search":
+            data['results'] = search(request)
+        if form == "join":
+            join(request)
 
     data['purchase_type'] = Helper.get_purchase_type_list()
     data['currency_pairs'] = Helper.get_currency_pairs()
@@ -66,6 +70,46 @@ def search(request):
         return []
     return results
 
+
+def join(request):
+    transaction_id = request.POST['trans']
+    selected_level = request.POST['selected_level_' + transaction_id]
+    error_messages = []
+    error_messages.extend(validate_level_selection(selected_level))
+    error_messages.extend(validate_user_count_exceeded(transaction_id, selected_level))
+    print(error_messages)
+    if error_messages:
+        return error_messages
+
+    print(selected_level)
+    print(transaction_id)
+
+
+def validate_level_selection(selected_level):
+    if not selected_level:
+        return ["Please select a level"]
+    return []
+
+
+def validate_user_count_exceeded(transaction_id, selected_level):
+    if validate_level_selection(selected_level):
+        return []
+    cursor = connection.cursor()
+    user_count = f"SELECT * FROM level_based_user_levels WHERE " \
+                 f"transaction_id = {transaction_id} AND level_number = {selected_level}"
+    print(user_count)
+    results = cursor.execute(user_count)
+    if results:
+        return ["The level has already taken"]
+    return []
+
+
+def validate_changes_allowed_time_exceeded():
+    pass
+
+
+def validate_level_already_taken():
+    pass
 
 
 def filter_where_currency_pair(currency_pair):
