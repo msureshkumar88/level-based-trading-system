@@ -8,6 +8,8 @@ from django.db import connection
 from utilities.trade_status import Status
 from utilities.trade_levels import Levels
 
+from datetime import datetime
+
 
 def level_based_search(request):
     ac = Authentication(request)
@@ -82,6 +84,7 @@ def join(request):
 
     parent_trade = get_parent_trade(transaction_id)
 
+    error_messages.extend(validate_changes_allowed_time_exceeded(parent_trade["changes_allowed_time"]))
     # print(error_messages)
     if error_messages:
         return error_messages
@@ -105,8 +108,10 @@ def validate_level_already_taken(transaction_id, selected_level):
     return []
 
 
-def validate_changes_allowed_time_exceeded():
-    pass
+def validate_changes_allowed_time_exceeded(allowed_time_exceed):
+    if allowed_time_exceed >= datetime.now():
+        return ["The trade has expired please try another one"]
+    return []
 
 
 def validate_user_count_exceeded(transaction_id):
