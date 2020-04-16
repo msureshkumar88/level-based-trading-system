@@ -76,7 +76,7 @@ def join(request):
     selected_level = request.POST['selected_level_' + transaction_id]
     error_messages = []
     error_messages.extend(validate_level_selection(selected_level))
-    error_messages.extend(validate_user_count_exceeded(transaction_id, selected_level))
+    error_messages.extend(validate_level_already_taken(transaction_id, selected_level))
 
     parent_trade = get_parent_trade(transaction_id)
 
@@ -92,14 +92,13 @@ def validate_level_selection(selected_level):
     return []
 
 
-def validate_user_count_exceeded(transaction_id, selected_level):
+def validate_level_already_taken(transaction_id, selected_level):
     if validate_level_selection(selected_level):
         return []
     cursor = connection.cursor()
-    user_count = f"SELECT * FROM level_based_user_levels WHERE " \
+    level_based_user_levels = f"SELECT * FROM level_based_user_levels WHERE " \
                  f"transaction_id = {transaction_id} AND level_number = {selected_level}"
-    print(user_count)
-    results = cursor.execute(user_count)
+    results = cursor.execute(level_based_user_levels)
     if results:
         return ["The level has already taken"]
     return []
@@ -109,7 +108,7 @@ def validate_changes_allowed_time_exceeded():
     pass
 
 
-def validate_level_already_taken():
+def validate_user_count_exceeded(transaction_id):
     pass
 
 
