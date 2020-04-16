@@ -6,6 +6,7 @@ from utilities.helper import Helper
 from django.db import connection
 
 from utilities.trade_status import Status
+from utilities.trade_levels import Levels
 
 
 def level_based_search(request):
@@ -86,7 +87,6 @@ def join(request):
         return error_messages
 
 
-
 def validate_level_selection(selected_level):
     if not selected_level:
         return ["Please select a level"]
@@ -98,7 +98,7 @@ def validate_level_already_taken(transaction_id, selected_level):
         return []
     cursor = connection.cursor()
     level_based_user_levels = f"SELECT * FROM level_based_user_levels WHERE " \
-                 f"transaction_id = {transaction_id} AND level_number = {selected_level}"
+                              f"transaction_id = {transaction_id} AND level_number = {selected_level}"
     results = cursor.execute(level_based_user_levels)
     if results:
         return ["The level has already taken"]
@@ -115,9 +115,10 @@ def validate_user_count_exceeded(transaction_id):
 
     cursor = connection.cursor()
     results = cursor.execute(level_based_user_counts)
-    if results[0]['user_count'] == 4:
+    if results[0]['user_count'] == len(Levels.levels.value):
         return ["Number of traders to this trade has exceeded, this trade is not available"]
     return []
+
 
 # get the initial record of the level based trade to populate continually when user join
 def get_parent_trade(transaction_id):
@@ -131,6 +132,7 @@ def get_parent_trade(transaction_id):
 
     user_transactions_result = cursor.execute(user_transactions)
     return user_transactions_result[0]
+
 
 def filter_where_currency_pair(currency_pair):
     single_currency = f"('{currency_pair}')"
