@@ -77,6 +77,7 @@ def join(request):
     error_messages = []
     error_messages.extend(validate_level_selection(selected_level))
     error_messages.extend(validate_level_already_taken(transaction_id, selected_level))
+    error_messages.extend(validate_user_count_exceeded(transaction_id))
 
     parent_trade = get_parent_trade(transaction_id)
 
@@ -109,8 +110,14 @@ def validate_changes_allowed_time_exceeded():
 
 
 def validate_user_count_exceeded(transaction_id):
-    pass
+    level_based_user_counts = f"SELECT * FROM level_based_user_counts WHERE " \
+                              f"transaction_id = {transaction_id}"
 
+    cursor = connection.cursor()
+    results = cursor.execute(level_based_user_counts)
+    if results[0]['user_count'] == 4:
+        return ["Number of traders to this trade has exceeded, this trade is not available"]
+    return []
 
 # get the initial record of the level based trade to populate continually when user join
 def get_parent_trade(transaction_id):
