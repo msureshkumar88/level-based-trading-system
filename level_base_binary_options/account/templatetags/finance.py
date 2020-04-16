@@ -11,7 +11,7 @@ def convert_currency(amount, trade_currency, user_currency):
     amount = float(c.convert(amount, trade_currency.upper(), user_currency.upper()))
     return "%.2f" % round(amount, 2)
 
-
+# TODO: replace this with good currency converter
 
 # @register.simple_tag(name='add_text')
 # def add_text(text1, text2):

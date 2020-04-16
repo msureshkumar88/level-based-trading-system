@@ -6,9 +6,11 @@ import pytz
 from time import gmtime, strftime
 from datetime import datetime
 from django.db import connection
+from currency_converter import CurrencyConverter
 
 from .purchase_type import PurchaseTypes
 from .trade_levels import Levels
+
 
 class Helper:
     @classmethod
@@ -101,3 +103,9 @@ class Helper:
         cursor = connection.cursor()
         currency = cursor.execute("SELECT * FROM currency")
         return currency
+
+    @classmethod
+    def convert_currency(cls, amount, from_currency, to_currency):
+        c = CurrencyConverter()
+        amount = float(c.convert(amount, from_currency, to_currency))
+        return "%.2f" % round(amount, 2)
