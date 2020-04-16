@@ -175,6 +175,20 @@ def create_trade(req):
 
     cursor.execute(level_based_user_counts)
 
+    level_based_user_levels = f"INSERT INTO level_based_user_levels " \
+                              f"(transaction_id,level_number) " \
+                              f"VALUES " \
+                              f"({transaction_id},{selected_level['level']})"
+
+    cursor.execute(level_based_user_levels)
+
+    level_based_by_user_id = f"INSERT INTO level_based_by_user_id " \
+                             f"(transaction_id,owner,user_id) " \
+                             f"VALUES " \
+                             f"({transaction_id},{True},{user_id})"
+
+    cursor.execute(level_based_by_user_id)
+
     updated_amount = float(current_user['vcurrency']) - float(amount)
     # update account balance
     user_vcurrency = f"UPDATE  user_by_id SET vcurrency = {updated_amount} WHERE id = {user_id}"
