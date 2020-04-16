@@ -36,49 +36,57 @@
                 </div>
             </div>
             <input type="submit" value="Search">
+            <input type="hidden" name="form" value="search">
         </form>
     </div>
     <div class="row">
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Currency</th>
-                <th scope="col">Amount</th><!--Only show matching currencies in account ex:- usd, eur-->
-                <th scope="col">Level</th>
-                <th scope="col">Closing</th><!--trade closing time-->
-                <th scope="col">Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for result in results %}
-            <tr>
-                <th scope="row">1</th>
-                <td>{{result.currency}}</td>
+        <form action="" method="post">
+            {% csrf_token%}
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Currency</th>
+                    <th scope="col">Amount</th><!--Only show matching currencies in account ex:- usd, eur-->
+                    <th scope="col">Level</th>
+                    <th scope="col">Closing</th><!--trade closing time-->
+                    <th scope="col">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for result in results %}
+                <tr>
+                    <th scope="row">1</th>
+                    <td>{{result.currency}}</td>
 
-                <td>
-                    {%convert_currency result.amount result.amount_currency user_currency%}
-                     {{user_currency}} ({{result.amount}} {{result.amount_currency }})
-                </td>
-                <td>
-                    <select class="form-control" name="selected_level"> <!--TODO: show only available levels-->
-                        {% for al in result.available_levels %}
-                        <option value="{{al}}">{{al}}</option>
-                        {%endfor%}
-                    </select>
-                </td>
-                <td>{{result.end_time}}</td>
-                <td>
-                    <button type="button" class="btn btn-primary">View</button><!--TODO:view trade on the chart-->
-                    <button type="button" class="btn btn-success" value="{{result.purchase_type}}">{{result.purchase_type|capfirst}}</button>
-                    <!--TODO:buy or sell according to the trade-->
-                </td>
-            </tr>
-            {%endfor%}
+                    <td>
+                        {%convert_currency result.amount result.amount_currency user_currency%}
+                        {{user_currency}} ({{result.amount}} {{result.amount_currency }})
+                    </td>
+                    <td>
+                        <select class="form-control" name="selected_level_{{result.transaction_id}}">
+                            <option value="">Select a level</option>
+                            {% for al in result.available_levels %}
+                            <option value="{{al}}">{{al}}</option>
+                            {%endfor%}
+                        </select>
+                    </td>
+                    <td>{{result.end_time}}</td>
+                    <td>
+                        <button type="button" class="btn btn-primary">View</button><!--TODO:view trade on the chart-->
+                        <button type="submit" class="btn btn-success" name="trans" value="{{result.transaction_id}}">
+                            {{result.purchase_type|capfirst}}
+                        </button>
+                        <!--TODO:buy or sell according to the trade-->
+                    </td>
+                </tr>
+                {%endfor%}
 
 
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+            <input type="hidden" name="form" value="join">
+        </form>
     </div>
 </div>
 {% endblock%}
