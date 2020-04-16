@@ -77,12 +77,13 @@ def join(request):
     error_messages = []
     error_messages.extend(validate_level_selection(selected_level))
     error_messages.extend(validate_user_count_exceeded(transaction_id, selected_level))
-    print(error_messages)
+
+    parent_trade = get_parent_trade(transaction_id)
+
+    # print(error_messages)
     if error_messages:
         return error_messages
 
-    print(selected_level)
-    print(transaction_id)
 
 
 def validate_level_selection(selected_level):
@@ -111,6 +112,19 @@ def validate_changes_allowed_time_exceeded():
 def validate_level_already_taken():
     pass
 
+
+# get the initial record of the level based trade to populate continually when user join
+def get_parent_trade(transaction_id):
+    user_count = f"SELECT * FROM level_based_by_user_id WHERE " \
+                 f"transaction_id = {transaction_id} AND owner = {True}"
+    cursor = connection.cursor()
+    user_count_result = cursor.execute(user_count)
+
+    user_transactions = f"SELECT * FROM user_transactions WHERE " \
+                        f"transaction_id = {transaction_id} AND user_id = {user_count_result[0]['user_id']}"
+
+    user_transactions_result = cursor.execute(user_transactions)
+    return user_transactions_result[0]
 
 def filter_where_currency_pair(currency_pair):
     single_currency = f"('{currency_pair}')"
