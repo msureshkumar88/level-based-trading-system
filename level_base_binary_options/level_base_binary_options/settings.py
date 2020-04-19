@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_cassandra_engine',
+    'django.contrib.humanize'
 ]
 
 MIDDLEWARE = [
