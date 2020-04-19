@@ -91,17 +91,21 @@ def join(request):
     # print(error_messages)
     if error_messages:
         return error_messages
-    persist_join(user_id, transaction_id, parent_trade, selected_level)
+    current_user = Helper.get_user_by_id(user_id)
+    persist_join(user_id, transaction_id, parent_trade, selected_level, current_user)
 
 
-def persist_join(user_id, transaction_id, parent_trade, selected_level):
+def persist_join(user_id, transaction_id, parent_trade, selected_level, current_user):
     persist_user_transactions(user_id, transaction_id, parent_trade, selected_level)
-    persist_transactions_by_state(parent_trade)
-    persist_transactions_by_end_time(parent_trade)
-    persist_transactions_changes_allowed_time(parent_trade, user_id)
+    persist_transactions_by_state(transaction_id, user_id, parent_trade)
+    persist_transactions_by_end_time(transaction_id, user_id, parent_trade)
+    persist_transactions_changes_allowed_time(transaction_id, user_id, parent_trade)
     persist_level_based_user_counts(transaction_id)
     persist_level_based_user_levels(transaction_id, selected_level)
     persist_level_based_by_user_id(user_id, transaction_id)
+
+    update_other_trades(transaction_id, user_id, selected_level, parent_trade)
+    update_user_account_fields(user_id, current_user, parent_trade)
 
 
 def persist_user_transactions(user_id, transaction_id, parent_trade, selected_level):
@@ -136,36 +140,131 @@ def persist_user_transactions(user_id, transaction_id, parent_trade, selected_le
              f"{selected_level},{parent_trade['created_by']},{parent_trade['user_id']},{True}, {available_levels})"
 
     user_transactions = f"INSERT INTO user_transactions {fields} VALUES {values}"
-    print(user_transactions)
+    # print(user_transactions)
     cursor = connection.cursor()
     cursor.execute(user_transactions)
 
 
-def persist_transactions_by_state(parent_trade):
-    pass
+def persist_transactions_by_state(transaction_id, user_id, parent_trade):
+    created_date = Helper.get_current_time_formatted()
+    current_user = Helper.get_user_by_id(user_id)
+    converted_amount = Helper.convert_currency(parent_trade['amount'], parent_trade['amount_currency'],
+                                               current_user['currency'])
+
+    fields = "(transaction_id,user_id,currency,purchase_type,outcome,status, created_date, amount, trade_type)"
+
+    values = f"({transaction_id}, {user_id},'{parent_trade['currency']}','{parent_trade['purchase_type']}'," \
+             f"'{parent_trade['outcome']}','{parent_trade['status']}','{created_date}',{converted_amount}," \
+             f"'{parent_trade['trade_type']}')"
+
+    transactions_by_state = f"INSERT INTO transactions_by_state {fields} VALUES {values}"
+    cursor = connection.cursor()
+    cursor.execute(transactions_by_state)
 
 
-def persist_transactions_by_end_time(parent_trade):
-    pass
+
+def persist_transactions_by_end_time(transaction_id, user_id, parent_trade):
+    end_time = Helper.get_time_formatted(parent_trade['end_time'])
+    fields = "(transaction_id, user_id,status,trade_type,end_time)"
+    values = f"({transaction_id},{user_id},'{parent_trade['status']}','{parent_trade['trade_type']}','{end_time}')"
+
+    transactions_by_end_time = f"INSERT INTO transactions_by_end_time {fields} VALUES {values}"
+    cursor = connection.cursor()
+    cursor.execute(transactions_by_end_time)
 
 
-def persist_transactions_changes_allowed_time(parent_trade, user_id):
-    pass
+def persist_transactions_changes_allowed_time(transaction_id, user_id, parent_trade):
+    changes_allowed_time = Helper.get_time_formatted(parent_trade['changes_allowed_time'])
+
+    fields = "(transaction_id,user_id,status,changes_allowed_time)"
+    values = f"({transaction_id},{user_id},'{parent_trade['status']}','{changes_allowed_time}')"
+
+    transactions_changes_allowed_time = f"INSERT INTO transactions_changes_allowed_time {fields} VALUES {values}"
+    cursor = connection.cursor()
+    cursor.execute(transactions_changes_allowed_time)
 
 
 def persist_level_based_user_counts(transaction_id):
-    pass
+    cursor = connection.cursor()
+    current_count = f"SELECT * FROM level_based_user_counts WHERE transaction_id = {transaction_id}"
+    current_count = cursor.execute(current_count)
+    new_count = int(current_count[0]["user_count"]) + 1
+    update = f"UPDATE level_based_user_counts SET user_count = {new_count} WHERE transaction_id = {transaction_id}"
+    cursor.execute(update)
 
 
 def persist_level_based_user_levels(transaction_id, selected_level):
-    pass
+    cursor = connection.cursor()
+    level_based_user_levels = f"INSERT INTO level_based_user_levels (transaction_id,level_number) " \
+                              f"VALUES ({transaction_id},{selected_level})"
+
+    cursor.execute(level_based_user_levels)
 
 
 def persist_level_based_by_user_id(user_id, transaction_id):
-    pass
+    cursor = connection.cursor()
+    level_based_by_user_id = f"INSERT INTO level_based_by_user_id (transaction_id,owner,user_id) " \
+                             f"VALUES ({transaction_id},{False},{user_id})"
 
-# TODO: update level owners in the parent trade
-# TODO: update vcurrency in the user table
+    cursor.execute(level_based_by_user_id)
+
+
+# update all other trades that have already joined - except current user's trade
+# update level owners
+# update available levels
+def update_other_trades(transaction_id, user_id, selected_level, parent_trade):
+    cursor = connection.cursor()
+    level_based_by_user_id = f"SELECT * FROM level_based_by_user_id WHERE transaction_id = {transaction_id}"
+    existing_trades = cursor.execute(level_based_by_user_id)
+
+    current_user_trade = f"SELECT * FROM user_transactions WHERE transaction_id = {transaction_id} AND user_id = {user_id}"
+    current_user_trade = cursor.execute(current_user_trade)
+    current_user_trade = current_user_trade[0]
+
+    for trade in existing_trades:
+        print("here")
+        print(trade['user_id'], user_id)
+        if trade['user_id'] != user_id:
+            # trade_reloaded_query = f"SELECT * FROM user_transactions WHERE " \
+            #                        f"transaction_id = {transaction_id} AND user_id = {trade['user_id']}"
+            #
+            # trade_reloaded = cursor.execute(trade_reloaded_query)
+            # trade_reloaded = trade_reloaded[0]
+            #
+            # available_levels = get_available_levels(current_user_trade["available_levels"], selected_level)
+            # level_owners = add_level_owners(current_user_trade['level_owners'], user_id, selected_level)
+
+            update = f"UPDATE user_transactions SET available_levels = {current_user_trade['available_levels']}" \
+                     f",level_owners = '{current_user_trade['level_owners']}' " \
+                     f"WHERE transaction_id = {transaction_id} and user_id = {trade['user_id']}"
+            cursor.execute(update)
+    #   update transactions_levels_status available_levels
+    end_time = Helper.get_time_formatted(current_user_trade['end_time'])
+    update_transactions_levels_status = f"UPDATE transactions_levels_status SET available_levels = " \
+                                        f"{current_user_trade['available_levels']} " \
+                                        f"WHERE status = '{parent_trade['status']}' " \
+                                        f"AND currency = '{parent_trade['currency']}'" \
+                                        f"AND end_time = '{end_time}' " \
+                                        f"AND purchase_type = '{parent_trade['purchase_type']}' " \
+                                        f"AND amount = {parent_trade['amount']} " \
+                                        f"AND transaction_id = {parent_trade['transaction_id']} " \
+                                        f"AND user_id = {parent_trade['user_id']}"
+
+    print(update_transactions_levels_status)
+    cursor.execute(update_transactions_levels_status)
+
+
+# update vcurrency in the user table
+def update_user_account_fields(user_id, current_user, parent_trade):
+    cursor = connection.cursor()
+    converted_amount = Helper.convert_currency(parent_trade['amount'], parent_trade['amount_currency'],
+                                               current_user['currency'])
+
+    updated_amount = float(current_user['vcurrency']) - float(converted_amount)
+    # update account balance
+    update_user = f"UPDATE user_by_id SET vcurrency = {updated_amount} WHERE id = {user_id}"
+    cursor.execute(update_user)
+
 
 def add_level_owners(current_owners, user_id, selected_level):
     current_owners = json.loads(current_owners)
@@ -185,6 +284,7 @@ def get_selected_level_price(ranges, selected_level):
 
 def get_available_levels(available_levels, selected_level):
     available_levels_copy = available_levels.copy()
+    print(available_levels_copy)
     available_levels_copy.remove(int(selected_level))
     return available_levels_copy
 
@@ -195,7 +295,7 @@ def validate_level_selection(selected_level):
     return []
 
 
-# TODO: do not allow to enter more than one level
+# not allow to enter more than one level
 def validate_level_already_taken(transaction_id, selected_level):
     if validate_level_selection(selected_level):
         return []
