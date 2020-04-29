@@ -1,85 +1,115 @@
 {% extends 'guest_base.html'%}
-{%block heading%}Trading dashboard{%endblock%}
+{%block heading%}Binary Options{%endblock%}
 {%block content%}
 <div class="bd-example">
-
     <form name="" method="post">
-        <!--show thins when binary options is selected-->
-        {% csrf_token%}
-        Start Now: <input type="radio" name="start" checked value="start now">
+        <div class="form-row col-md-9">
+            <!--show thins when binary options is selected-->
+            {% csrf_token%}
 
 
-        Start later: <input type="radio" name="start" value="start later">
-        <!--show this when start_time_later is selected-->
-        Start date<input type="date" name="start_date" value="{{today_date}}">
-        Start time<input type="time" name="start_time" value="{{time_now}}">
-        <br>
-        <select name="currency">
-            <option value="">Select currency</option>
-            {% for c in currency%}
-            <option value="{{c.value}}">{{c.value}}</option>
-            {%endfor%}
-        </select>
-        <br>
-        <select name="time_to_close" id="time_to_close">
-            <option value="">Select trade closing type</option>
-            <option value="duration">Duration</option>
-            <option value="end_time">End Time</option>
-        </select>
-        <br>
-        <!--active when duration is selected-->
-        <div>
-            <select name="time_slot">
-                <option value="">Select duration</option>
-                {% for c in duration%}
-                <option value="{{c.name}}">{{c.label}}</option>
-                {%endfor%}
-            </select><input type="text" name="time_count" placeholder="units">
-        </div>
-        <br>
-        <!--active when end time is selected-->
-        <div>
-            <input type="date" name="end_date" placeholder="trade close date" value="{{today_date}}">
-            <input type="time" name="end_time" placeholder="trade close time" value="{{time_now}}">
-        </div>
-        <br>
-        <input type="text" name="amount" placeholder="Amount">
-        <br>
+            <div class="form-check form-check-inline">
+                <label class="form-check-label" for="start_now_chk">Start Now&nbsp;</label>
+                <input type="radio" class="form-check-input" name="start" id="start_now_chk" checked value="start now">
+            </div>
 
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-action="Buy"
-                data-target=".binaryConfirmationModel">Buy
-        </button>
-        <button type="button" class="btn btn-danger" data-toggle="modal" data-action="Sell"
-                data-target=".binaryConfirmationModel">Sell
-        </button>
-        <!--<input type="submit" name="purchase" value="Sell">-->
-        <!--<input type="submit" name="purchase" value="Buy">-->
-        <!-- Button trigger modal -->
+            <div class="form-check form-check-inline">
+                <label class="form-check-label" for="start_later_chk"> Start later&nbsp;</label>
+                <input type="radio" id="start_later_chk" class="form-check-input" name="start" value="start later">
+            </div>
 
-        <!-- Modal -->
-        <div class="modal fade binaryConfirmationModel" tabindex="-1" role="dialog"
-             aria-labelledby="binaryConfirmationModelLabel"
-             aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="binaryConfirmationModelLabel">Order Confirmation</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        Are you sure you want to place this order?
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <!--<button type="button" class="btn btn-primary">Save changes</button>-->
-                        <input type="submit" id="purchase" name="purchase" value="">
+
+            <!--show this when start_time_later is selected-->
+            <div class="form-group col-md-4 start_later_area">
+                Start date<input type="date" name="start_date" class="form-control" value="{{today_date}}">
+            </div>
+            <div class="form-group col-md-4 start_later_area">
+                Start time<input type="time" name="start_time" class="form-control" value="{{time_now}}">
+            </div>
+
+
+            <div class="form-group col-md-12">
+                <select name="currency" class="form-control">
+                    <option value="">Select currency</option>
+                    {% for c in currency%}
+                    <option value="{{c.value}}">{{c.value}}</option>
+                    {%endfor%}
+                </select>
+            </div>
+            <div class="form-group col-md-12">
+                <select name="time_to_close" id="time_to_close" class="form-control">
+                    <option value="">Select trade closing type</option>
+                    <option value="duration">Duration</option>
+                    <option value="end_time">End Time</option>
+                </select>
+            </div>
+
+            <!--active when duration is selected-->
+            <div class="form-group col-md-9 duration_area">
+                <select name="time_slot" class="form-control">
+                    <option value="">Select duration</option>
+                    {% for c in duration%}
+                    <option value="{{c.name}}">{{c.label}}</option>
+                    {%endfor%}
+                </select>
+            </div>
+            <div class="form-group col-md-3 duration_area">
+                <input type="text" class="form-control" name="time_count" placeholder="Units">
+            </div>
+
+
+            <!--active when end time is selected-->
+            <div class="form-group col-md-6 end_time_area">
+                <input type="date" class="form-control" name="end_date" placeholder="trade close date"
+                       value="{{today_date}}">
+            </div>
+
+            <div class="form-group col-md-6 end_time_area">
+                <input type="time" class="form-control" name="end_time" placeholder="trade close time"
+                       value="{{time_now}}">
+            </div>
+
+            <div class="form-group col-md-12">
+                <input type="text" name="amount" class="form-control" placeholder="Amount">
+            </div>
+            <div class="form-group col-md-6">
+                <button type="button" class="btn btn-primary col-md-12" data-toggle="modal" data-action="Buy"
+                        data-target=".binaryConfirmationModel">Buy
+                </button>
+            </div>
+            <div class="form-group col-md-6">
+                <button type="button" class="btn btn-danger col-md-12" data-toggle="modal" data-action="Sell"
+                        data-target=".binaryConfirmationModel">Sell
+                </button>
+            </div>
+            <!--<input type="submit" name="purchase" value="Sell">-->
+            <!--<input type="submit" name="purchase" value="Buy">-->
+            <!-- Button trigger modal -->
+
+            <!-- Modal -->
+            <div class="modal fade binaryConfirmationModel" tabindex="-1" role="dialog"
+                 aria-labelledby="binaryConfirmationModelLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="binaryConfirmationModelLabel">Order Confirmation</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to place this order?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <!--<button type="button" class="btn btn-primary">Save changes</button>-->
+                            <input type="submit" id="purchase" name="purchase" value="">
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-
     </form>
 </div>
 

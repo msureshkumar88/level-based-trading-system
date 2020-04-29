@@ -22,6 +22,8 @@ class Trading:
         if time_to_close == 'end_time':
             return Trading.make_date_time_stamp(date, time)
 
+        if not time_count:
+            return []
         time_count = int(time_count)
         adding_time = datetime.now()
         if start == "start later":
@@ -86,8 +88,8 @@ class Trading:
     # validate if the end date is greater start date
     @classmethod
     def validate_def_start_end_dates(cls, start_date, end_date):
-        print(start_date)
-        print(end_date)
+        if not start_date or not end_date:
+            return []
         if start_date >= end_date:
             return ["Trade closing date must be future date"]
         return []
