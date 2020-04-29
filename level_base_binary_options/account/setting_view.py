@@ -17,18 +17,18 @@ def settings(request):
 
     ac = Authentication(request)
     user_id = ac.get_user_session()
-
+    data = dict()
     if request.method == "POST":
         action = request.POST['action']
         if action == "Update":
-            update_settings(request, user_id)
+            data['errors'] = update_settings(request, user_id)
         if action == "Change password":
-            update_password(request, user_id)
+            data['errors'] = update_password(request, user_id)
         if action == "Deposit":
-            deposit(request, user_id)
+            data['errors'] = deposit(request, user_id)
 
     user_data = Helper.get_user_by_id(user_id)
-    data = dict()
+
     data['user_data'] = user_data
     data['countries'] = Helper.get_countries()
     data['auth'] = ac.is_user_logged_in()
