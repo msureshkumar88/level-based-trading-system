@@ -1,5 +1,6 @@
-//binary options trade creations page /account
-$('.binaryConfirmationModel').on('show.bs.modal', function (event) {
+//binary options trade creations page /account and /levels
+
+$('.tradeConfirmationModel').on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget) // Button that triggered the modal
     var action = button.data('action') // Extract info from data-* attributes
     var purchaseBtn = $('#purchase')
@@ -23,7 +24,6 @@ $("#start_now_chk").click(function () {
 
 $("#start_later_chk").click(function () {
     start_later_area.fadeIn()
-
 });
 
 var time_to_close = $("#time_to_close");
