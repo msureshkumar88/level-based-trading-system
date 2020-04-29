@@ -37,7 +37,7 @@ def levels(request):
     data = dict()
     data = Trading.load_static_data()
     if request.method == "POST":
-        create_trade(request)
+        data['errors'] = create_trade(request)
     data['auth'] = ac.is_user_logged_in()
     return render(request, 'level_based.html', data)
 
@@ -83,8 +83,7 @@ def create_trade(req):
 
     # final method to get trade closing time
     trade_closing_time = get_trade_end_time(time_to_close, end_date, end_time, time_slot, time_count, start_time)
-    changes_allowed_time = Trading.get_trade_changing_blocked_time(start_time, trade_closing_time)
-    level_owners = get_level_owner(select_level, user_id)
+    error_messages.extend(Trading.validate_close_time_day(trade_closing_time))
 
     # encode as a json string
     # cc = json.dumps(levels_price)
@@ -95,6 +94,9 @@ def create_trade(req):
         # print(error_messages)
         return error_messages
     # time_now = datetime.now()
+    changes_allowed_time = Trading.get_trade_changing_blocked_time(start_time, trade_closing_time)
+    level_owners = get_level_owner(select_level, user_id)
+
     time_now_formatted = Helper.get_current_time_formatted()
 
     time_now = datetime.strptime(time_now_formatted, '%Y-%m-%d %H:%M:%S.%f%z')

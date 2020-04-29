@@ -39,7 +39,7 @@ def account(request):
     data['auth'] = ac.is_user_logged_in()
     return render(request, 'account.html', data)
 
-# TODO: trade closing date cannot be a weekend - because on closing price available
+
 # start a trade
 def create_trade(req):
     post = req.POST
@@ -74,7 +74,11 @@ def create_trade(req):
     trade_end_time = Trading.get_trade_end_time(time_to_close, end_date, end_time, time_slot, time_count, start,
                                                 trade_start_time)
 
+    # print(trade_start_time)
+    # return
     error_messages.extend(Trading.validate_def_start_end_dates(trade_start_time, trade_end_time))
+    error_messages.extend(Trading.validate_close_time_day(trade_end_time))
+    error_messages.extend(Trading.validate_start_time_day(trade_start_time))
 
     purchase_type = Trading.get_trade_type(purchase)
     status = Trading.get_trade_status(start)

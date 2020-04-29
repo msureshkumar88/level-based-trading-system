@@ -3,9 +3,10 @@
 {%block content%}
 <div class="bd-example">
     <form name="" method="post">
+
         <div class="form-row col-md-9">
             {%for error in errors %}
-            <div class="alert alert-danger">{{error}}</div>
+            <div class="alert alert-danger col-md-12">{{error}}</div>
             {%endfor%}
             <!--show thins when binary options is selected-->
             {% csrf_token%}

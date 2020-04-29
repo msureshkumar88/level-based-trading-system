@@ -127,6 +127,22 @@ class Trading:
         return []
 
     @classmethod
+    def validate_close_time_day(cls, end_date):
+        if not end_date:
+            return []
+        if end_date.weekday() in [5,6]:
+            return ['Closing date cannot be Saturday or Sunday']
+        return []
+
+    @classmethod
+    def validate_start_time_day(cls, start_date):
+        if not start_date:
+            return []
+        if start_date.weekday() in [5, 6]:
+            return ['Trade start date cannot be Saturday or Sunday']
+        return []
+
+    @classmethod
     # validate each trade closing option
     def validate_closing_types(cls, time_to_close, time_slot, time_count, end_date, end_time):
         if time_to_close == "duration":
