@@ -32,6 +32,7 @@ def level_based_search(request):
     user_id = ac.get_user_session()
     current_user = Helper.get_user_by_id(user_id)
     data['user_currency'] = current_user["currency"]
+    data['auth'] = ac.is_user_logged_in()
     return render(request, 'level_trade_search.html', data)
 
 

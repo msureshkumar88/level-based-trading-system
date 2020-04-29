@@ -31,6 +31,7 @@ def settings(request):
     data = dict()
     data['user_data'] = user_data
     data['countries'] = Helper.get_countries()
+    data['auth'] = ac.is_user_logged_in()
 
     return render(request, 'settings.html', data)
 

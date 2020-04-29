@@ -36,6 +36,7 @@ def account(request):
     if request.method == "POST":
         data["errors"] = create_trade(request)
 
+    data['auth'] = ac.is_user_logged_in()
     return render(request, 'account.html', data)
 
 # TODO: trade closing date cannot be a weekend - because on closing price available
@@ -204,11 +205,12 @@ def charts(request):
     data = dict()
     if request.method == "POST":
         pass
-
+    data['auth'] = ac.is_user_logged_in()
     return render(request, 'charts.html', data)
 
 
 def logout(request):
     ac = Authentication(request)
-    ac.logout()
+    if ac.is_user_logged_in():
+        ac.logout()
     return redirect('/login')

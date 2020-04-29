@@ -38,7 +38,7 @@ def levels(request):
     data = Trading.load_static_data()
     if request.method == "POST":
         create_trade(request)
-
+    data['auth'] = ac.is_user_logged_in()
     return render(request, 'level_based.html', data)
 
 # TODO: trade closing date cannot be a weekend - because on closing price available
