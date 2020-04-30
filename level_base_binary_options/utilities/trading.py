@@ -177,3 +177,13 @@ class Trading:
             return ['Do not have enough fund please add funds']
         return []
 
+    @classmethod
+    def get_chart_data(cls, start_date, end_date, table, currency_pair):
+        cursor = connection.cursor()
+        query = f"SELECT * FROM  {table} WHERE  currency_pair = '{currency_pair}' AND " \
+                f"timestamp >= {start_date} AND timestamp <= {end_date}"
+        fx_data = cursor.execute(query)
+        return fx_data
+
+    
+
