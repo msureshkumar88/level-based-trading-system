@@ -109,3 +109,11 @@ class Helper:
         c = CurrencyConverter()
         amount = float(c.convert(amount, from_currency.upper(), to_currency.upper()))
         return "%.2f" % round(amount, 2)
+
+    @classmethod
+    def get_json_response(cls, status, data, message):
+        response = dict()
+        response['status'] = status
+        response['data'] = data
+        response['message'] = message
+        return response

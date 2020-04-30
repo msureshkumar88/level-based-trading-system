@@ -239,7 +239,7 @@ def create_trade(req):
     #                                                    changes_allowed_time=changes_allowed_time,
     #                                                    level_pips=int(gap_pips), outcome=Outcome.NONE.value)
     # users_owned_levels_status.save()
-    return True
+    return []
 
 
 def validate_pip_gaps(gap):

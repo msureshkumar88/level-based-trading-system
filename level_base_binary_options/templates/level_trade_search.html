@@ -73,13 +73,18 @@
                     </td>
                     <td>{{result.end_time}}</td>
                     <td>
-                        <button type="button" class="btn btn-success">View</button><!--TODO:view trade on the chart-->
+                        <!--<button type="button" class="btn btn-success">View</button>&lt;!&ndash;TODO:view trade on the chart&ndash;&gt;-->
+                        <button type="button" class="btn btn-success" data-toggle="modal"
+                                data-transaction="{{result.transaction_id}}"
+                                data-owner="{{result.user_id}}"
+                                data-target=".chartModel">View
+                        </button>
                         {% if result.purchase_type == 'buy'%}
-                         <button type="submit"  class="btn btn-primary" name="trans" value="{{result.transaction_id}}">
+                        <button type="submit" class="btn btn-primary" name="trans" value="{{result.transaction_id}}">
                             {{result.purchase_type|capfirst}}
                         </button>
                         {% else %}
-                         <button type="submit"  class="btn btn-danger" name="trans" value="{{result.transaction_id}}">
+                        <button type="submit" class="btn btn-danger" name="trans" value="{{result.transaction_id}}">
                             {{result.purchase_type|capfirst}}
                         </button>
                         {% endif %}
@@ -94,6 +99,81 @@
             </table>
             <input type="hidden" name="form" value="join">
         </form>
+    </div>
+</div>
+
+<!-- Chart Modal-->
+<div class="modal fade chartModel" tabindex="-1" role="dialog"
+     aria-labelledby="chartModelLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="chartModelLabel">Order Confirmation</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="offset-9"></div>
+                    <div class="col-md-3">
+                        <h5 class="bg-info">Order information</h5>
+                        <table class="table small">
+                            <thead>
+                            <th style="width: 50%"></th>
+                            <th style="width: 50%"></th>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>Transaction id</td>
+                                <td id="transaction-id"></td>
+                            </tr>
+                            <tr>
+                                <td>Contract Type</td>
+                                <td id="contract_type"></td>
+                            </tr>
+                            <tr>
+                                <td>Purchase type</td>
+                                <td id="purchase-type"></td>
+                            </tr>
+                            <tr>
+                                <td>Start Time</td>
+                                <td id="start-time"></td>
+                            </tr>
+                            <tr>
+                                <td>End time</td>
+                                <td id="end-time"></td>
+                            </tr>
+                            <tr>
+                                <td>Start price</td>
+                                <td id="start-price"></td>
+                            </tr>
+                            <tr>
+                                <td>Close price</td>
+                                <td id="close-price"></td>
+                            </tr>
+                             <tr>
+                                <td>Amount</td>
+                                <td id="amount"></td>
+                            </tr>
+                            <tr>
+                                <td>Outcome</td>
+                                <td id="outcome"></td>
+                            </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <!--<button type="button" class="btn btn-primary">Save changes</button>-->
+                <input type="submit" id="purchase" name="join" value="join">
+            </div>
+        </div>
     </div>
 </div>
 {% endblock%}

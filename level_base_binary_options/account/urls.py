@@ -5,6 +5,7 @@ from . import level_based_view
 from . import setting_view
 from . import statements_view
 from . import search_level_based_view
+from . import restapi
 
 from django.conf import settings
 from django.conf.urls.static import static
@@ -17,5 +18,6 @@ urlpatterns = [
     path('account/settings', setting_view.settings, name='settings'),
     path('account/charts', views.charts, name='charts'),
     path('account/logout', views.logout, name='logout'),
+    path('account/get-transaction', restapi.get_transaction, name='logout'),
 ]
 

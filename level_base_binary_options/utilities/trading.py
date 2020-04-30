@@ -185,5 +185,16 @@ class Trading:
         fx_data = cursor.execute(query)
         return fx_data
 
-    
+    @classmethod
+    def get_transaction_by_id(cls, transaction_id, user_id):
+        cursor = connection.cursor()
+        query = f"SELECT * FROM  user_transactions WHERE  transaction_id = {transaction_id} AND " \
+                f"user_id = {user_id}"
+        transaction = cursor.execute(query)
+        print(transaction)
+        if transaction:
+            return transaction[0]
+        return []
+
+
 
