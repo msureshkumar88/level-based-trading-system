@@ -4,7 +4,7 @@ WS_SERVER_URL = "http://localhost:8080/"
 var chartModel = $('.chartModel');
 
 var socket = "";
-var requestTime = ""
+
 chartModel.on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget);// Button that triggered the modal
     var transactionRef = button.data('transaction'); // Extract info from data-* attributes
@@ -27,7 +27,6 @@ function loadChartHistoryData(transactionRef, tradeOwner) {
         // socket.disconnect()
         drawGraph(data);
         print(data)
-        requestTime = data.end_date
     });
 }
 
@@ -37,7 +36,7 @@ function loadChartLiveData(transactionRef, tradeOwner) {
     var payload = {user_id: tradeOwner, transaction_ref: transactionRef};
     socket = io.connect(WS_SERVER_URL);
     var cnt = 0;
-
+    var requestTime = ""
     interval = setInterval(function () {
         payload['request_time'] = requestTime
         print(payload['request_time'])
