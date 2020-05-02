@@ -9,7 +9,27 @@ chartModel.on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget);// Button that triggered the modal
     var transactionRef = button.data('transaction'); // Extract info from data-* attributes
     var tradeOwner = button.data('owner');
+
+    loadSingleTrade(transactionRef, tradeOwner);
+    getLoadChartData(transactionRef, tradeOwner);
+
+
+});
+
+
+function getLoadChartData(transactionRef, tradeOwner) {
+    var payload = {user_id: tradeOwner, transaction_ref: transactionRef};
     socket = io.connect(WS_SERVER_URL);
+    socket.emit('get chart data', payload);
+
+    socket.on('chart data', function (data) {
+        // socket.disconnect()
+        drawGraph(data);
+        print(data)
+    });
+}
+
+function loadSingleTrade(transactionRef, tradeOwner) {
     $.ajax({
         url: BASE_URL + 'account/get-transaction',
         data: {
@@ -20,7 +40,6 @@ chartModel.on('show.bs.modal', function (event) {
         dataType: 'json',
         method: 'POST',
         success: function (data) {
-            print(data)
             data = data.data[0];
             $('#transaction-id').html(data.transaction_ref);
             $('#contract_type').html(S(data.contract_type).capitalize().s);
@@ -34,24 +53,7 @@ chartModel.on('show.bs.modal', function (event) {
 
         }
     });
-    var payload = {user_id: tradeOwner, transaction_ref: transactionRef}
-    socket.emit('get chart data', payload);
-
-    socket.on('chart data', function (data) {
-
-        // var dd = JSON.parse(data)
-
-        // var close = data.close.split("")
-        // for (x of close) {
-        //     print(x)
-        // }
-        // socket.disconnect()
-        drawGraph(data)
-        print(data)
-    });
-
-
-});
+}
 
 chartModel.on('hidden.bs.modal', function () {
     socket.disconnect()
