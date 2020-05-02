@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from utilities.authentication import Authentication
 from utilities.helper import Helper
 from utilities.user_helper import UserHelper
+from utilities.state_keys import StatKeys
 
 from datetime import datetime
 
@@ -137,3 +138,5 @@ def create_user(request):
                             fname=first_name, lname=last_name, mobile=mobile, vcurrency=virtual_currency,
                             created_date=datetime.now())
         new_user.save()
+
+        Helper.store_state_value(user_id, StatKeys.BALANCE.value, virtual_currency, Helper.get_today_date())
