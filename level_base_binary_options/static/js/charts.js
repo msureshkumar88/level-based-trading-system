@@ -20,9 +20,9 @@ chartModel.on('show.bs.modal', function (event) {
 function getLoadChartData(transactionRef, tradeOwner) {
     var payload = {user_id: tradeOwner, transaction_ref: transactionRef};
     socket = io.connect(WS_SERVER_URL);
-    socket.emit('get chart data', payload);
+    socket.emit('get chart data history', payload);
 
-    socket.on('chart data', function (data) {
+    socket.on('chart data history', function (data) {
         // socket.disconnect()
         drawGraph(data);
         print(data)
