@@ -4,20 +4,21 @@ WS_SERVER_URL = "http://localhost:8080/"
 var chartModel = $('.chartModel');
 
 var socket = "";
-
+var requestTime = ""
 chartModel.on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget);// Button that triggered the modal
     var transactionRef = button.data('transaction'); // Extract info from data-* attributes
     var tradeOwner = button.data('owner');
 
     loadSingleTrade(transactionRef, tradeOwner);
-    getLoadChartData(transactionRef, tradeOwner);
+    loadChartHistoryData(transactionRef, tradeOwner);
+    loadChartLiveData(transactionRef, tradeOwner);
 
 
 });
 
 
-function getLoadChartData(transactionRef, tradeOwner) {
+function loadChartHistoryData(transactionRef, tradeOwner) {
     var payload = {user_id: tradeOwner, transaction_ref: transactionRef};
     socket = io.connect(WS_SERVER_URL);
     socket.emit('get chart data history', payload);
@@ -26,6 +27,39 @@ function getLoadChartData(transactionRef, tradeOwner) {
         // socket.disconnect()
         drawGraph(data);
         print(data)
+        requestTime = data.end_date
+    });
+}
+
+var interval;
+
+function loadChartLiveData(transactionRef, tradeOwner) {
+    var payload = {user_id: tradeOwner, transaction_ref: transactionRef};
+    socket = io.connect(WS_SERVER_URL);
+    var cnt = 0;
+
+    interval = setInterval(function () {
+        payload['request_time'] = requestTime
+        print(payload['request_time'])
+        socket.emit('get chart data live', payload);
+
+        if (++cnt === 100) {
+            clearInterval(interval);
+            socket.disconnect();
+        }
+    }, 1000);
+
+
+    socket.on('chart data live', function (data) {
+        // socket.disconnect()
+        // drawGraph(data);
+        print(data)
+        var update = {
+            x: [[data.timestamp]],
+            y: [[data.close]]
+        };
+        requestTime = data.timestamp
+         Plotly.extendTraces('fx-chart', update, [0])
     });
 }
 
@@ -56,18 +90,19 @@ function loadSingleTrade(transactionRef, tradeOwner) {
 }
 
 chartModel.on('hidden.bs.modal', function () {
+    clearInterval(interval);
     socket.disconnect()
 });
 
 function drawGraph(response) {
     var close = JSON.parse(response.close)
     var timestamp = JSON.parse(response.timestamp)
-
+    print(timestamp[0])
     var data = [
         {
             x: timestamp,
             y: close,
-            type: 'scatter'
+            type: 'lines'
         }
     ];
     var layout = {
@@ -126,6 +161,21 @@ function drawGraph(response) {
     // y: [[close]]
     // };
     Plotly.newPlot('fx-chart', data, layout);
+    // var old = {
+    //         x: [[timestamp[0],timestamp[1],timestamp[2]]],
+    //         y: [[close[0],close[1],close[2]]]
+    //     };
+    // var old = {
+    //         x: [timestamp],
+    //         y: [close]
+    //     };
+    // Plotly.extendTraces('fx-chart', old, [0])
+    // var update = {
+    //         x: [["2020-01-03 00:01:00","2020-01-03 00:02:00","2020-01-03 00:03:00"]],
+    //         y: [[1.11704,1.11708,1.11711]]
+    //     };
+    //
+    // Plotly.extendTraces('fx-chart', update, [0])
 
 }
 
