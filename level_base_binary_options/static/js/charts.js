@@ -12,7 +12,7 @@ chartModel.on('show.bs.modal', function (event) {
 
     loadSingleTrade(transactionRef, tradeOwner);
     loadChartHistoryData(transactionRef, tradeOwner);
-    loadChartLiveData(transactionRef, tradeOwner);
+    // loadChartLiveData(transactionRef, tradeOwner);
 
 
 });
@@ -58,7 +58,7 @@ function loadChartLiveData(transactionRef, tradeOwner) {
             y: [[data.close]]
         };
         requestTime = data.timestamp
-         Plotly.extendTraces('fx-chart', update, [0])
+        Plotly.extendTraces('fx-chart', update, [0])
     });
 }
 
@@ -114,47 +114,9 @@ function drawGraph(response) {
         xaxis: {
             title: 'Y-axis Title',
         },
-        shapes: [
-            {
-                type: 'line',
-                x0: response.start_time,
-                y0: response.line_start,
-                x1: response.start_time,
-                y1: response.line_end,
-                line: {
-                    color: 'rgb(55, 128, 191)',
-                    width: 3
-                },
-            },
-            {
-                type: 'line',
-                x0: response.end_date,
-                y0: response.line_start,
-                x1: response.end_date,
-                y1: response.line_end,
-                line: {
-                    color: 'rgb(55, 128, 191)',
-                    width: 3,
-                    dash: 'dot'
-                },
-            },
-            {
-                type: 'line',
-                x0: response.start_time,
-                y0: response.start_price,
-                x1: response.end_date,
-                y1: response.start_price,
-                line: {
-                    color: 'rgb(128, 0, 128)',
-                    width: 4,
-                    dash: 'dot'
-                }
-            }
-
-
-        ]
-
     };
+    layout['shapes'] = getLayoutByTradeType(response)
+
     // var update = {
     // x:  [[timestamp]],
     // y: [[close]]
@@ -178,6 +140,80 @@ function drawGraph(response) {
 
 }
 
+function getLayoutByTradeType(response) {
+    if (response.trade_type === "levels") {
+        var ranges = JSON.parse(response.levels_price)
+        var levelMap = []
+
+        levelMap.push({
+            type: 'line',
+            x0: response.start_time,
+            y0: ranges[0].range[0],
+            x1: response.end_date,
+            y1: ranges[0].range[0],
+            line: {
+                color: 'rgb(250, 37, 37)',
+                width: 4,
+                dash: 'dot'
+            }
+        });
+        ranges.forEach(function (item, index) {
+            // print(item.range)
+            // print(index)
+            levelMap.push({
+                type: 'line',
+                x0: response.start_time,
+                y0: item.range[1],
+                x1: response.end_date,
+                y1: item.range[1],
+                line: {
+                    color: 'rgb(128, 0, 128)',
+                    width: 4,
+                    dash: 'dot'
+                }
+            })
+        });
+
+        print(levelMap)
+        return levelMap
+    }
+    //todo: fix trade shapes for binary trading
+    return [
+        {
+            type: 'line',
+            x0: response.start_time,
+            y0: response.line_start,
+            x1: response.start_time,
+            y1: response.line_end,
+            line: {
+                color: 'rgb(55, 128, 191)',
+                width: 3
+            },
+        },
+        {
+            type: 'line', x0: response.end_date, y0: response.line_start, x1: response.end_date, y1: response.line_end,
+            line: {
+                color: 'rgb(55, 128, 191)',
+                width: 3,
+                dash: 'dot'
+            },
+        },
+        {
+            type: 'line',
+            x0: response.start_time,
+            y0: response.start_price,
+            x1: response.end_date,
+            y1: response.start_price,
+            line: {
+                color: 'rgb(250, 37, 37)',
+                width: 4,
+                dash: 'dot'
+            }
+        }
+
+
+    ]
+}
 
 //https://plotly.com/javascript/shapes/
 //https://plotly.com/javascript/setting-graph-size/

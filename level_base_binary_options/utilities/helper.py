@@ -32,6 +32,7 @@ class Helper:
         # TODO: should be returned as string
         # TODO: check this function to get the value from database
         # TODO: change this function to work with get_current_price_instance
+        return '1.00000'
         with requests.Session() as s:
             download = s.get(Helper.fx_request_url(currency))
 
