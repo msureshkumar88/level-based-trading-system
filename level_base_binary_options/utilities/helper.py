@@ -5,6 +5,7 @@ import time
 import pytz
 from time import gmtime, strftime
 from datetime import datetime
+from datetime import date
 from django.db import connection
 from currency_converter import CurrencyConverter
 
@@ -118,3 +119,40 @@ class Helper:
         response['data'] = data
         response['message'] = message
         return response
+
+    @classmethod
+    def get_state_by_key(cls, user_id, state_key, date):
+        cursor = connection.cursor()
+        result = cursor.execute(f"SELECT * FROM states WHERE user_id = {user_id} "
+                                f"AND type = '{state_key}' and date = '{date}'")
+
+        if result:
+            return result[0]
+        return []
+
+    @classmethod
+    def store_state_value(cls, user_id, state_key, state_value, date):
+        cursor = connection.cursor()
+        state = Helper.get_state_by_key(user_id, state_key, date)
+
+        if not state:
+            cursor.execute(f"INSERT INTO states (user_id,type,date,value) "
+                           f"VALUES ({user_id},'{state_key}',{state_value},'{date}')")
+            return
+
+        new_value = float(state.value) + float(state_value)
+        cursor.execute(f"INSERT INTO states (user_id,type,date,value) "
+                       f"VALUES ({user_id},'{state_key}',{new_value},'{date}')")
+
+    @classmethod
+    def get_state_by_date_range(cls, user_id, state_key, start_date, end_date):
+        cursor = connection.cursor()
+        result = cursor.execute(f"SELECT * FROM states WHERE user_id = {user_id} "
+                                f"AND type = '{state_key}' and date >= '{start_date}' "
+                                f"AND and date <= '{end_date}'")
+
+        return result
+
+    @classmethod
+    def get_today_date(cls):
+        return date.today().strftime("%Y-%m-%d")
