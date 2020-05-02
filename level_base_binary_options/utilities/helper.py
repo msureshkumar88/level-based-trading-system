@@ -11,6 +11,7 @@ from currency_converter import CurrencyConverter
 
 from .purchase_type import PurchaseTypes
 from .trade_levels import Levels
+from .state_keys import StatKeys
 
 
 class Helper:
@@ -140,7 +141,11 @@ class Helper:
                            f"VALUES ({user_id},'{state_key}','{date}',{state_value})")
             return
 
-        new_value = float(state.value) + float(state_value)
+        if state_key == StatKeys.BALANCE.value:
+            new_value = float(state['value']) - float(state_value)
+        else:
+            new_value = float(state['value']) + float(state_value)
+
         cursor.execute(f"INSERT INTO states (user_id,type,date,value) "
                        f"VALUES ({user_id},'{state_key}','{date}',{new_value})")
 

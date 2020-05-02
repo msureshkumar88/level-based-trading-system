@@ -21,6 +21,7 @@ from cassandra.util import datetime_from_timestamp
 from utilities.trade_status import Status
 from utilities.trade_type import Types
 from utilities.trade_outcome import Outcome
+from utilities.state_keys import StatKeys
 
 
 # Create your views here.
@@ -185,6 +186,7 @@ def create_trade(req):
     updated_amount = float(current_user['vcurrency']) - float(amount)
     user_vcurrency = f"UPDATE  user_by_id SET vcurrency = {updated_amount} WHERE id = {user_id}"
     cursor.execute(user_vcurrency)
+    Helper.store_state_value(user_id, StatKeys.BALANCE.value, amount, Helper.get_today_date())
 
 
 def statements(request):

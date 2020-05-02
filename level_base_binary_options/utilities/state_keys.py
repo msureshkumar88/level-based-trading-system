@@ -13,7 +13,7 @@ class StatKeys(Enum):
     SELL = 'sell'
     D_WON = 'd_won'  # daily won amount
     D_LOSS = 'd_loss'  # daily loss amount
-    LEVEL_1 = 1
-    LEVEL_2 = 2
-    LEVEL_3 = 3
-    LEVEL_4 = 4
+    LEVEL_1 = '1'
+    LEVEL_2 = '2'
+    LEVEL_3 = '3'
+    LEVEL_4 = '4'
