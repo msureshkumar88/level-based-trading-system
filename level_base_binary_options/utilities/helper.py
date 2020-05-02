@@ -137,12 +137,12 @@ class Helper:
 
         if not state:
             cursor.execute(f"INSERT INTO states (user_id,type,date,value) "
-                           f"VALUES ({user_id},'{state_key}',{state_value},'{date}')")
+                           f"VALUES ({user_id},'{state_key}','{date}',{state_value})")
             return
 
         new_value = float(state.value) + float(state_value)
         cursor.execute(f"INSERT INTO states (user_id,type,date,value) "
-                       f"VALUES ({user_id},'{state_key}',{new_value},'{date}')")
+                       f"VALUES ({user_id},'{state_key}','{date}',{new_value})")
 
     @classmethod
     def get_state_by_date_range(cls, user_id, state_key, start_date, end_date):
