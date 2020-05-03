@@ -7,6 +7,8 @@ from django.db import connection
 
 from utilities.trade_status import Status
 from utilities.trade_levels import Levels
+from utilities.state_keys import StatKeys
+from utilities.trading import Trading
 
 from datetime import datetime
 import json
@@ -89,10 +91,11 @@ def join(request):
     user_id = ac.get_user_session()
     # print(parent_trade)
     error_messages.extend(validate_changes_allowed_time_exceeded(parent_trade["changes_allowed_time"]))
-    # print(error_messages)
+    print(error_messages)
     if error_messages:
         return error_messages
     current_user = Helper.get_user_by_id(user_id)
+    print(current_user)
     persist_join(user_id, transaction_id, parent_trade, selected_level, current_user)
 
 
@@ -107,6 +110,7 @@ def persist_join(user_id, transaction_id, parent_trade, selected_level, current_
 
     update_other_trades(transaction_id, user_id, selected_level, parent_trade)
     update_user_account_fields(user_id, current_user, parent_trade)
+    save_stats(current_user, parent_trade, selected_level)
 
 
 def persist_user_transactions(user_id, transaction_id, parent_trade, selected_level):
@@ -161,7 +165,6 @@ def persist_transactions_by_state(transaction_id, user_id, parent_trade):
     transactions_by_state = f"INSERT INTO transactions_by_state {fields} VALUES {values}"
     cursor = connection.cursor()
     cursor.execute(transactions_by_state)
-
 
 
 def persist_transactions_by_end_time(transaction_id, user_id, parent_trade):
@@ -265,6 +268,17 @@ def update_user_account_fields(user_id, current_user, parent_trade):
     # update account balance
     update_user = f"UPDATE user_by_id SET vcurrency = {updated_amount} WHERE id = {user_id}"
     cursor.execute(update_user)
+
+
+def save_stats(current_user, parent_trade, selected_level):
+    converted_amount = Helper.convert_currency(parent_trade['amount'], parent_trade['amount_currency'],
+                                               current_user['currency'])
+    print('converted_amount',converted_amount)
+    Helper.store_state_value(current_user['id'], StatKeys.BALANCE.value, converted_amount, 'subtract')
+    Helper.store_state_value(current_user['id'], StatKeys.NUM_TRADES.value, 1, 'add')
+    Helper.store_state_value(current_user['id'], StatKeys.LEVELS.value, 1, 'add')
+    Trading.save_purchase_stats(current_user['id'], parent_trade['purchase_type'])
+    Trading.save_levels_stats(current_user['id'], selected_level)
 
 
 def add_level_owners(current_owners, user_id, selected_level):
