@@ -70,7 +70,7 @@ class Helper:
     # returns user details by user_id
     def get_user_by_id(cls, user_id):
         cursor = connection.cursor()
-        user = cursor.execute("SELECT * FROM user_by_id where id =" + user_id)
+        user = cursor.execute(f"SELECT * FROM user_by_id where id = {user_id}")
         return user[0]
 
     @classmethod
@@ -132,18 +132,24 @@ class Helper:
         return []
 
     @classmethod
-    def store_state_value(cls, user_id, state_key, state_value, date):
+    def store_state_value(cls, user_id, state_key, state_value, date, operation):
         cursor = connection.cursor()
         state = Helper.get_state_by_key(user_id, state_key, date)
 
+        new_value = state_value
+
         if not state:
+            if state_key == StatKeys.BALANCE.value:
+                user_data = Helper.get_user_by_id(user_id)
+                new_value = user_data['vcurrency']
+
             cursor.execute(f"INSERT INTO states (user_id,type,date,value) "
-                           f"VALUES ({user_id},'{state_key}','{date}',{state_value})")
+                           f"VALUES ({user_id},'{state_key}','{date}',{new_value})")
             return
 
-        if state_key == StatKeys.BALANCE.value:
+        if operation == 'subtract':
             new_value = float(state['value']) - float(state_value)
-        else:
+        if operation == 'add':
             new_value = float(state['value']) + float(state_value)
 
         cursor.execute(f"INSERT INTO states (user_id,type,date,value) "
