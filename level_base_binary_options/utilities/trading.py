@@ -7,6 +7,7 @@ from .helper import Helper
 from .purchase_type import PurchaseTypes
 from .state_keys import StatKeys
 
+
 class Trading:
     # generate trade start time
     @classmethod
@@ -117,7 +118,7 @@ class Trading:
 
     @classmethod
     # validate currency selection
-    def validate_currency(cls,currency):
+    def validate_currency(cls, currency):
         if not currency:
             return ['Please select a currency pair']
         return []
@@ -133,7 +134,7 @@ class Trading:
     def validate_close_time_day(cls, end_date):
         if not end_date:
             return []
-        if end_date.weekday() in [5,6]:
+        if end_date.weekday() in [5, 6]:
             return ['Closing date cannot be Saturday or Sunday']
         return []
 
@@ -206,3 +207,13 @@ class Trading:
             return
         Helper.store_state_value(user_id, StatKeys.SELL.value, 1, 'add')
 
+    @classmethod
+    def save_levels_stats(cls, user_id, level):
+        if level == StatKeys.LEVEL_1.value:
+            Helper.store_state_value(user_id, StatKeys.LEVEL_1.value, 1, 'add')
+        if level == StatKeys.LEVEL_2.value:
+            Helper.store_state_value(user_id, StatKeys.LEVEL_2.value, 1, 'add')
+        if level == StatKeys.LEVEL_3.value:
+            Helper.store_state_value(user_id, StatKeys.LEVEL_3.value, 1, 'add')
+        if level == StatKeys.LEVEL_4.value:
+            Helper.store_state_value(user_id, StatKeys.LEVEL_4.value, 1, 'add')

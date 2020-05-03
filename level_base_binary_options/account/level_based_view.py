@@ -20,6 +20,7 @@ from utilities.trade_status import Status
 from utilities.trade_outcome import Outcome
 from utilities.trade_type import Types
 from utilities.trade_levels import Levels
+from utilities.state_keys import StatKeys
 
 from django.db import connection
 
@@ -195,7 +196,11 @@ def create_trade(req):
     # update account balance
     user_vcurrency = f"UPDATE  user_by_id SET vcurrency = {updated_amount} WHERE id = {user_id}"
     cursor.execute(user_vcurrency)
-
+    Helper.store_state_value(user_id, StatKeys.BALANCE.value, amount, 'subtract')
+    Helper.store_state_value(user_id, StatKeys.NUM_TRADES.value, 1, 'add')
+    Helper.store_state_value(user_id, StatKeys.LEVELS.value, 1, 'add')
+    Trading.save_purchase_stats(user_id, purchase_type)
+    Trading.save_levels_stats(user_id, select_level)
     # levels_by_id = LevelBasedById(transaction_id=transaction_id, created_date=time_now, created_by=user_id,
     #                               purchase_type=purchase_type,
     #                               currency=currency, staring_price=float(price), amount=float(amount),
