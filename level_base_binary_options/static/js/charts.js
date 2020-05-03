@@ -220,6 +220,7 @@ function getLayoutByTradeType(response) {
 //https://plotly.com/javascript/time-series/
 //https://simpleisbetterthancomplex.com/tutorial/2016/08/29/how-to-work-with-ajax-request-with-django.html
 //https://plotly.com/javascript/streaming/
+//https://plotly.com/javascript/spc-control-charts/
 /*
 var data = [
     {

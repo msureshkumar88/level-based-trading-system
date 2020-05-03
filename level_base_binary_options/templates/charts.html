@@ -1,7 +1,57 @@
 {% extends 'guest_base.html'%}
-{%block heading%}Charts{%endblock%}
+{%block heading%}Analysis{%endblock%}
 {%block content%}
 <div class="bd-example">
+    <div class="row">
+        <div class="col-md-6 border">
+            <div>
+                <h5>Account Balance</h5>
+                <form>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+
+                            <input type="date" class="form-control analysis-start-date" name="start_date">
+                        </div>
+                        <div class="form-group  col-md-6">
+                            <input type="date" class="form-control analysis-end-date" name="end_date">
+                        </div>
+                    </div>
+                    {% csrf_token%}
+                </form>
+            </div>
+            <div>
+                <div id="account_balance"></div>
+            </div>
+        </div>
+        <div class="col-md-6 border">
+
+            <div>
+                <h5>Trades</h5>
+                <form>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+
+                            <input type="date" class="form-control analysis-start-date" name="start_date">
+                        </div>
+                        <div class="form-group  col-md-6">
+                            <input type="date" class="form-control analysis-end-date" name="end_date">
+                        </div>
+                    </div>
+                    {% csrf_token%}
+                </form>
+            </div>
+            <div>
+                <div id="trade_counts"></div>
+            </div>
+
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-md-6">asdsa</div>
+        <div class="col-md-6">asda</div>
+
+    </div>
 
 
 </div>
