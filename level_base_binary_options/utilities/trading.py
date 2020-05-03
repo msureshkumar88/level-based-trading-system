@@ -110,6 +110,8 @@ class Trading:
                 return ["Please select trade start date"]
             if not start_time:
                 return ["Please select trade start time"]
+            if not Trading.validate_binary_trade_times(Trading.make_date_time_stamp(start_date, start_time)):
+                return ["Trade starting date should be a future date"]
         return []
 
     @classmethod

@@ -72,14 +72,15 @@ def create_trade(req):
     error_messages.extend(Trading.validate_closing_types(time_to_close, time_slot, time_count, end_date, end_time))
     error_messages.extend(Trading.validate_amount(amount, user_id))
     trade_start_time = Trading.get_trade_start_time(start, start_date, start_time)
-    trade_end_time = Trading.get_trade_end_time(time_to_close, end_date, end_time, time_slot, time_count, start,
-                                                trade_start_time)
+    trade_end_time = ""
+    if trade_start_time:
+        trade_end_time = Trading.get_trade_end_time(time_to_close, end_date, end_time, time_slot, time_count, start,
+                                                    trade_start_time)
 
-    # print(trade_start_time)
-    # return
-    error_messages.extend(Trading.validate_def_start_end_dates(trade_start_time, trade_end_time))
-    error_messages.extend(Trading.validate_close_time_day(trade_end_time))
-    error_messages.extend(Trading.validate_start_time_day(trade_start_time))
+    if trade_start_time and trade_end_time:
+        error_messages.extend(Trading.validate_def_start_end_dates(trade_start_time, trade_end_time))
+        error_messages.extend(Trading.validate_close_time_day(trade_end_time))
+        error_messages.extend(Trading.validate_start_time_day(trade_start_time))
 
     purchase_type = Trading.get_trade_type(purchase)
     status = Trading.get_trade_status(start)
@@ -186,7 +187,8 @@ def create_trade(req):
     updated_amount = float(current_user['vcurrency']) - float(amount)
     user_vcurrency = f"UPDATE  user_by_id SET vcurrency = {updated_amount} WHERE id = {user_id}"
     cursor.execute(user_vcurrency)
-    Helper.store_state_value(user_id, StatKeys.BALANCE.value, amount, Helper.get_today_date(), 'subtract')
+    Helper.store_state_value(user_id, StatKeys.BALANCE.value, amount, 'subtract')
+    Helper.store_state_value(user_id, StatKeys.NUM_TRADES.value, 1, 'add')
 
 
 def statements(request):
