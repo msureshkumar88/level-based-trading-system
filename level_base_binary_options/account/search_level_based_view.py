@@ -71,7 +71,7 @@ def search(request):
 
     # TODO: extend  this search to work with trade closing date and amount range
     # TODO: don't show trades if trade change time is expired
-    print(initial_query)
+    # print(initial_query)
     results = cursor.execute(initial_query)
     if not results:
         return []
@@ -95,7 +95,7 @@ def join(request):
     if error_messages:
         return error_messages
     current_user = Helper.get_user_by_id(user_id)
-    print(current_user)
+    # print(current_user)
     persist_join(user_id, transaction_id, parent_trade, selected_level, current_user)
 
 
@@ -226,8 +226,8 @@ def update_other_trades(transaction_id, user_id, selected_level, parent_trade):
     current_user_trade = current_user_trade[0]
 
     for trade in existing_trades:
-        print("here")
-        print(trade['user_id'], user_id)
+        # print("here")
+        # print(trade['user_id'], user_id)
         if trade['user_id'] != user_id:
             # trade_reloaded_query = f"SELECT * FROM user_transactions WHERE " \
             #                        f"transaction_id = {transaction_id} AND user_id = {trade['user_id']}"
@@ -254,7 +254,7 @@ def update_other_trades(transaction_id, user_id, selected_level, parent_trade):
                                         f"AND transaction_id = {parent_trade['transaction_id']} " \
                                         f"AND user_id = {parent_trade['user_id']}"
 
-    print(update_transactions_levels_status)
+    # print(update_transactions_levels_status)
     cursor.execute(update_transactions_levels_status)
 
 
@@ -273,7 +273,7 @@ def update_user_account_fields(user_id, current_user, parent_trade):
 def save_stats(current_user, parent_trade, selected_level):
     converted_amount = Helper.convert_currency(parent_trade['amount'], parent_trade['amount_currency'],
                                                current_user['currency'])
-    print('converted_amount',converted_amount)
+    # print('converted_amount',converted_amount)
     Helper.store_state_value(current_user['id'], StatKeys.BALANCE.value, converted_amount, 'subtract')
     Helper.store_state_value(current_user['id'], StatKeys.NUM_TRADES.value, 1, 'add')
     Helper.store_state_value(current_user['id'], StatKeys.LEVELS.value, 1, 'add')
@@ -299,7 +299,7 @@ def get_selected_level_price(ranges, selected_level):
 
 def get_available_levels(available_levels, selected_level):
     available_levels_copy = available_levels.copy()
-    print(available_levels_copy)
+    # print(available_levels_copy)
     available_levels_copy.remove(int(selected_level))
     return available_levels_copy
 
