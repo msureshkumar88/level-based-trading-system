@@ -22,7 +22,7 @@ from utilities.trade_status import Status
 from utilities.trade_type import Types
 from utilities.trade_outcome import Outcome
 from utilities.state_keys import StatKeys
-from utilities.purchase_type import PurchaseTypes
+
 
 
 # Create your views here.
@@ -191,14 +191,8 @@ def create_trade(req):
     Helper.store_state_value(user_id, StatKeys.BALANCE.value, amount, 'subtract')
     Helper.store_state_value(user_id, StatKeys.NUM_TRADES.value, 1, 'add')
     Helper.store_state_value(user_id, StatKeys.BINARY.value, 1, 'add')
-    save_purchase_stats(user_id, purchase_type)
+    Trading.save_purchase_stats(user_id, purchase_type)
 
-
-def save_purchase_stats(user_id, purchase_type):
-    if purchase_type == PurchaseTypes.BUY.value:
-        Helper.store_state_value(user_id, StatKeys.BUY.value, 1, 'add')
-        return
-    Helper.store_state_value(user_id, StatKeys.SELL.value, 1, 'add')
 
 def statements(request):
     ac = Authentication(request)

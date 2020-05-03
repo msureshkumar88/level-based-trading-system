@@ -5,6 +5,7 @@ from django.db import connection
 
 from .helper import Helper
 from .purchase_type import PurchaseTypes
+from .state_keys import StatKeys
 
 class Trading:
     # generate trade start time
@@ -198,5 +199,10 @@ class Trading:
             return transaction[0]
         return []
 
-
+    @classmethod
+    def save_purchase_stats(cls, user_id, purchase_type):
+        if purchase_type == PurchaseTypes.BUY.value:
+            Helper.store_state_value(user_id, StatKeys.BUY.value, 1, 'add')
+            return
+        Helper.store_state_value(user_id, StatKeys.SELL.value, 1, 'add')
 
