@@ -122,19 +122,20 @@ class Helper:
         return response
 
     @classmethod
-    def get_state_by_key(cls, user_id, state_key, date):
+    def get_state_by_key(cls, user_id, state_key, date_val):
         cursor = connection.cursor()
         result = cursor.execute(f"SELECT * FROM states WHERE user_id = {user_id} "
-                                f"AND type = '{state_key}' and date = '{date}'")
+                                f"AND type = '{state_key}' and date = '{date_val}'")
 
         if result:
             return result[0]
         return []
 
     @classmethod
-    def store_state_value(cls, user_id, state_key, state_value, date, operation):
+    def store_state_value(cls, user_id, state_key, state_value, operation):
+        today_date = Helper.get_today_date()
         cursor = connection.cursor()
-        state = Helper.get_state_by_key(user_id, state_key, date)
+        state = Helper.get_state_by_key(user_id, state_key, today_date)
 
         new_value = state_value
 
@@ -144,7 +145,7 @@ class Helper:
                 new_value = user_data['vcurrency']
 
             cursor.execute(f"INSERT INTO states (user_id,type,date,value) "
-                           f"VALUES ({user_id},'{state_key}','{date}',{new_value})")
+                           f"VALUES ({user_id},'{state_key}','{today_date}',{new_value})")
             return
 
         if operation == 'subtract':
@@ -153,7 +154,7 @@ class Helper:
             new_value = float(state['value']) + float(state_value)
 
         cursor.execute(f"INSERT INTO states (user_id,type,date,value) "
-                       f"VALUES ({user_id},'{state_key}','{date}',{new_value})")
+                       f"VALUES ({user_id},'{state_key}','{today_date}',{new_value})")
 
     @classmethod
     def get_state_by_date_range(cls, user_id, state_key, start_date, end_date):

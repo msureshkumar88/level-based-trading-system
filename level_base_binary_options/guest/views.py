@@ -139,4 +139,4 @@ def create_user(request):
                             created_date=datetime.now())
         new_user.save()
 
-        Helper.store_state_value(user_id, StatKeys.BALANCE.value, virtual_currency, Helper.get_today_date(),'subtract')
+        Helper.store_state_value(user_id, StatKeys.BALANCE.value, virtual_currency, 'subtract')
