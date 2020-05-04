@@ -14,7 +14,7 @@ $.ajax({
     }
 });
 
-
+//TODO: add more charts and filters
 function addGraph(data) {
     if (data.hasOwnProperty('balance')) {
         var accountBalance = getBalanceChart(data.balance.date, data.balance.value)
