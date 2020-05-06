@@ -14,7 +14,7 @@ chartModel.on('show.bs.modal', function (event) {
     chart_timestamps = [];
     loadSingleTrade(transactionRef, tradeOwner);
     loadChartHistoryData(transactionRef, tradeOwner);
-    // loadChartLiveData(transactionRef, tradeOwner);
+    loadChartLiveData(transactionRef, tradeOwner);
 
 
 });
@@ -71,20 +71,7 @@ function loadChartLiveData(transactionRef, tradeOwner) {
             Plotly.extendTraces('fx-chart', update, [0])
             var update_layout = {
 
-                shapes: [
-                    {
-                        type: 'line',
-                        x0: chart_timestamps[0],
-                        y0: 1.08,
-                        x1: chart_timestamps[chart_timestamps.length - 1],
-                        y1: 1.08,
-                        line: {
-                            color: 'rgb(250, 37, 37)',
-                            width: 4,
-                            dash: 'dot'
-                        }
-                    }
-                ]
+                shapes: getShapesByTradeType(data)
             };
             Plotly.relayout('fx-chart', update_layout);
             chart_timestamps.push(data.timestamp)
@@ -146,13 +133,14 @@ function drawGraph(response) {
             title: 'Y-axis Title',
         },
     };
-    layout['shapes'] = getLayoutByTradeType(response)
+    layout['shapes'] = getShapesByTradeType(response);
+    Plotly.newPlot('fx-chart', data, layout);
 
     // var update = {
     // x:  [[timestamp]],
     // y: [[close]]
     // };
-    Plotly.newPlot('fx-chart', data, layout);
+
     // var old = {
     //         x: [[timestamp[0],timestamp[1],timestamp[2]]],
     //         y: [[close[0],close[1],close[2]]]
@@ -171,7 +159,9 @@ function drawGraph(response) {
 
 }
 
-function getLayoutByTradeType(response) {
+function getShapesByTradeType(response) {
+    print("asdsadadsadsadas")
+    print(response)
     if (response.trade_type === "levels") {
         var ranges = JSON.parse(response.levels_price)
         var levelMap = []
