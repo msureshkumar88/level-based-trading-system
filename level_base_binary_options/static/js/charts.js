@@ -5,11 +5,13 @@ var chartModel = $('.chartModel');
 
 var socket = "";
 
+var chart_timestamps = [];
+var char_price = [];
 chartModel.on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget);// Button that triggered the modal
     var transactionRef = button.data('transaction'); // Extract info from data-* attributes
     var tradeOwner = button.data('owner');
-
+    chart_timestamps = [];
     loadSingleTrade(transactionRef, tradeOwner);
     loadChartHistoryData(transactionRef, tradeOwner);
     // loadChartLiveData(transactionRef, tradeOwner);
@@ -25,6 +27,12 @@ function loadChartHistoryData(transactionRef, tradeOwner) {
 
     socket.on('chart data history', function (data) {
         // socket.disconnect()
+        chart_timestamps.push(...JSON.parse(data.timestamp))
+        char_price.push(...JSON.parse(data.close))
+
+        // print(chart_timestamps)
+        print('---------------')
+        print(data)
         drawGraph(data);
         print(data)
     });
@@ -46,19 +54,42 @@ function loadChartLiveData(transactionRef, tradeOwner) {
             clearInterval(interval);
             socket.disconnect();
         }
-    }, 1000);
+    }, 500);
 
 
     socket.on('chart data live', function (data) {
         // socket.disconnect()
         // drawGraph(data);
         print(data)
-        var update = {
-            x: [[data.timestamp]],
-            y: [[data.close]]
-        };
-        requestTime = data.timestamp
-        Plotly.extendTraces('fx-chart', update, [0])
+        if (!chart_timestamps.includes(data.timestamp)) {
+            var update = {
+                x: [[data.timestamp]],
+                y: [[data.close]]
+            };
+            requestTime = data.timestamp
+
+            Plotly.extendTraces('fx-chart', update, [0])
+            var update_layout = {
+
+                shapes: [
+                    {
+                        type: 'line',
+                        x0: chart_timestamps[0],
+                        y0: 1.08,
+                        x1: chart_timestamps[chart_timestamps.length - 1],
+                        y1: 1.08,
+                        line: {
+                            color: 'rgb(250, 37, 37)',
+                            width: 4,
+                            dash: 'dot'
+                        }
+                    }
+                ]
+            };
+            Plotly.relayout('fx-chart', update_layout);
+            chart_timestamps.push(data.timestamp)
+        }
+
     });
 }
 
@@ -144,12 +175,18 @@ function getLayoutByTradeType(response) {
     if (response.trade_type === "levels") {
         var ranges = JSON.parse(response.levels_price)
         var levelMap = []
+        print('aaaaaa')
+        print(ranges)
+        // var size = 3;
+        // var items = chart_timestamps.slice(0, size).map(i => {
+        //     return <myview item={i} key={i.id} />
+        // }
 
         levelMap.push({
             type: 'line',
-            x0: response.start_time,
+            x0: chart_timestamps[0],
             y0: ranges[0].range[0],
-            x1: response.end_date,
+            x1: chart_timestamps[chart_timestamps.length - 1],
             y1: ranges[0].range[0],
             line: {
                 color: 'rgb(250, 37, 37)',
@@ -162,9 +199,9 @@ function getLayoutByTradeType(response) {
             // print(index)
             levelMap.push({
                 type: 'line',
-                x0: response.start_time,
+                x0: chart_timestamps[0],
                 y0: item.range[1],
-                x1: response.end_date,
+                x1: chart_timestamps[chart_timestamps.length - 1],
                 y1: item.range[1],
                 line: {
                     color: 'rgb(128, 0, 128)',
@@ -173,7 +210,34 @@ function getLayoutByTradeType(response) {
                 }
             })
         });
+        var ordered_price = char_price.sort()
+        levelMap.push(
+            //         {
+            //   type: 'circle',
+            //   xref: 'x',
+            //   yref: 'y',
+            //   fillcolor: 'rgba(50, 171, 96, 0.1)',
+            //   x0: response.start_time,
+            //   y0: response.start_price,
+            //   x1: chart_timestamps[15],
+            //   y1: response.start_price+0.00001,
+            //   line: {
+            //     color: 'rgba(50, 171, 96, 1)'
+            //   }
+            // }
 
+            {
+                type: 'line',
+                x0: response.start_time,
+                y0: response.start_price - 0.0001,
+                x1: response.start_time,
+                y1: response.start_price + 0.0001,
+                line: {
+                    color: 'rgb(22, 29, 224)',
+                    width: 3
+                },
+            }
+        )
         print(levelMap)
         return levelMap
     }

@@ -1,18 +1,18 @@
-$.ajax({
-    url: BASE_URL + 'account/charts-get',
-    data: {
-        'start_date': "",
-        'end_date': "",
-        'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
-    },
-    dataType: 'json',
-    method: 'POST',
-    success: function (data) {
-        console.log(data)
-        addGraph(data.data)
-
-    }
-});
+// $.ajax({
+//     url: BASE_URL + 'account/charts-get',
+//     data: {
+//         'start_date': "",
+//         'end_date': "",
+//         'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
+//     },
+//     dataType: 'json',
+//     method: 'POST',
+//     success: function (data) {
+//         console.log(data)
+//         addGraph(data.data)
+//
+//     }
+// });
 
 //TODO: add more charts and filters
 function addGraph(data) {
