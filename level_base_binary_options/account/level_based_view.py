@@ -269,20 +269,24 @@ def validated_end_date(time_to_close, end_date, end_time, time_slot, time_count,
         end_time = Trading.make_date_time_stamp(end_date, end_time)
         if not Trading.validate_binary_trade_times(end_time):
             return ["Trade ending date should be a future date"]
-        minutes_diff = (end_time - start_time).total_seconds() / 60.0
-        if minutes_diff < 15:
-            return ["The trade closing date should be place at lease 15 minutes in the future"]
+        # Enable this if trade closing wants be more than 15 minutes
+        # minutes_diff = (end_time - start_time).total_seconds() / 60.0
+        # if minutes_diff < 15:
+        #     return ["The trade closing date should be place at lease 15 minutes in the future"]
         return []
 
     time_count = int(time_count)
     if time_count < 1:
         return ["the duration should be at lease 1"]
-    if (time_slot == "minutes" and time_count < 15):
-        return ["When minutes are selected the duration should be at least 15"]
+    # Enable this if trade closing wants be more than 15 minutes
+    # if (time_slot == "minutes" and time_count < 15):
+    #     return ["When minutes are selected the duration should be at least 15"]
     return []
 
 
 def get_selected_level(level, currency, gap, purchase):
+    if not gap or not currency:
+        return []
     level_gaps = get_price_range_by_level(currency, gap, purchase)
     return list(filter(lambda obj: obj['level'] == int(level), level_gaps))[0]
 
@@ -291,6 +295,8 @@ def get_selected_level(level, currency, gap, purchase):
 # [{'level': 1, 'range': ['1.00000', '1.00010']}, {'level': 2, 'range': ['1.00010', '1.00020']},
 # {'level': 3, 'range': ['1.00020', '1.00030']}, {'level': 4, 'range': ['1.00030', '1.00040']}]
 def get_price_range_by_level(currency, gap, purchase):
+    if not currency or not gap or not purchase:
+        return []
     level_gaps = []
     price = Helper.get_current_price(currency)
     price_gaps = calculate_levels(price, gap, purchase)
@@ -368,8 +374,15 @@ def get_trade_end_time(time_to_close, date, time, time_slot, time_count, start_t
             return Trading.make_date_time_stamp(date, time)
         return ""
     time_count = int(time_count)
-    if (time_slot == "minutes" and time_count < 15) or time_count < 1:
+    # Enable this if trade closing wants be more than 15 minutes
+    # if (time_slot == "minutes" and time_count < 15) or time_count < 1:
+    #     return ""
+
+    if time_count < 1:
         return ""
+    # Remove this this if trade closing wants be more than 15 minutes
+    if time_slot == "seconds":
+        return start_time + timedelta(seconds=time_count)
     if time_slot == "minutes":
         return start_time + timedelta(minutes=time_count)
     if time_slot == "hours":

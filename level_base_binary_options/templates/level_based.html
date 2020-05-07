@@ -40,10 +40,10 @@
             <div class="form-group col-md-8 duration_area">
                 <select name="time_slot" class="form-control">
                     <option value="">Select duration</option>
-                    {% for c in duration%}
-                    {% if c.name != 'seconds'%}
+                    {% for c in duration %}
+                    {# some  {% if c.name != 'seconds'%}#} <!--allow all types of durations - Enable this if trade closing wants be more than 15 minutes -->
                     <option value="{{c.name}}">{{c.label}}</option>
-                    {%endif%}
+                    {# some {%endif%} #}
                     {%endfor%}
                 </select>
             </div>
