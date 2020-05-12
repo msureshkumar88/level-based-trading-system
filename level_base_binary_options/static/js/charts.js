@@ -35,6 +35,7 @@ function loadChartHistoryData(transactionRef, tradeOwner) {
         console.log(data)
         drawGraph(data);
         if (data.status !== "finished") {
+            //todo: fix if history data is not available live data not loading issue
             loadChartLiveData(transactionRef, tradeOwner)
         }
         console.log(data)
@@ -47,10 +48,8 @@ function loadChartLiveData(transactionRef, tradeOwner) {
     var payload = {user_id: tradeOwner, transaction_ref: transactionRef};
     socket = io.connect(WS_SERVER_URL);
     var cnt = 0;
-    var requestTime = ""
+
     interval = setInterval(function () {
-        payload['request_time'] = requestTime
-        console.log(payload['request_time'])
         socket.emit('get chart data live', payload);
 
         // if (++cnt === 100) {
@@ -72,7 +71,6 @@ function loadChartLiveData(transactionRef, tradeOwner) {
                     x: [[data.timestamp]],
                     y: [[data.close]]
                 };
-                requestTime = data.timestamp
 
                 Plotly.extendTraces('fx-chart', update, [0])
                 chart_timestamps.push(data.timestamp)
@@ -82,7 +80,8 @@ function loadChartLiveData(transactionRef, tradeOwner) {
                     shapes: getShapesByTradeType(data)
                 };
                 Plotly.relayout('fx-chart', update_layout);
-
+                 $('#close-price').html(data.closing_price == null ? data.closing_price : data.closing_price.toFixed(5));
+                 $('#outcome').html(S(data.outcome).capitalize().s);
                 // }
                 clearInterval(interval);
                 socket.disconnect();
@@ -92,7 +91,6 @@ function loadChartLiveData(transactionRef, tradeOwner) {
                     x: [[data.timestamp]],
                     y: [[data.close]]
                 };
-                requestTime = data.timestamp
 
                 Plotly.extendTraces('fx-chart', update, [0])
                 chart_timestamps.push(data.timestamp)
