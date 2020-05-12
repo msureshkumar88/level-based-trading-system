@@ -13,7 +13,7 @@ from utilities.trading import Trading
 from datetime import datetime
 import json
 
-
+created_date = Helper.get_current_time_formatted()
 def level_based_search(request):
     ac = Authentication(request)
     # if user is not logged in redirect to login page
@@ -127,7 +127,7 @@ def persist_user_transactions(user_id, transaction_id, parent_trade, selected_le
     start_time = Helper.get_time_formatted(parent_trade['start_time'])
     end_time = Helper.get_time_formatted(parent_trade['end_time'])
     changes_allowed_time = Helper.get_time_formatted(parent_trade['changes_allowed_time'])
-    created_date = Helper.get_time_formatted(parent_trade['created_date'])
+    # created_date = Helper.get_time_formatted(parent_trade['created_date'])
     # print(changes_allowed_time)
     # return
 
@@ -151,7 +151,7 @@ def persist_user_transactions(user_id, transaction_id, parent_trade, selected_le
 
 
 def persist_transactions_by_state(transaction_id, user_id, parent_trade):
-    created_date = Helper.get_current_time_formatted()
+    # created_date = Helper.get_current_time_formatted()
     current_user = Helper.get_user_by_id(user_id)
     converted_amount = Helper.convert_currency(parent_trade['amount'], parent_trade['amount_currency'],
                                                current_user['currency'])
