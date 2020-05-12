@@ -30,11 +30,11 @@ function loadChartHistoryData(transactionRef, tradeOwner) {
         chart_timestamps.push(...JSON.parse(data.timestamp))
         char_price.push(...JSON.parse(data.close))
 
-        // print(chart_timestamps)
-        print('---------------')
-        print(data)
+        // console.log(chart_timestamps)
+        console.log('---------------')
+        console.log(data)
         drawGraph(data);
-        print(data)
+        console.log(data)
     });
 }
 
@@ -47,20 +47,43 @@ function loadChartLiveData(transactionRef, tradeOwner) {
     var requestTime = ""
     interval = setInterval(function () {
         payload['request_time'] = requestTime
-        print(payload['request_time'])
+        console.log(payload['request_time'])
         socket.emit('get chart data live', payload);
 
-        if (++cnt === 100) {
-            clearInterval(interval);
-            socket.disconnect();
-        }
+        // if (++cnt === 100) {
+        //     clearInterval(interval);
+        //     socket.disconnect();
+        // }
     }, 500);
 
 
     socket.on('chart data live', function (data) {
         // socket.disconnect()
         // drawGraph(data);
-        print(data)
+        console.log("-------here-------")
+        console.log(data)
+        if (data.status === "finished") {
+            console.log("herehereherehere")
+            // if (!chart_timestamps.includes(data.timestamp)) {
+                var update = {
+                    x: [[data.timestamp]],
+                    y: [[data.close]]
+                };
+                requestTime = data.timestamp
+
+                Plotly.extendTraces('fx-chart', update, [0])
+                chart_timestamps.push(data.timestamp)
+                char_price.push(data.close)
+                var update_layout = {
+
+                    shapes: getShapesByTradeType(data)
+                };
+                Plotly.relayout('fx-chart', update_layout);
+
+            // }
+            clearInterval(interval);
+            socket.disconnect();
+        }
         if (!chart_timestamps.includes(data.timestamp)) {
             var update = {
                 x: [[data.timestamp]],
@@ -69,12 +92,14 @@ function loadChartLiveData(transactionRef, tradeOwner) {
             requestTime = data.timestamp
 
             Plotly.extendTraces('fx-chart', update, [0])
+            chart_timestamps.push(data.timestamp)
+            char_price.push(data.close)
             var update_layout = {
 
                 shapes: getShapesByTradeType(data)
             };
             Plotly.relayout('fx-chart', update_layout);
-            chart_timestamps.push(data.timestamp)
+
         }
 
     });
@@ -114,7 +139,7 @@ chartModel.on('hidden.bs.modal', function () {
 function drawGraph(response) {
     var close = JSON.parse(response.close)
     var timestamp = JSON.parse(response.timestamp)
-    print(timestamp[0])
+    console.log(timestamp[0])
     var data = [
         {
             x: timestamp,
@@ -160,18 +185,19 @@ function drawGraph(response) {
 }
 
 function getShapesByTradeType(response) {
-    print("asdsadadsadsadas")
-    print(response)
+    console.log("asdsadadsadsadas")
+    console.log(response)
     if (response.trade_type === "levels") {
         var ranges = JSON.parse(response.levels_price)
         var levelMap = []
-        print('aaaaaa')
-        print(ranges)
+        console.log('aaaaaa')
+        console.log(ranges)
         // var size = 3;
         // var items = chart_timestamps.slice(0, size).map(i => {
         //     return <myview item={i} key={i.id} />
         // }
 
+        //level gap lines
         levelMap.push({
             type: 'line',
             x0: chart_timestamps[0],
@@ -185,8 +211,8 @@ function getShapesByTradeType(response) {
             }
         });
         ranges.forEach(function (item, index) {
-            // print(item.range)
-            // print(index)
+            // console.log(item.range)
+            // console.log(index)
             levelMap.push({
                 type: 'line',
                 x0: chart_timestamps[0],
@@ -200,7 +226,41 @@ function getShapesByTradeType(response) {
                 }
             })
         });
+
+        console.log(response.status)
+        //trade end line
+        if (response.status === "finished") {
+            // socket.disconnect()
+            levelMap.push(
+                //         {
+                //   type: 'circle',
+                //   xref: 'x',
+                //   yref: 'y',
+                //   fillcolor: 'rgba(50, 171, 96, 0.1)',
+                //   x0: response.start_time,
+                //   y0: response.start_price,
+                //   x1: chart_timestamps[15],
+                //   y1: response.start_price+0.00001,
+                //   line: {
+                //     color: 'rgba(50, 171, 96, 1)'
+                //   }
+                // }
+
+                {
+                    type: 'line',
+                    x0: chart_timestamps[chart_timestamps.length - 1],
+                    y0: char_price[char_price.length - 1] - 0.0001,
+                    x1: chart_timestamps[chart_timestamps.length - 1],
+                    y1: char_price[char_price.length - 1] + 0.0001,
+                    line: {
+                        color: 'rgb(75, 166, 63)',
+                        width: 3,
+                    },
+                }
+            )
+        }
         var ordered_price = char_price.sort()
+        //trade start line
         levelMap.push(
             //         {
             //   type: 'circle',
@@ -218,17 +278,17 @@ function getShapesByTradeType(response) {
 
             {
                 type: 'line',
-                x0: response.start_time,
+                x0: chart_timestamps[0],
                 y0: response.start_price - 0.0001,
-                x1: response.start_time,
+                x1: chart_timestamps[0],
                 y1: response.start_price + 0.0001,
                 line: {
-                    color: 'rgb(22, 29, 224)',
-                    width: 3
+                    color: 'rgb(0, 191, 230)',
+                    width: 3,
                 },
             }
         )
-        print(levelMap)
+        console.log(levelMap)
         return levelMap
     }
     //todo: fix trade shapes for binary trading
@@ -340,7 +400,7 @@ Plotly.newPlot('fx-chart', data, layout);
 
 /*
 function rand() {
-    print(Math.random())
+    console.log(Math.random())
   return Math.random();
 }
 
@@ -393,9 +453,9 @@ function rand() {
 //
 //   if(++cnt === 100) clearInterval(interval);
 // }, 1000);
-function print(val) {
-    console.log(val)
-}
+// function print(val) {
+//     console.log(val)
+// }
 
 
 // socket.on('connect', onConnect());
