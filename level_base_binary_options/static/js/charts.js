@@ -14,7 +14,7 @@ chartModel.on('show.bs.modal', function (event) {
     chart_timestamps = [];
     loadSingleTrade(transactionRef, tradeOwner);
     loadChartHistoryData(transactionRef, tradeOwner);
-    loadChartLiveData(transactionRef, tradeOwner);
+    // loadChartLiveData(transactionRef, tradeOwner);
 
 
 });
@@ -34,6 +34,9 @@ function loadChartHistoryData(transactionRef, tradeOwner) {
         console.log('---------------')
         console.log(data)
         drawGraph(data);
+        if (data.status !== "finished") {
+            loadChartLiveData(transactionRef, tradeOwner)
+        }
         console.log(data)
     });
 }
@@ -58,13 +61,13 @@ function loadChartLiveData(transactionRef, tradeOwner) {
 
 
     socket.on('chart data live', function (data) {
-        // socket.disconnect()
-        // drawGraph(data);
-        console.log("-------here-------")
-        console.log(data)
-        if (data.status === "finished") {
-            console.log("herehereherehere")
-            // if (!chart_timestamps.includes(data.timestamp)) {
+            // socket.disconnect()
+            // drawGraph(data);
+            console.log(data)
+            console.log(Object.keys(data).length)
+
+            if (data.status === "finished") {
+                // if (!chart_timestamps.includes(data.timestamp)) {
                 var update = {
                     x: [[data.timestamp]],
                     y: [[data.close]]
@@ -80,29 +83,32 @@ function loadChartLiveData(transactionRef, tradeOwner) {
                 };
                 Plotly.relayout('fx-chart', update_layout);
 
-            // }
-            clearInterval(interval);
-            socket.disconnect();
+                // }
+                clearInterval(interval);
+                socket.disconnect();
+            }
+            if (!chart_timestamps.includes(data.timestamp) && data.status !== "finished") {
+                var update = {
+                    x: [[data.timestamp]],
+                    y: [[data.close]]
+                };
+                requestTime = data.timestamp
+
+                Plotly.extendTraces('fx-chart', update, [0])
+                chart_timestamps.push(data.timestamp)
+                char_price.push(data.close)
+                var update_layout = {
+
+                    shapes: getShapesByTradeType(data)
+                };
+                Plotly.relayout('fx-chart', update_layout);
+
+            }
+
+
         }
-        if (!chart_timestamps.includes(data.timestamp)) {
-            var update = {
-                x: [[data.timestamp]],
-                y: [[data.close]]
-            };
-            requestTime = data.timestamp
-
-            Plotly.extendTraces('fx-chart', update, [0])
-            chart_timestamps.push(data.timestamp)
-            char_price.push(data.close)
-            var update_layout = {
-
-                shapes: getShapesByTradeType(data)
-            };
-            Plotly.relayout('fx-chart', update_layout);
-
-        }
-
-    });
+    )
+    ;
 }
 
 function loadSingleTrade(transactionRef, tradeOwner) {
@@ -139,7 +145,6 @@ chartModel.on('hidden.bs.modal', function () {
 function drawGraph(response) {
     var close = JSON.parse(response.close)
     var timestamp = JSON.parse(response.timestamp)
-    console.log(timestamp[0])
     var data = [
         {
             x: timestamp,
@@ -185,18 +190,10 @@ function drawGraph(response) {
 }
 
 function getShapesByTradeType(response) {
-    console.log("asdsadadsadsadas")
-    console.log(response)
-    if (response.trade_type === "levels") {
-        var ranges = JSON.parse(response.levels_price)
-        var levelMap = []
-        console.log('aaaaaa')
-        console.log(ranges)
-        // var size = 3;
-        // var items = chart_timestamps.slice(0, size).map(i => {
-        //     return <myview item={i} key={i.id} />
-        // }
 
+    if (response.trade_type === "levels") {
+        var ranges = JSON.parse(response.levels_price);
+        var levelMap = [];
         //level gap lines
         levelMap.push({
             type: 'line',
@@ -211,8 +208,6 @@ function getShapesByTradeType(response) {
             }
         });
         ranges.forEach(function (item, index) {
-            // console.log(item.range)
-            // console.log(index)
             levelMap.push({
                 type: 'line',
                 x0: chart_timestamps[0],
@@ -230,22 +225,7 @@ function getShapesByTradeType(response) {
         console.log(response.status)
         //trade end line
         if (response.status === "finished") {
-            // socket.disconnect()
             levelMap.push(
-                //         {
-                //   type: 'circle',
-                //   xref: 'x',
-                //   yref: 'y',
-                //   fillcolor: 'rgba(50, 171, 96, 0.1)',
-                //   x0: response.start_time,
-                //   y0: response.start_price,
-                //   x1: chart_timestamps[15],
-                //   y1: response.start_price+0.00001,
-                //   line: {
-                //     color: 'rgba(50, 171, 96, 1)'
-                //   }
-                // }
-
                 {
                     type: 'line',
                     x0: chart_timestamps[chart_timestamps.length - 1],
@@ -259,7 +239,6 @@ function getShapesByTradeType(response) {
                 }
             )
         }
-        var ordered_price = char_price.sort()
         //trade start line
         levelMap.push(
             //         {
@@ -287,8 +266,7 @@ function getShapesByTradeType(response) {
                     width: 3,
                 },
             }
-        )
-        console.log(levelMap)
+        );
         return levelMap
     }
     //todo: fix trade shapes for binary trading
