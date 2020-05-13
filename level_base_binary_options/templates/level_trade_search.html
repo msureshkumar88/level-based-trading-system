@@ -101,81 +101,82 @@
         </form>
     </div>
 </div>
+{% include 'chart_model.html' %}
 
-<!-- Chart Modal-->
-<div class="modal fade chartModel" tabindex="-1" role="dialog"
-     aria-labelledby="chartModelLabel"
-     aria-hidden="true">
-    <div class="modal-dialog modal-xl" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="chartModelLabel">Order</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-8">
-                        <div id="fx-chart"></div>
-                    </div>
-                    <div class="col-md-4" style="border-left: 1px solid #dee2e6;">
-                        <h5 class="alert alert-dark">Order information</h5>
-                        <table class="table small">
-                            <thead style="display: none">
-                            <th style="width: 60%"></th>
-                            <th style="width: 40%"></th>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                <td>Transaction id</td>
-                                <td id="transaction-id"></td>
-                            </tr>
-                            <tr>
-                                <td>Contract Type</td>
-                                <td id="contract_type"></td>
-                            </tr>
-                            <tr>
-                                <td>Purchase type</td>
-                                <td id="purchase-type"></td>
-                            </tr>
-                            <tr>
-                                <td>Start Time</td>
-                                <td id="start-time"></td>
-                            </tr>
-                            <tr>
-                                <td>End time</td>
-                                <td id="end-time"></td>
-                            </tr>
-                            <tr>
-                                <td>Start price</td>
-                                <td id="start-price"></td>
-                            </tr>
-                            <tr>
-                                <td>Close price</td>
-                                <td id="close-price"></td>
-                            </tr>
-                            <tr>
-                                <td>Amount</td>
-                                <td id="amount"></td>
-                            </tr>
-                            <tr>
-                                <td>Outcome</td>
-                                <td id="outcome"></td>
-                            </tr>
+<!--&lt;!&ndash; Chart Modal&ndash;&gt;-->
+<!--<div class="modal fade chartModel" tabindex="-1" role="dialog"-->
+     <!--aria-labelledby="chartModelLabel"-->
+     <!--aria-hidden="true">-->
+    <!--<div class="modal-dialog modal-xl" role="document">-->
+        <!--<div class="modal-content">-->
+            <!--<div class="modal-header">-->
+                <!--<h5 class="modal-title" id="chartModelLabel">Order</h5>-->
+                <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close">-->
+                    <!--<span aria-hidden="true">&times;</span>-->
+                <!--</button>-->
+            <!--</div>-->
+            <!--<div class="modal-body">-->
+                <!--<div class="row">-->
+                    <!--<div class="col-md-8">-->
+                        <!--<div id="fx-chart"></div>-->
+                    <!--</div>-->
+                    <!--<div class="col-md-4" style="border-left: 1px solid #dee2e6;">-->
+                        <!--<h5 class="alert alert-dark">Order information</h5>-->
+                        <!--<table class="table small">-->
+                            <!--<thead style="display: none">-->
+                            <!--<th style="width: 60%"></th>-->
+                            <!--<th style="width: 40%"></th>-->
+                            <!--</thead>-->
+                            <!--<tbody>-->
+                            <!--<tr>-->
+                                <!--<td>Transaction id</td>-->
+                                <!--<td id="transaction-id"></td>-->
+                            <!--</tr>-->
+                            <!--<tr>-->
+                                <!--<td>Contract Type</td>-->
+                                <!--<td id="contract_type"></td>-->
+                            <!--</tr>-->
+                            <!--<tr>-->
+                                <!--<td>Purchase type</td>-->
+                                <!--<td id="purchase-type"></td>-->
+                            <!--</tr>-->
+                            <!--<tr>-->
+                                <!--<td>Start Time</td>-->
+                                <!--<td id="start-time"></td>-->
+                            <!--</tr>-->
+                            <!--<tr>-->
+                                <!--<td>End time</td>-->
+                                <!--<td id="end-time"></td>-->
+                            <!--</tr>-->
+                            <!--<tr>-->
+                                <!--<td>Start price</td>-->
+                                <!--<td id="start-price"></td>-->
+                            <!--</tr>-->
+                            <!--<tr>-->
+                                <!--<td>Close price</td>-->
+                                <!--<td id="close-price"></td>-->
+                            <!--</tr>-->
+                            <!--<tr>-->
+                                <!--<td>Amount</td>-->
+                                <!--<td id="amount"></td>-->
+                            <!--</tr>-->
+                            <!--<tr>-->
+                                <!--<td>Outcome</td>-->
+                                <!--<td id="outcome"></td>-->
+                            <!--</tr>-->
 
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                            <!--</tbody>-->
+                        <!--</table>-->
+                    <!--</div>-->
+                <!--</div>-->
 
-            </div>
-            <div class="modal-footer">
-                <input type="submit" class="btn btn-success" id="purchase" name="join" value="Join">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <!--<button type="button" class="btn btn-primary">Save changes</button>-->
-            </div>
-        </div>
-    </div>
-</div>
+            <!--</div>-->
+            <!--<div class="modal-footer">-->
+                <!--<input type="submit" class="btn btn-success" id="purchase" name="join" value="Join">-->
+                <!--<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>-->
+                <!--&lt;!&ndash;<button type="button" class="btn btn-primary">Save changes</button>&ndash;&gt;-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</div>-->
 {% endblock%}

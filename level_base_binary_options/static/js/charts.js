@@ -15,6 +15,12 @@ chartModel.on('show.bs.modal', function (event) {
     // var tradeOwner = $('#user_id').val()
     var transactionRef = $('input[name="trade_id"]').val()
     var tradeOwner = $('input[name="user_id"]').val()
+
+    if(transactionRef === "" && tradeOwner === ""){
+         transactionRef = button.data('transaction'); // Extract info from data-* attributes
+         tradeOwner = button.data('owner');
+    }
+
     console.log(transactionRef)
     console.log(tradeOwner)
     chart_timestamps = [];
