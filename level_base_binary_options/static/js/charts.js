@@ -13,13 +13,13 @@ chartModel.on('show.bs.modal', function (event) {
     // var tradeOwner = button.data('owner');
     // var transactionRef = $('#trade_id').val()
     // var tradeOwner = $('#user_id').val()
-     var transactionRef = $('input[name="trade_id"]').val()
+    var transactionRef = $('input[name="trade_id"]').val()
     var tradeOwner = $('input[name="user_id"]').val()
     console.log(transactionRef)
     console.log(tradeOwner)
     chart_timestamps = [];
     loadSingleTrade(transactionRef, tradeOwner);
-    // loadChartHistoryData(transactionRef, tradeOwner);
+    loadChartHistoryData(transactionRef, tradeOwner);
     // loadChartLiveData(transactionRef, tradeOwner);
 
 
@@ -70,45 +70,45 @@ function loadChartLiveData(transactionRef, tradeOwner) {
             // drawGraph(data);
             console.log(data)
             console.log(Object.keys(data).length)
+            if (data.timestamp !== "" && data.close !== "") {
+                if (data.status === "finished") {
+                    // if (!chart_timestamps.includes(data.timestamp)) {
+                    var update = {
+                        x: [[data.timestamp]],
+                        y: [[data.close]]
+                    };
 
-            if (data.status === "finished") {
-                // if (!chart_timestamps.includes(data.timestamp)) {
-                var update = {
-                    x: [[data.timestamp]],
-                    y: [[data.close]]
-                };
+                    Plotly.extendTraces('fx-chart', update, [0])
+                    chart_timestamps.push(data.timestamp)
+                    char_price.push(data.close)
+                    var update_layout = {
 
-                Plotly.extendTraces('fx-chart', update, [0])
-                chart_timestamps.push(data.timestamp)
-                char_price.push(data.close)
-                var update_layout = {
+                        shapes: getShapesByTradeType(data)
+                    };
+                    Plotly.relayout('fx-chart', update_layout);
+                    $('#close-price').html(data.closing_price == null ? data.closing_price : data.closing_price.toFixed(5));
+                    $('#outcome').html(S(data.outcome).capitalize().s);
+                    // }
+                    clearInterval(interval);
+                    socket.disconnect();
+                }
+                if (!chart_timestamps.includes(data.timestamp) && data.status !== "finished") {
+                    var update = {
+                        x: [[data.timestamp]],
+                        y: [[data.close]]
+                    };
 
-                    shapes: getShapesByTradeType(data)
-                };
-                Plotly.relayout('fx-chart', update_layout);
-                 $('#close-price').html(data.closing_price == null ? data.closing_price : data.closing_price.toFixed(5));
-                 $('#outcome').html(S(data.outcome).capitalize().s);
-                // }
-                clearInterval(interval);
-                socket.disconnect();
+                    Plotly.extendTraces('fx-chart', update, [0])
+                    chart_timestamps.push(data.timestamp)
+                    char_price.push(data.close)
+                    var update_layout = {
+
+                        shapes: getShapesByTradeType(data)
+                    };
+                    Plotly.relayout('fx-chart', update_layout);
+
+                }
             }
-            if (!chart_timestamps.includes(data.timestamp) && data.status !== "finished") {
-                var update = {
-                    x: [[data.timestamp]],
-                    y: [[data.close]]
-                };
-
-                Plotly.extendTraces('fx-chart', update, [0])
-                chart_timestamps.push(data.timestamp)
-                char_price.push(data.close)
-                var update_layout = {
-
-                    shapes: getShapesByTradeType(data)
-                };
-                Plotly.relayout('fx-chart', update_layout);
-
-            }
-
 
         }
     )
@@ -274,41 +274,87 @@ function getShapesByTradeType(response) {
         return levelMap
     }
     //todo: fix trade shapes for binary trading
-    return [
-        {
-            type: 'line',
-            x0: response.start_time,
-            y0: response.line_start,
-            x1: response.start_time,
-            y1: response.line_end,
-            line: {
-                color: 'rgb(55, 128, 191)',
-                width: 3
+    if (response.trade_type === "binary") {
+        var levelMap = [
+            //start line
+            {
+                type: 'line',
+                x0: chart_timestamps[0],
+                y0: response.start_price - 0.0001,
+                x1: chart_timestamps[0],
+                y1: response.start_price + 0.0001,
+                line: {
+                    color: 'rgb(55, 128, 191)',
+                    width: 3
+                },
             },
-        },
-        {
-            type: 'line', x0: response.end_date, y0: response.line_start, x1: response.end_date, y1: response.line_end,
-            line: {
-                color: 'rgb(55, 128, 191)',
-                width: 3,
-                dash: 'dot'
-            },
-        },
-        {
-            type: 'line',
-            x0: response.start_time,
-            y0: response.start_price,
-            x1: response.end_date,
-            y1: response.start_price,
-            line: {
-                color: 'rgb(250, 37, 37)',
-                width: 4,
-                dash: 'dot'
+            {
+                type: 'line',
+                x0: chart_timestamps[0],
+                y0: response.start_price,
+                x1: chart_timestamps[chart_timestamps.length-1],
+                y1: response.start_price,
+                line: {
+                    color: 'rgb(250, 37, 37)',
+                    width: 4,
+                    dash: 'dot'
+                }
             }
+        ];
+
+        if (response.status === "finished") {
+            levelMap.push(
+                {
+                    type: 'line',
+                    x0: chart_timestamps[chart_timestamps.length - 1],
+                    y0: char_price[char_price.length - 1] - 0.0001,
+                    x1: chart_timestamps[chart_timestamps.length - 1],
+                    y1: char_price[char_price.length - 1] + 0.0001,
+                    line: {
+                        color: 'rgb(75, 166, 63)',
+                        width: 3,
+                    },
+                }
+            )
         }
+        return levelMap
+    }
 
-
-    ]
+    // return [
+    //     {
+    //         type: 'line',
+    //         x0: response.start_time,
+    //         y0: response.line_start,
+    //         x1: response.start_time,
+    //         y1: response.line_end,
+    //         line: {
+    //             color: 'rgb(55, 128, 191)',
+    //             width: 3
+    //         },
+    //     },
+    //     {
+    //         type: 'line', x0: response.end_date, y0: response.line_start, x1: response.end_date, y1: response.line_end,
+    //         line: {
+    //             color: 'rgb(55, 128, 191)',
+    //             width: 3,
+    //             dash: 'dot'
+    //         },
+    //     },
+    //     {
+    //         type: 'line',
+    //         x0: response.start_time,
+    //         y0: response.start_price,
+    //         x1: response.end_date,
+    //         y1: response.start_price,
+    //         line: {
+    //             color: 'rgb(250, 37, 37)',
+    //             width: 4,
+    //             dash: 'dot'
+    //         }
+    //     }
+    //
+    //
+    // ]
 }
 
 //https://plotly.com/javascript/shapes/
