@@ -9,11 +9,17 @@ var chart_timestamps = [];
 var char_price = [];
 chartModel.on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget);// Button that triggered the modal
-    var transactionRef = button.data('transaction'); // Extract info from data-* attributes
-    var tradeOwner = button.data('owner');
+    // var transactionRef = button.data('transaction'); // Extract info from data-* attributes
+    // var tradeOwner = button.data('owner');
+    // var transactionRef = $('#trade_id').val()
+    // var tradeOwner = $('#user_id').val()
+     var transactionRef = $('input[name="trade_id"]').val()
+    var tradeOwner = $('input[name="user_id"]').val()
+    console.log(transactionRef)
+    console.log(tradeOwner)
     chart_timestamps = [];
     loadSingleTrade(transactionRef, tradeOwner);
-    loadChartHistoryData(transactionRef, tradeOwner);
+    // loadChartHistoryData(transactionRef, tradeOwner);
     // loadChartLiveData(transactionRef, tradeOwner);
 
 

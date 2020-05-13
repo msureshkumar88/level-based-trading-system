@@ -70,7 +70,8 @@ $(".binary-btn").click(function () {
         dataType: 'json',
         method: 'POST',
         success: function (data) {
-
+            console.log(data)
+            console.log(data.data)
             if (!data.status) {
                 var err = "<div class='alert alert-danger'>";
                 err = err + "<ul>"
@@ -83,6 +84,9 @@ $(".binary-btn").click(function () {
                 $("#messages").html(err)
             }
             if (data.status) {
+                $('#trade_id').val(data.data.transaction_id)
+                $('#user_id').val(data.data.user_id)
+                $('.chartModel').modal('show');
 
             }
         }

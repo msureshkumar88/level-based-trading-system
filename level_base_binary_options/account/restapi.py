@@ -7,6 +7,7 @@ from datetime import datetime
 from utilities.authentication import Authentication
 from utilities.helper import Helper
 from utilities.trading import Trading
+from utilities.trade_type import Types
 
 
 
@@ -21,6 +22,7 @@ def get_transaction(request):
     if not trade:
         return JsonResponse(Helper.get_json_response(False, [], ["Trade not available"]))
     user_id = ac.get_user_session()
+    print(trade)
 
     current_user = Helper.get_user_by_id(user_id)
     trade_data = dict()
@@ -29,7 +31,10 @@ def get_transaction(request):
     trade_data['purchase_type'] = trade['purchase_type']
     trade_data['start_time'] = trade['start_time']
     trade_data['end_time'] = trade['end_time']
-    trade_data['amount'] = Helper.convert_currency(trade['amount'] , trade['amount_currency'],current_user['currency'])
+    if trade['trade_type'] == Types.LEVELS.value:
+        trade_data['amount'] = Helper.convert_currency(trade['amount'] , trade['amount_currency'],current_user['currency'])
+    else:
+        trade_data['amount'] =trade['amount']
     trade_data['user_currency'] = current_user['currency']
     trade_data['staring_price'] = trade['staring_price']
     trade_data['closing_price'] = trade['closing_price']
