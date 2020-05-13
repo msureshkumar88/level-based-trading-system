@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from utilities.authentication import Authentication
+from django.http import JsonResponse
 
 from django.db import connection
 from datetime import datetime
@@ -35,8 +36,8 @@ def account(request):
         return redirect('/login')
 
     data = Trading.load_static_data()
-    if request.method == "POST":
-        data["errors"] = create_trade(request)
+    # if request.method == "POST":
+    #     data["errors"] = create_trade(request)
 
     data['auth'] = ac.is_user_logged_in()
     return render(request, 'account.html', data)
@@ -88,7 +89,7 @@ def create_trade(req):
 
     print(error_messages)
     if error_messages:
-        return error_messages
+        return JsonResponse(Helper.get_json_response(False, {}, error_messages))
     # create new binary trade here
 
     time_now_formatted = Helper.get_current_time_formatted()
@@ -192,6 +193,8 @@ def create_trade(req):
     Helper.store_state_value(user_id, StatKeys.NUM_TRADES.value, 1, 'add')
     Helper.store_state_value(user_id, StatKeys.BINARY.value, 1, 'add')
     Trading.save_purchase_stats(user_id, purchase_type)
+    return JsonResponse(Helper.get_json_response(True, {'transaction_id': str(transaction_id), "user_id":str(user_id)},
+                                                 ['Trade created successfully']))
 
 
 def statements(request):

@@ -49,3 +49,57 @@ time_to_close.change(function () {
 
 });
 
+$(".binary-btn").click(function () {
+    // console.log($("#binary-form").serialize())
+    $.ajax({
+        url: BASE_URL + 'account/save_binary',
+        data: {
+            'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val(),
+            'start': $('input[name=start]:checked').val(),
+            'start_date': $('input[name="start_date"]').val(),
+            'start_time': $('input[name="start_time"]').val(),
+            'currency': $("#currency option:selected").val(),
+            'time_to_close': $("#time_to_close option:selected").val(),
+            'time_slot': $("#time_slot option:selected").val(),
+            'time_count': $('input[name="time_count"]').val(),
+            'end_date': $('input[name="end_date"]').val(),
+            'end_time': $('input[name="end_time"]').val(),
+            'amount': $('input[name="amount"]').val(),
+            'purchase': $(this).val(),
+        },
+        dataType: 'json',
+        method: 'POST',
+        success: function (data) {
+
+            if (!data.status) {
+                var err = "<div class='alert alert-danger'>";
+                err = err + "<ul>"
+                data.message.forEach(function (item, index) {
+                    console.log(item)
+                    err = err + "<li>" + item + "</li>"
+                });
+                err = err + "</ul>"
+                err = err + "</div>"
+                $("#messages").html(err)
+            }
+            if (data.status) {
+
+            }
+        }
+    });
+    // console.log( {
+    //         'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val(),
+    //         'start': $('input[name=start]:checked').val(),
+    //         'start_date': $('input[name="start_date"]').val(),
+    //         'start_time': $('input[name="start_time"]').val(),
+    //         'currency': $( "#currency option:selected" ).val(),
+    //         'time_to_close': $("#time_to_close option:selected" ).val(),
+    //         'time_slot': $( "#time_slot option:selected" ).val(),
+    //         'time_count': $('input[name="time_count"]').val(),
+    //         'end_date': $('input[name="end_date"]').val(),
+    //         'end_time': $('input[name="end_time"]').val(),
+    //         'amount': $('input[name="amount"]').val(),
+    //         'purchase': $(this).val(),
+    //     })
+})
+
