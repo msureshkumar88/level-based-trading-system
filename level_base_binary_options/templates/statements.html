@@ -49,35 +49,48 @@
         <table class="table table-striped">
             <thead>
             <tr>
-                <th scope="col">#</th>
                 <th scope="col">Opened date</th>
                 <th scope="col">Currency</th><!--Only show matching currencies in account ex:- usd, eur-->
                 <th scope="col">Amount</th>
                 <th scope="col">Type</th><!--trade closing time-->
-                <th scope="col">Status</th>
+                <th scope="col">Purchase</th>
+                <th scope="col">Outcome</th>
                 <th scope="col">Action</th>
             </tr>
             </thead>
             <tbody>
-            <tr>
-                <th scope="row">1</th>
-                <td>2020-04-05 15:05:06</td>
-                <td>EUR/USD</td>
-                <td>$50</td>
-                <td>Binary</td><!--binary or level based -->
-                <td>Pending</td><!--Pending, started , closed-->
-                <td>
-                    <button type="button" class="btn btn-primary">More</button>
-                    <!--TODO:model showing more detail of the trade-->
-                    <button type="button" class="btn btn-success">View</button><!--TODO:view trade on the chart-->
-                    <button type="button" class="btn btn-danger">Close</button>
-                    <!--TODO: allow only binary trades to close-->
-                </td>
-            </tr>
+                {% for result in results %}
+                <tr>
+                    <td>{{result.created_date}}</td>
+                    <td>{{result.currency}}</td>
+                    <td>
+                       {{result.amount}} {{user_data.currency}}
+                    </td>
+                    <td>
+                         {{result.trade_type}}
+                    </td>
+                    <td>
+                         {{result.purchase_type}}
+                    </td>
+                    <td>
+                         {{result.outcome| capfirst}}
+                    </td>
+                    <td>
+                        <!--<button type="button" class="btn btn-success">View</button>&lt;!&ndash;TODO:view trade on the chart&ndash;&gt;-->
+                        <button type="button" class="btn btn-success" data-toggle="modal"
+                                data-transaction="{{result.transaction_id}}"
+                                data-owner="{{result.user_id}}"
+                                data-target=".chartModel">View
+                        </button>
+                    </td>
+                </tr>
+                {%endfor%}
 
 
-            </tbody>
+                </tbody>
         </table>
     </div>
 </div>
+<!--TODO: remove join from  single order model-->
+{% include 'chart_model.html' %}
 {% endblock%}
