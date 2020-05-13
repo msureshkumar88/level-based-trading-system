@@ -4,13 +4,14 @@
 <div class="bd-example">
     <!--TODO: add a chart show the selected level-->
     <form name="" method="post">
+        <div id="messages" class="col-md-9"></div>
         <div class="form-row col-md-9">
             {%for error in errors %}
             <div class="alert alert-danger col-md-12">{{error}}</div>
             {%endfor%}
             {% csrf_token%}
             <div class="form-group col-md-12">
-                <select name="currency" class="form-control">
+                <select id="currency" name="currency" class="form-control">
                     <option value="">Select currency pair</option>
                     {% for c in currency%}
                     <option value="{{c.value}}">{{c.value}}</option>
@@ -21,7 +22,7 @@
                 <input type="number" name="gap_pips" class="form-control" placeholder="Level size" min="1">
             </div>
             <div class="form-group col-md-12">
-                <select name="select_level" class="form-control">
+                <select name="select_level" id="select_level" class="form-control">
                     <option value="">Select level</option>
                     {% for level in level_list%}
                     <option value="{{level}}">{{level}}</option>
@@ -38,7 +39,7 @@
             <br>
             <!--active when duration is selected-->
             <div class="form-group col-md-8 duration_area">
-                <select name="time_slot" class="form-control">
+                <select name="time_slot" id="time_slot" class="form-control">
                     <option value="">Select duration</option>
                     {% for c in duration %}
                     {# some  {% if c.name != 'seconds'%}#} <!--allow all types of durations - Enable this if trade closing wants be more than 15 minutes -->
@@ -66,14 +67,16 @@
             <!--<input type="submit" name="purchase" value="Buy">-->
             <!--<input type="submit" name="purchase" value="Sell">-->
             <div class="form-group col-md-6">
-                <button type="button" class="btn btn-primary col-md-12" data-toggle="modal" data-action="Buy"
-                        data-target=".tradeConfirmationModel">Buy
-                </button>
+                <!--<button type="button" class="btn btn-primary col-md-12" data-toggle="modal" data-action="Buy"-->
+                        <!--data-target=".tradeConfirmationModel">Buy-->
+                <!--</button>-->
+                <input type="button" data-target=".chartModel" class="btn btn-primary col-md-12 levels-btn" data-action="Buy" value="Buy">
             </div>
             <div class="form-group col-md-6">
-                <button type="button" class="btn btn-danger col-md-12" data-toggle="modal" data-action="Sell"
-                        data-target=".tradeConfirmationModel">Sell
-                </button>
+                <!--<button type="button" class="btn btn-danger col-md-12" data-toggle="modal" data-action="Sell"-->
+                        <!--data-target=".tradeConfirmationModel">Sell-->
+                <!--</button>-->
+                <input type="button" data-target=".chartModel" class="btn btn-danger col-md-12 levels-btn" data-action="Sell" value="Sell">
             </div>
             <!-- Modal -->
             <div class="modal fade tradeConfirmationModel" tabindex="-1" role="dialog"
@@ -101,4 +104,5 @@
         </div>
     </form>
 </div>
+{% include 'chart_model.html' %}
 {% endblock%}

@@ -4,6 +4,7 @@ from utilities.authentication import Authentication
 from django.db import connection
 from datetime import datetime
 from datetime import timedelta
+from django.http import JsonResponse
 
 from utilities.helper import Helper
 
@@ -52,7 +53,6 @@ def create_trade(req):
     end_date = post['end_date']
     end_time = post['end_time']
     amount = post['amount']
-    purchase = post['purchase']
     gap_pips = post['gap_pips']
     select_level = post['select_level']
     purchase = post['purchase']
@@ -93,7 +93,7 @@ def create_trade(req):
 
     if error_messages:
         # print(error_messages)
-        return error_messages
+        return JsonResponse(Helper.get_json_response(False, {}, error_messages))
     # time_now = datetime.now()
     changes_allowed_time = Trading.get_trade_changing_blocked_time(start_time, trade_closing_time)
     level_owners = get_level_owner(select_level, user_id)
@@ -244,7 +244,8 @@ def create_trade(req):
     #                                                    changes_allowed_time=changes_allowed_time,
     #                                                    level_pips=int(gap_pips), outcome=Outcome.NONE.value)
     # users_owned_levels_status.save()
-    return []
+    return JsonResponse(Helper.get_json_response(True, {'transaction_id': str(transaction_id), "user_id": str(user_id)},
+                                                 ['Trade created successfully']))
 
 
 def validate_pip_gaps(gap):
@@ -265,6 +266,9 @@ def validate_levels(level):
 
 
 def validated_end_date(time_to_close, end_date, end_time, time_slot, time_count, start_time):
+    if not time_to_close or not end_date or not end_time or not time_count:
+        return []
+
     if time_to_close == 'end_time':
         end_time = Trading.make_date_time_stamp(end_date, end_time)
         if not Trading.validate_binary_trade_times(end_time):
@@ -369,6 +373,8 @@ def gap_pips_to_float(price, pips):
 
 # generate ending time
 def get_trade_end_time(time_to_close, date, time, time_slot, time_count, start_time):
+    if not time_to_close or not date or not time or not time_slot or not time_count or not start_time:
+        return []
     if time_to_close == 'end_time':
         if Trading.validate_binary_trade_times(Trading.make_date_time_stamp(date, time)):
             return Trading.make_date_time_stamp(date, time)

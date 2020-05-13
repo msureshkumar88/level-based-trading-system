@@ -13,8 +13,9 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('account', views.account, name='account'),
-    path('account/save_binary', views.create_trade, name='account'),
+    path('account/save_binary', views.create_trade, name='binary_save'),
     path('account/levels', level_based_view.levels, name='levels'),
+    path('account/save_levels', level_based_view.create_trade, name='levels_save'),
     path('account/search_trades', search_level_based_view.level_based_search, name='search'),
     path('account/statements', statements_view.statements, name='statements'),
     path('account/settings', setting_view.settings, name='settings'),
