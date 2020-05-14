@@ -22,6 +22,7 @@ urlpatterns = [
     path('account/charts', analysis.chart_view, name='charts'),
     path('account/charts-get', analysis.chart, name='charts'),
     path('account/logout', views.logout, name='logout'),
-    path('account/get-transaction', restapi.get_transaction, name='logout'),
+    path('account/get-transaction', restapi.get_transaction, name='get_transaction'),
+    path('account/get-chart-data', restapi.get_chart_data, name='get_chart_data'),
 ]
 

@@ -16,9 +16,9 @@ chartModel.on('show.bs.modal', function (event) {
     var transactionRef = $('input[name="trade_id"]').val()
     var tradeOwner = $('input[name="user_id"]').val()
 
-    if(transactionRef === "" && tradeOwner === ""){
-         transactionRef = button.data('transaction'); // Extract info from data-* attributes
-         tradeOwner = button.data('owner');
+    if (transactionRef === "" && tradeOwner === "") {
+        transactionRef = button.data('transaction'); // Extract info from data-* attributes
+        tradeOwner = button.data('owner');
     }
 
     console.log(transactionRef)
@@ -298,7 +298,7 @@ function getShapesByTradeType(response) {
                 type: 'line',
                 x0: chart_timestamps[0],
                 y0: response.start_price,
-                x1: chart_timestamps[chart_timestamps.length-1],
+                x1: chart_timestamps[chart_timestamps.length - 1],
                 y1: response.start_price,
                 line: {
                     color: 'rgb(250, 37, 37)',
@@ -362,6 +362,153 @@ function getShapesByTradeType(response) {
     //
     // ]
 }
+
+var chart_currency_ele = $("#chart_currency");
+var timeframe_ele = $("#timeframe");
+var chart_type_ele = $("#chart_type");
+var price_type_ele = $("#price_type");
+
+
+chart_currency_ele.change(function () {
+    var chart_currency = $(this).val();
+    var timeframe = timeframe_ele.val();
+    var price_type = price_type_ele.val();
+    var chart_type = chart_type_ele.val();
+
+    load_chart_history(chart_currency, timeframe, price_type, chart_type)
+});
+timeframe_ele.change(function () {
+    var timeframe = $(this).val();
+    var chart_currency = chart_currency_ele.val();
+    var price_type = price_type_ele.val();
+    var chart_type = chart_type_ele.val();
+    load_chart_history(chart_currency, timeframe, price_type, chart_type)
+});
+
+price_type_ele.change(function () {
+    var price_type = $(this).val();
+    var timeframe = timeframe_ele.val();
+    var chart_currency = chart_currency_ele.val();
+    var chart_type = chart_type_ele.val();
+    load_chart_history(chart_currency, timeframe, price_type, chart_type)
+})
+
+chart_type_ele.change(function () {
+    var chart_type = $(this).val();
+    var timeframe = timeframe_ele.val();
+    var chart_currency = chart_currency_ele.val();
+    var price_type = price_type_ele.val();
+    load_chart_history(chart_currency, timeframe, price_type, chart_type)
+
+})
+
+function load_chart_history(chart_currency, timeframe, price_type, chart_type) {
+    $.ajax({
+        url: BASE_URL + 'account/get-chart-data',
+        data: {
+            'timeframe': timeframe,
+            'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val(),
+            'chart_currency': chart_currency,
+            'price_type': price_type,
+            'chart_type': chart_type,
+        },
+        dataType: 'json',
+        method: 'POST',
+        success: function (data) {
+            console.log(data.data)
+            if(data.status){
+                add_chart(data.data)
+            }
+
+        }
+    });
+
+}
+
+function add_chart(data) {
+    var chart_type = chart_type_ele.val()
+    var timeframe = timeframe_ele.val();
+    var price_type = price_type_ele.val();
+
+    if (chart_type === "candlestick" && timeframe !== "ticks") {
+        var trace1 = {
+
+            x: JSON.parse(data.timestamp),
+            close: JSON.parse(data.close),
+            decreasing: {line: {color: '#7F7F7F'}},
+            high: JSON.parse(data.high),
+            increasing: {line: {color: '#17BECF'}},
+            line: {color: 'rgba(31,119,180,1)'},
+            low: JSON.parse(data.low),
+            open: JSON.parse(data.open),
+            type: 'candlestick',
+            xaxis: 'x',
+            yaxis: 'y'
+        };
+
+        var chart_data = [trace1];
+
+        var layout = {
+            dragmode: 'zoom',
+            margin: {
+                r: 10,
+                t: 25,
+                b: 40,
+                l: 60
+            },
+            showlegend: false,
+            xaxis: {
+                autorange: true,
+                domain: [0, 1],
+                range: ['2017-01-03 12:00', '2017-02-15 12:00'],
+                rangeslider: {range: ['2017-01-03 12:00', '2017-02-15 12:00']},
+                title: 'Date',
+                type: 'date'
+            },
+            yaxis: {
+                autorange: true,
+                domain: [0, 1],
+                range: [114.609999778, 137.410004222],
+                type: 'linear'
+            }
+        };
+
+        Plotly.newPlot('forex-chart', chart_data, layout);
+    }
+
+    if (chart_type === "line") {
+        var trace1 = {
+            type: "scatter",
+            mode: "lines",
+            name: 'AAPL High',
+            x: JSON.parse(data.timestamp),
+            line: {color: '#17BECF'}
+        }
+
+        if (price_type ==="close"){
+            trace1['y'] = JSON.parse(data.close)
+        }
+        if (price_type ==="open"){
+            trace1['y'] = JSON.parse(data.open)
+        }
+        if (price_type ==="high"){
+            trace1['y'] = JSON.parse(data.high)
+        }
+        if (price_type ==="low"){
+            trace1['y'] = JSON.parse(data.low)
+        }
+
+        var data = [trace1];
+
+        var layout = {
+            title: 'Basic Time Series',
+        };
+
+        Plotly.newPlot('forex-chart', data, layout);
+    }
+
+}
+
 
 //https://plotly.com/javascript/shapes/
 //https://plotly.com/javascript/setting-graph-size/
@@ -526,3 +673,4 @@ function rand() {
 // socket.on('my event', function (data) {
 //     console.log(data)
 // })
+

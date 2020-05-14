@@ -2,122 +2,181 @@
 {%block heading%}Binary Options{%endblock%}
 {%block content%}
 <div class="bd-example">
-    <form id="binary-form" name="" method="post">
-        <div id="messages" class="col-md-9"></div>
-        <div class="form-row col-md-9">
+    <div class="row">
+        <div class="col-md-7">
+            <form>
+                {% csrf_token%}
+                <div class="row">
+                    <div class="col-md-3">
+                        <select name="chart_currency" id="chart_currency" class="form-control">
+                            {% for c in currency%}
+                            {% if c.value == 'EUR/USD'%}
+                            <option value="{{c.value}}" selected>{{c.value}}</option>
+                            {%else%}
+                            <option value="{{c.value}}">{{c.value}}</option>
+                            {%endif%}
+                            {%endfor%}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="timeframe" id="timeframe" class="form-control">
+                            <option value="ticks">Ticks</option>
+                            <option value="minute">1 Minute</option>
+                            <option value="five_min">5 Minute</option>
+                            <option value="fifteen_min">15 Minute</option>
+                            <option value="thirty_min">30 Minute</option>
+                            <option value="hour">1 Hour</option>
+                            <option value="four_hours">4 Hour</option>
+                            <option value="one_day">1 Day</option>
+                        </select>
 
-            {%for error in errors %}
-            <div class="alert alert-danger col-md-12">{{error}}</div>
-            {%endfor%}
-            <!--show thins when binary options is selected-->
-            {% csrf_token%}
+                    </div>
+                    <div class="col-md-3">
+                        <select name="chart_type" id="chart_type" class="form-control">
+                            <option value="line">Line</option>
+                            <option value="candlestick">Candlestick</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="price_type" id="price_type" class="form-control">
+                            <option value="close" selected>Close</option>
+                            <option value="open">Open</option>
+                            <option value="high">High</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+
+                <div>
+                    <div id="forex-chart"></div>
+                </div>
 
 
-            <div class="form-check form-check-inline">
-                <label class="form-check-label" for="start_now_chk">Start Now&nbsp;</label>
-                <input type="radio" class="form-check-input" name="start" id="start_now_chk" checked value="start now">
-            </div>
+        </div>
+        <div class="col-md-5">
+            <form id="binary-form" name="" method="post">
+                <div id="messages" class="col-md-12"></div>
+                <div class="form-row col-md-12">
 
-            <div class="form-check form-check-inline">
-                <label class="form-check-label" for="start_later_chk"> Start later&nbsp;</label>
-                <input type="radio" id="start_later_chk" class="form-check-input" name="start" value="start later">
-            </div>
-
-
-            <!--show this when start_time_later is selected-->
-            <div class="form-group col-md-4 start_later_area">
-                Start date<input type="date" name="start_date" class="form-control" value="{{today_date}}">
-            </div>
-            <div class="form-group col-md-4 start_later_area">
-                Start time<input type="time" name="start_time" class="form-control" value="{{time_now}}">
-            </div>
-
-
-            <div class="form-group col-md-12">
-                <select name="currency" id="currency" class="form-control">
-                    <option value="">Select currency</option>
-                    {% for c in currency%}
-                    <option value="{{c.value}}">{{c.value}}</option>
+                    {%for error in errors %}
+                    <div class="alert alert-danger col-md-12">{{error}}</div>
                     {%endfor%}
-                </select>
-            </div>
-            <div class="form-group col-md-12">
-                <select name="time_to_close" id="time_to_close" class="form-control">
-                    <option value="">Select trade closing type</option>
-                    <option value="duration">Duration</option>
-                    <option value="end_time">End Time</option>
-                </select>
-            </div>
-
-            <!--active when duration is selected-->
-            <div class="form-group col-md-9 duration_area">
-                <select name="time_slot" id="time_slot" class="form-control">
-                    <option value="">Select duration</option>
-                    {% for c in duration%}
-                    <option value="{{c.name}}">{{c.label}}</option>
-                    {%endfor%}
-                </select>
-            </div>
-            <div class="form-group col-md-3 duration_area">
-                <input type="text" class="form-control" name="time_count" placeholder="Units">
-            </div>
+                    <!--show thins when binary options is selected-->
+                    {% csrf_token%}
 
 
-            <!--active when end time is selected-->
-            <div class="form-group col-md-6 end_time_area">
-                <input type="date" class="form-control" name="end_date" placeholder="trade close date"
-                       value="{{today_date}}">
-            </div>
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label" for="start_now_chk">Start Now&nbsp;</label>
+                        <input type="radio" class="form-check-input" name="start" id="start_now_chk" checked
+                               value="start now">
+                    </div>
 
-            <div class="form-group col-md-6 end_time_area">
-                <input type="time" class="form-control" name="end_time" placeholder="trade close time"
-                       value="{{time_now}}">
-            </div>
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label" for="start_later_chk"> Start later&nbsp;</label>
+                        <input type="radio" id="start_later_chk" class="form-check-input" name="start"
+                               value="start later">
+                    </div>
 
-            <div class="form-group col-md-12">
-                <input type="text" name="amount" class="form-control" placeholder="Amount">
-            </div>
-            <div class="form-group col-md-6">
-                <input type="button" data-target=".chartModel" class="btn btn-primary col-md-12 binary-btn" data-action="Buy" value="Buy">
-                <!--<button type="button" class="btn btn-primary col-md-12" data-toggle="modal" data-action="Buy"-->
+
+                    <!--show this when start_time_later is selected-->
+                    <div class="form-group col-md-4 start_later_area">
+                        Start date<input type="date" name="start_date" class="form-control" value="{{today_date}}">
+                    </div>
+                    <div class="form-group col-md-4 start_later_area">
+                        Start time<input type="time" name="start_time" class="form-control" value="{{time_now}}">
+                    </div>
+
+
+                    <div class="form-group col-md-12">
+                        <select name="currency" id="currency" class="form-control">
+                            <option value="">Select currency</option>
+                            {% for c in currency%}
+                            <option value="{{c.value}}">{{c.value}}</option>
+                            {%endfor%}
+                        </select>
+                    </div>
+                    <div class="form-group col-md-12">
+                        <select name="time_to_close" id="time_to_close" class="form-control">
+                            <option value="">Select trade closing type</option>
+                            <option value="duration">Duration</option>
+                            <option value="end_time">End Time</option>
+                        </select>
+                    </div>
+
+                    <!--active when duration is selected-->
+                    <div class="form-group col-md-9 duration_area">
+                        <select name="time_slot" id="time_slot" class="form-control">
+                            <option value="">Select duration</option>
+                            {% for c in duration%}
+                            <option value="{{c.name}}">{{c.label}}</option>
+                            {%endfor%}
+                        </select>
+                    </div>
+                    <div class="form-group col-md-3 duration_area">
+                        <input type="text" class="form-control" name="time_count" placeholder="Units">
+                    </div>
+
+
+                    <!--active when end time is selected-->
+                    <div class="form-group col-md-6 end_time_area">
+                        <input type="date" class="form-control" name="end_date" placeholder="trade close date"
+                               value="{{today_date}}">
+                    </div>
+
+                    <div class="form-group col-md-6 end_time_area">
+                        <input type="time" class="form-control" name="end_time" placeholder="trade close time"
+                               value="{{time_now}}">
+                    </div>
+
+                    <div class="form-group col-md-12">
+                        <input type="text" name="amount" class="form-control" placeholder="Amount">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <input type="button" data-target=".chartModel" class="btn btn-primary col-md-12 binary-btn"
+                               data-action="Buy" value="Buy">
+                        <!--<button type="button" class="btn btn-primary col-md-12" data-toggle="modal" data-action="Buy"-->
                         <!--data-target=".tradeConfirmationModel">Buy-->
-                <!--</button>-->
-            </div>
-            <div class="form-group col-md-6">
-                <!--<button type="button" class="btn btn-danger col-md-12" data-toggle="modal" data-action="Sell"-->
+                        <!--</button>-->
+                    </div>
+                    <div class="form-group col-md-6">
+                        <!--<button type="button" class="btn btn-danger col-md-12" data-toggle="modal" data-action="Sell"-->
                         <!--data-target=".tradeConfirmationModel">Sell-->
-                <!--</button>-->
-                <input type="button" data-target=".chartModel" class="btn btn-danger col-md-12 binary-btn" data-action="Sell" value="Sell">
-            </div>
-            <!--<input type="submit" name="purchase" value="Sell">-->
-            <!--<input type="submit" name="purchase" value="Buy">-->
-            <!-- Button trigger modal -->
+                        <!--</button>-->
+                        <input type="button" data-target=".chartModel" class="btn btn-danger col-md-12 binary-btn"
+                               data-action="Sell" value="Sell">
+                    </div>
+                    <!--<input type="submit" name="purchase" value="Sell">-->
+                    <!--<input type="submit" name="purchase" value="Buy">-->
+                    <!-- Button trigger modal -->
 
-            <!-- Modal -->
-            <div class="modal fade tradeConfirmationModel" tabindex="-1" role="dialog"
-                 aria-labelledby="tradeConfirmationModelLabel"
-                 aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="tradeConfirmationModelLabel">Order Confirmation</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            Are you sure you want to place this order?
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <!--<button type="button" class="btn btn-primary">Save changes</button>-->
-                            <input type="submit" id="purchase" name="purchase" value="">
+                    <!-- Modal -->
+                    <div class="modal fade tradeConfirmationModel" tabindex="-1" role="dialog"
+                         aria-labelledby="tradeConfirmationModelLabel"
+                         aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="tradeConfirmationModelLabel">Order Confirmation</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure you want to place this order?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <!--<button type="button" class="btn btn-primary">Save changes</button>-->
+                                    <input type="submit" id="purchase" name="purchase" value="">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
-    </form>
+    </div>
 </div>
 {% include 'chart_model.html' %}
 {% endblock%}
