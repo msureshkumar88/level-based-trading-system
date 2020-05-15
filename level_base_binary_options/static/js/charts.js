@@ -368,7 +368,7 @@ var timeframe_ele = $("#timeframe");
 var chart_type_ele = $("#chart_type");
 var price_type_ele = $("#price_type");
 
-
+load_chart_history("EUR/USD", "ticks", "close", "line")
 chart_currency_ele.change(function () {
     if (socket !== "") {
         socket.disconnect();
@@ -678,15 +678,19 @@ function update_candlestick_chart(data) {
         var time_index = hist_timestamp.indexOf(data.timestamp);
 
         if (data.open !== hist_price_open[time_index]) {
+            hist_price_open[time_index] = data.open;
             update_required = true
         }
         if (data.close !== hist_price_close[time_index]) {
+            hist_price_close[time_index] = data.close;
             update_required = true
         }
         if (data.high !== hist_price_high[time_index]) {
+            hist_price_high[time_index] = data.high;
             update_required = true
         }
         if (data.low !== hist_price_low[time_index]) {
+            hist_price_low[time_index] = data.low;
             update_required = true
         }
 
