@@ -50,8 +50,8 @@ class Trading:
         duration = cursor.execute("SELECT * FROM duration")
 
         data = dict()
-        data['currency'] = currencies
-        data['duration'] = duration
+        data['currency'] = currencies.all()
+        data['duration'] = duration.all()
         data['today_date'] = datetime.now().strftime("%Y-%m-%d")
         data['time_now'] = datetime.now().strftime("%H:%M")
         data['level_list'] = Helper.get_trade_level_list()
