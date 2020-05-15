@@ -492,6 +492,9 @@ function load_live_chart(chart_currency, timeframe, price_type, chart_type) {
         if (chart_type === "line") {
             update_line_chart(c_data)
         }
+        if (chart_type === "candlestick") {
+            update_candlestick_chart(c_data)
+        }
         // console.log(hist_price_open)
         // console.log(hist_price_close)
         // console.log(hist_price_high)
@@ -500,7 +503,7 @@ function load_live_chart(chart_currency, timeframe, price_type, chart_type) {
     });
 
 }
-
+//https://plotly.com/javascript/axes/
 function add_chart(data) {
     var chart_type = chart_type_ele.val();
     var timeframe = timeframe_ele.val();
@@ -536,15 +539,17 @@ function add_chart(data) {
             xaxis: {
                 autorange: true,
                 domain: [0, 1],
-                range: ['2017-01-03 12:00', '2017-02-15 12:00'],
-                rangeslider: {range: ['2017-01-03 12:00', '2017-02-15 12:00']},
+                // range: ['2017-01-03 12:00', '2017-02-15 12:00'],
+                // rangeslider: {range: ['2017-01-03 12:00', '2017-02-15 12:00']},
                 title: 'Date',
                 type: 'date'
             },
             yaxis: {
+                // autotick: false,
+                // dtick: 0.00030,
                 autorange: true,
                 domain: [0, 1],
-                range: [114.609999778, 137.410004222],
+                // range: [114.609999778, 137.410004222],
                 type: 'linear'
             }
         };
@@ -665,8 +670,55 @@ function update_line_chart(data) {
     }
 }
 
-function update_candlestick_chart() {
+function update_candlestick_chart(data) {
 
+    var update = {};
+    if (hist_timestamp.includes(data.timestamp)) {
+        var update_required = false;
+        var time_index = hist_timestamp.indexOf(data.timestamp);
+
+        if (data.open !== hist_price_open[time_index]) {
+            update_required = true
+        }
+        if (data.close !== hist_price_close[time_index]) {
+            update_required = true
+        }
+        if (data.high !== hist_price_high[time_index]) {
+            update_required = true
+        }
+        if (data.low !== hist_price_low[time_index]) {
+            update_required = true
+        }
+
+        if (update_required) {
+            update = {
+                x: [[data.timestamp]],
+                close: [[data.close]],
+                high: [[data.high]],
+                low: [[data.low]],
+                open: [[data.open]],
+            };
+            Plotly.extendTraces('forex-chart', update, [0])
+        }
+
+    }
+    if (!hist_timestamp.includes(data.timestamp)) {
+        console.log(data)
+        hist_timestamp.push(data.timestamp);
+        hist_price_open.push(data.open);
+        hist_price_close.push(data.close);
+        hist_price_high.push(data.high);
+        hist_price_low.push(data.low);
+
+        update = {
+            x: [[data.timestamp]],
+            close: [[data.close]],
+            high: [[data.high]],
+            low: [[data.low]],
+            open: [[data.open]],
+        };
+        Plotly.extendTraces('forex-chart', update, [0])
+    }
 }
 
 
