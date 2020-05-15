@@ -370,6 +370,10 @@ var price_type_ele = $("#price_type");
 
 
 chart_currency_ele.change(function () {
+    if (socket !== "") {
+        socket.disconnect();
+        clearInterval(interval);
+    }
     var chart_currency = $(this).val();
     var timeframe = timeframe_ele.val();
     var price_type = price_type_ele.val();
@@ -378,6 +382,10 @@ chart_currency_ele.change(function () {
     load_chart_history(chart_currency, timeframe, price_type, chart_type)
 });
 timeframe_ele.change(function () {
+    if (socket !== "") {
+        socket.disconnect();
+        clearInterval(interval);
+    }
     var timeframe = $(this).val();
     var chart_currency = chart_currency_ele.val();
     var price_type = price_type_ele.val();
@@ -386,6 +394,10 @@ timeframe_ele.change(function () {
 });
 
 price_type_ele.change(function () {
+    if (socket !== "") {
+        socket.disconnect();
+        clearInterval(interval);
+    }
     var price_type = $(this).val();
     var timeframe = timeframe_ele.val();
     var chart_currency = chart_currency_ele.val();
@@ -394,6 +406,10 @@ price_type_ele.change(function () {
 })
 
 chart_type_ele.change(function () {
+    if (socket !== "") {
+        socket.disconnect();
+        clearInterval(interval);
+    }
     var chart_type = $(this).val();
     var timeframe = timeframe_ele.val();
     var chart_currency = chart_currency_ele.val();
@@ -401,8 +417,18 @@ chart_type_ele.change(function () {
     load_chart_history(chart_currency, timeframe, price_type, chart_type)
 
 })
+var hist_timestamp = [];
+var hist_price_open = [];
+var hist_price_close = [];
+var hist_price_high = [];
+var hist_price_low = [];
 
 function load_chart_history(chart_currency, timeframe, price_type, chart_type) {
+    hist_timestamp = [];
+    hist_price_open = [];
+    hist_price_close = [];
+    hist_price_high = [];
+    hist_price_low = [];
     $.ajax({
         url: BASE_URL + 'account/get-chart-data',
         data: {
@@ -416,8 +442,27 @@ function load_chart_history(chart_currency, timeframe, price_type, chart_type) {
         method: 'POST',
         success: function (data) {
             console.log(data.data)
-            if(data.status){
-                add_chart(data.data)
+            if (data.status) {
+                var c_data = data.data
+                add_chart(c_data)
+
+                if ("timestamp" in c_data) {
+                    hist_timestamp.push(...JSON.parse(c_data.timestamp))
+                }
+                if ("open" in c_data) {
+                    hist_price_open.push(...JSON.parse(c_data.open))
+                }
+                if ("close" in c_data) {
+                    hist_price_close.push(...JSON.parse(c_data.close))
+                }
+                if ("high" in c_data) {
+                    hist_price_high.push(...JSON.parse(c_data.high))
+                }
+                if ("low" in c_data) {
+                    hist_price_low.push(...JSON.parse(c_data.low))
+                }
+
+                load_live_chart(chart_currency, timeframe, price_type, chart_type)
             }
 
         }
@@ -425,8 +470,39 @@ function load_chart_history(chart_currency, timeframe, price_type, chart_type) {
 
 }
 
+function load_live_chart(chart_currency, timeframe, price_type, chart_type) {
+
+    var payload = {}
+    payload = {
+        chart_currency: chart_currency,
+        timeframe: timeframe,
+        price_type: price_type,
+        chart_type: chart_type
+    };
+    socket = io.connect(WS_SERVER_URL);
+    interval = setInterval(function () {
+        socket.emit('live forex data', payload);
+
+    }, 500);
+
+    socket.on('forex data live', function (data) {
+        var c_data = data.data
+
+
+        if (chart_type === "line") {
+            update_line_chart(c_data)
+        }
+        // console.log(hist_price_open)
+        // console.log(hist_price_close)
+        // console.log(hist_price_high)
+        // console.log(hist_price_low)
+
+    });
+
+}
+
 function add_chart(data) {
-    var chart_type = chart_type_ele.val()
+    var chart_type = chart_type_ele.val();
     var timeframe = timeframe_ele.val();
     var price_type = price_type_ele.val();
 
@@ -483,18 +559,18 @@ function add_chart(data) {
             name: 'AAPL High',
             x: JSON.parse(data.timestamp),
             line: {color: '#17BECF'}
-        }
+        };
 
-        if (price_type ==="close"){
+        if (price_type === "close") {
             trace1['y'] = JSON.parse(data.close)
         }
-        if (price_type ==="open"){
+        if (price_type === "open") {
             trace1['y'] = JSON.parse(data.open)
         }
-        if (price_type ==="high"){
+        if (price_type === "high") {
             trace1['y'] = JSON.parse(data.high)
         }
-        if (price_type ==="low"){
+        if (price_type === "low") {
             trace1['y'] = JSON.parse(data.low)
         }
 
@@ -506,6 +582,90 @@ function add_chart(data) {
 
         Plotly.newPlot('forex-chart', data, layout);
     }
+
+}
+
+function update_line_chart(data) {
+    console.log(data)
+    var update = {};
+    if (hist_timestamp.includes(data.timestamp)) {
+        var update_required = false;
+
+        var time_index = hist_timestamp.indexOf(data.timestamp);
+        if ("open" in data) {
+            if (data.open !== hist_price_open[time_index]) {
+                hist_price_open[time_index] = data.open;
+                update_required = true;
+                update = {
+                    x: [[data.timestamp]],
+                    y: [[data.open]]
+                };
+            }
+        }
+        if ("close" in data) {
+            if (data.close !== hist_price_close[time_index]) {
+                hist_price_close[time_index] = data.close;
+                update_required = true;
+                update = {
+                    x: [[data.timestamp]],
+                    y: [[data.close]]
+                };
+            }
+        }
+        if ("high" in data) {
+            if (data.high !== hist_price_high[time_index]) {
+                hist_price_high[time_index] = data.high;
+                update_required = true;
+                update = {
+                    x: [[data.timestamp]],
+                    y: [[data.high]]
+                };
+            }
+        }
+        if ("low" in data) {
+            if (data.low !== hist_price_low[time_index]) {
+                hist_price_low[time_index] = data.low;
+                update_required = true;
+                update = {
+                    x: [[data.timestamp]],
+                    y: [[data.low]]
+                };
+            }
+        }
+        if (update_required) {
+            Plotly.extendTraces('forex-chart', update, [0])
+        }
+
+
+    }
+    if (!hist_timestamp.includes(data.timestamp)) {
+
+        update = {
+            x: [[data.timestamp]],
+        };
+
+        hist_timestamp.push(data.timestamp);
+        if ("open" in data) {
+            hist_price_open.push(data.open);
+            update['y'] = [[data.open]]
+        }
+        if ("close" in data) {
+            hist_price_close.push(data.close);
+            update['y'] = [[data.close]]
+        }
+        if ("high" in data) {
+            hist_price_high.push(data.high);
+            update['y'] = [[data.high]]
+        }
+        if ("low" in data) {
+            hist_price_low.push(data.low);
+            update['y'] = [[data.low]]
+        }
+        Plotly.extendTraces('forex-chart', update, [0])
+    }
+}
+
+function update_candlestick_chart() {
 
 }
 
