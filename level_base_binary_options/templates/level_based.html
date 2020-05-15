@@ -3,106 +3,167 @@
 {%block content%}
 <div class="bd-example">
     <!--TODO: add a chart show the selected level-->
-    <form name="" method="post">
-        <div id="messages" class="col-md-9"></div>
-        <div class="form-row col-md-9">
-            {%for error in errors %}
-            <div class="alert alert-danger col-md-12">{{error}}</div>
-            {%endfor%}
-            {% csrf_token%}
-            <div class="form-group col-md-12">
-                <select id="currency" name="currency" class="form-control">
-                    <option value="">Select currency pair</option>
-                    {% for c in currency%}
-                    <option value="{{c.value}}">{{c.value}}</option>
-                    {%endfor%}
-                </select>
-            </div>
-            <div class="form-group col-md-12">
-                <input type="number" name="gap_pips" class="form-control" placeholder="Level size" min="1">
-            </div>
-            <div class="form-group col-md-12">
-                <select name="select_level" id="select_level" class="form-control">
-                    <option value="">Select level</option>
-                    {% for level in level_list%}
-                    <option value="{{level}}">{{level}}</option>
-                    {%endfor%}
-                </select>
-            </div>
-            <div class="form-group col-md-12">
-                <select name="time_to_close" id="time_to_close" class="form-control">
-                    <option value="">Select trade closing type</option>
-                    <option value="duration">Duration</option>
-                    <option value="end_time">End Time</option>
-                </select>
-            </div>
-            <br>
-            <!--active when duration is selected-->
-            <div class="form-group col-md-8 duration_area">
-                <select name="time_slot" id="time_slot" class="form-control">
-                    <option value="">Select duration</option>
-                    {% for c in duration %}
-                    {# some  {% if c.name != 'seconds'%}#} <!--allow all types of durations - Enable this if trade closing wants be more than 15 minutes -->
-                    <option value="{{c.name}}">{{c.label}}</option>
-                    {# some {%endif%} #}
-                    {%endfor%}
-                </select>
-            </div>
-            <div class="form-group col-md-4 duration_area">
-                <input type="text" name="time_count" class="form-control" placeholder="Units">
-            </div>
+    <div class="row">
+        <div class="col-md-12">
 
-            <!--active when end time is selected-->
-            <div class="form-group col-md-8 end_time_area">
-                <input type="date" name="end_date" class="form-control" placeholder="trade close date" value="{{today_date}}">
-            </div>
+            <form>
+                {% csrf_token%}
+                <div class="row">
+                    <div class="col-md-3">
+                        <select name="chart_currency" id="chart_currency" class="form-control">
+                            {% for c in currency%}
+                            {% if c.value == 'EUR/USD'%}
+                            <option value="{{c.value}}" selected>{{c.value}}</option>
+                            {%else%}
+                            <option value="{{c.value}}">{{c.value}}</option>
+                            {%endif%}
+                            {%endfor%}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="timeframe" id="timeframe" class="form-control">
+                            <option value="ticks">Ticks</option>
+                            <option value="minute">1 Minute</option>
+                            <option value="five_min">5 Minute</option>
+                            <option value="fifteen_min">15 Minute</option>
+                            <option value="thirty_min">30 Minute</option>
+                            <option value="hour">1 Hour</option>
+                            <option value="four_hours">4 Hour</option>
+                            <option value="one_day">1 Day</option>
+                        </select>
 
-            <div class="form-group col-md-4 end_time_area">
-                <input type="time" name="end_time" class="form-control" placeholder="trade close time" value="{{time_now}}">
-            </div>
-            <div class="form-group col-md-12">
-            <input type="text" name="amount" class="form-control" placeholder="Amount">
+                    </div>
+                    <div class="col-md-3">
+                        <select name="chart_type" id="chart_type" class="form-control">
+                            <option value="line">Line</option>
+                            <option value="candlestick">Candlestick</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="price_type" id="price_type" class="form-control">
+                            <option value="close" selected>Close</option>
+                            <option value="open">Open</option>
+                            <option value="high">High</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
                 </div>
+            </form>
 
-            <!--<input type="submit" name="purchase" value="Buy">-->
-            <!--<input type="submit" name="purchase" value="Sell">-->
-            <div class="form-group col-md-6">
-                <!--<button type="button" class="btn btn-primary col-md-12" data-toggle="modal" data-action="Buy"-->
+            <div>
+                <div id="forex-chart"></div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <form name="" method="post">
+                <div id="messages"></div>
+                <div class="form-row">
+                    {%for error in errors %}
+                    <div class="alert alert-danger col-md-12">{{error}}</div>
+                    {%endfor%}
+                    {% csrf_token%}
+                    <div class="form-group col-md-12">
+                        <select id="currency" name="currency" class="form-control">
+                            <option value="">Select currency pair</option>
+                            {% for c in currency%}
+                            <option value="{{c.value}}">{{c.value}}</option>
+                            {%endfor%}
+                        </select>
+                    </div>
+                    <div class="form-group col-md-12">
+                        <input type="number" name="gap_pips" class="form-control" placeholder="Level size" min="1">
+                    </div>
+                    <div class="form-group col-md-12">
+                        <select name="select_level" id="select_level" class="form-control">
+                            <option value="">Select level</option>
+                            {% for level in level_list%}
+                            <option value="{{level}}">{{level}}</option>
+                            {%endfor%}
+                        </select>
+                    </div>
+                    <div class="form-group col-md-12">
+                        <select name="time_to_close" id="time_to_close" class="form-control">
+                            <option value="">Select trade closing type</option>
+                            <option value="duration">Duration</option>
+                            <option value="end_time">End Time</option>
+                        </select>
+                    </div>
+                    <br>
+                    <!--active when duration is selected-->
+                    <div class="form-group col-md-8 duration_area">
+                        <select name="time_slot" id="time_slot" class="form-control">
+                            <option value="">Select duration</option>
+                            {% for c in duration %}
+                            {# some {% if c.name != 'seconds'%}#}
+                            <!--allow all types of durations - Enable this if trade closing wants be more than 15 minutes -->
+                            <option value="{{c.name}}">{{c.label}}</option>
+                            {# some {%endif%} #}
+                            {%endfor%}
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4 duration_area">
+                        <input type="text" name="time_count" class="form-control" placeholder="Units">
+                    </div>
+
+                    <!--active when end time is selected-->
+                    <div class="form-group col-md-8 end_time_area">
+                        <input type="date" name="end_date" class="form-control" placeholder="trade close date"
+                               value="{{today_date}}">
+                    </div>
+
+                    <div class="form-group col-md-4 end_time_area">
+                        <input type="time" name="end_time" class="form-control" placeholder="trade close time"
+                               value="{{time_now}}">
+                    </div>
+                    <div class="form-group col-md-12">
+                        <input type="text" name="amount" class="form-control" placeholder="Amount">
+                    </div>
+
+                    <!--<input type="submit" name="purchase" value="Buy">-->
+                    <!--<input type="submit" name="purchase" value="Sell">-->
+                    <div class="form-group col-md-6">
+                        <!--<button type="button" class="btn btn-primary col-md-12" data-toggle="modal" data-action="Buy"-->
                         <!--data-target=".tradeConfirmationModel">Buy-->
-                <!--</button>-->
-                <input type="button" data-target=".chartModel" class="btn btn-primary col-md-12 levels-btn" data-action="Buy" value="Buy">
-            </div>
-            <div class="form-group col-md-6">
-                <!--<button type="button" class="btn btn-danger col-md-12" data-toggle="modal" data-action="Sell"-->
+                        <!--</button>-->
+                        <input type="button" data-target=".chartModel" class="btn btn-primary col-md-12 levels-btn"
+                               data-action="Buy" value="Buy">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <!--<button type="button" class="btn btn-danger col-md-12" data-toggle="modal" data-action="Sell"-->
                         <!--data-target=".tradeConfirmationModel">Sell-->
-                <!--</button>-->
-                <input type="button" data-target=".chartModel" class="btn btn-danger col-md-12 levels-btn" data-action="Sell" value="Sell">
-            </div>
-            <!-- Modal -->
-            <div class="modal fade tradeConfirmationModel" tabindex="-1" role="dialog"
-                 aria-labelledby="tradeConfirmationModelLabel"
-                 aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="tradeConfirmationModelLabel">Order Confirmation</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            Are you sure you want to place this order?
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <!--<button type="button" class="btn btn-primary">Save changes</button>-->
-                            <input type="submit" id="purchase" name="purchase" value="">
+                        <!--</button>-->
+                        <input type="button" data-target=".chartModel" class="btn btn-danger col-md-12 levels-btn"
+                               data-action="Sell" value="Sell">
+                    </div>
+                    <!-- Modal -->
+                    <div class="modal fade tradeConfirmationModel" tabindex="-1" role="dialog"
+                         aria-labelledby="tradeConfirmationModelLabel"
+                         aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="tradeConfirmationModelLabel">Order Confirmation</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure you want to place this order?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <!--<button type="button" class="btn btn-primary">Save changes</button>-->
+                                    <input type="submit" id="purchase" name="purchase" value="">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
-    </form>
+    </div>
 </div>
 {% include 'chart_model.html' %}
 {% endblock%}
