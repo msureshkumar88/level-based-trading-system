@@ -1,18 +1,18 @@
-// $.ajax({
-//     url: BASE_URL + 'account/charts-get',
-//     data: {
-//         'start_date': "",
-//         'end_date': "",
-//         'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
-//     },
-//     dataType: 'json',
-//     method: 'POST',
-//     success: function (data) {
-//         console.log(data)
-//         addGraph(data.data)
-//
-//     }
-// });
+$.ajax({
+    url: BASE_URL + 'account/charts-get',
+    data: {
+        'start_date': "",
+        'end_date': "",
+        'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
+    },
+    dataType: 'json',
+    method: 'POST',
+    success: function (data) {
+        console.log(data)
+        addGraph(data.data)
+
+    }
+});
 
 //TODO: add more charts and filters
 function addGraph(data) {
@@ -95,6 +95,22 @@ balance_end_date.change(function (val) {
     getAnalysisDataByDate(start_date, end_date, type);
 });
 
+var num_trades_start_date = $('input[name="num_trades_start_date"]')
+var num_trades_end_date = $('input[name="num_trades_end_date"]')
+
+num_trades_start_date.change(function () {
+    var start_date = $(this).val();
+    var type = $(this).data('stayetype');
+    var end_date = num_trades_end_date.val();
+    getAnalysisDataByDate(start_date, end_date, type);
+});
+
+num_trades_end_date.change(function () {
+    var start_date = num_trades_start_date.val();
+    var type = $(this).data('stayetype');
+    var end_date = $(this).val();
+    getAnalysisDataByDate(start_date, end_date, type);
+});
 function getAnalysisDataByDate(start_date, end_date, type) {
     $.ajax({
         url: BASE_URL + 'account/charts-get',

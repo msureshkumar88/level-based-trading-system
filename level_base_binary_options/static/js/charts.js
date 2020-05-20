@@ -368,7 +368,10 @@ var timeframe_ele = $("#timeframe");
 var chart_type_ele = $("#chart_type");
 var price_type_ele = $("#price_type");
 
-load_chart_history("EUR/USD", "ticks", "close", "line")
+if ($("#forex-chart").length) {
+    load_chart_history("EUR/USD", "ticks", "close", "line")
+}
+
 chart_currency_ele.change(function () {
     if (socket !== "") {
         socket.disconnect();

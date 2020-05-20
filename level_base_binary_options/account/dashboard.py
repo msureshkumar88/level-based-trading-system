@@ -10,3 +10,6 @@ def view(request):
         return redirect('/login')
     data['auth'] = ac.is_user_logged_in()
     return render(request, 'dashboard.html', data)
+
+def get_latest_trades():
+    pass
