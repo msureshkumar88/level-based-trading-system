@@ -7,12 +7,14 @@ from . import statements_view
 from . import search_level_based_view
 from . import restapi
 from . import analysis
+from . import dashboard
 
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('account', views.account, name='account'),
+    path('account', dashboard.view, name='dashboard'),
+    path('account/binary', views.account, name='binary'),
     path('account/save_binary', views.create_trade, name='binary_save'),
     path('account/levels', level_based_view.levels, name='levels'),
     path('account/save_levels', level_based_view.create_trade, name='levels_save'),
