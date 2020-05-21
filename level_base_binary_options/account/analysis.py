@@ -12,6 +12,7 @@ from utilities.helper import Helper
 from utilities.state_keys import StatKeys
 
 import pandas as pd
+import json
 
 
 def chart_view(request):
@@ -41,6 +42,10 @@ def chart(request):
     if not start_date and not end_date:
         return JsonResponse(Helper.get_json_response(True, get_initial_chart_data(user_id), []))
     stat_key = post['type']
+    if stat_key == "buy_sell":
+        return JsonResponse(
+            get_chart_by_state_keys(user_id, [StatKeys.BUY.value, StatKeys.SELL.value], start_date, end_date))
+
     return JsonResponse(get_filtered_chart_data(user_id, start_date, end_date, stat_key))
 
 
@@ -61,6 +66,35 @@ def get_initial_chart_data(user_id):
             item['value'] = df['value'].astype(float).to_json(orient='records')
             response[stst.value] = item
     return response
+
+
+def get_chart_by_state_keys(user_id, key_list, start_date, end_date):
+    cursor = connection.cursor()
+    response = dict()
+    result = []
+    for stat_key in key_list:
+        if not start_date:
+            return Helper.get_json_response(False, dict(), ['Please select a start date'])
+        if start_date and not end_date:
+            result = cursor.execute(f"SELECT * FROM states WHERE user_id = {user_id} "
+                                    f"AND type = '{stat_key}'and date >= '{start_date}'")
+        if start_date and end_date:
+            result = cursor.execute(f"SELECT * FROM states WHERE user_id = {user_id} "
+                                    f"AND type = '{stat_key}'and date >= '{start_date}' "
+                                    f"and date <= '{end_date}'")
+
+        item = dict()
+        item['date'] = json.dumps([])
+        item['value'] = json.dumps([])
+        response[stat_key] = item
+        if result:
+            df = pd.DataFrame(result)
+            item['date'] = df['date'].astype(str).to_json(orient='records')
+            item['value'] = df['value'].astype(float).to_json(orient='records')
+            response[stat_key] = item
+            # return Helper.get_json_response(True, response, [''])
+        # return Helper.get_json_response(False, dict(), ['Data not available for this range'])
+    return Helper.get_json_response(True, response, [])
 
 
 def get_filtered_chart_data(user_id, start_date, end_date, stat_key):
