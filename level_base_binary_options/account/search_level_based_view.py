@@ -148,6 +148,7 @@ def persist_user_transactions(user_id, transaction_id, parent_trade, selected_le
     # print(user_transactions)
     cursor = connection.cursor()
     cursor.execute(user_transactions)
+    Trading.save_levels_general_stats(user_id, selected_level, converted_amount, parent_trade['purchase_type'])
 
 
 def persist_transactions_by_state(transaction_id, user_id, parent_trade):
