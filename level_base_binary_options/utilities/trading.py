@@ -217,3 +217,56 @@ class Trading:
             Helper.store_state_value(user_id, StatKeys.LEVEL_3.value, 1, 'add')
         if level == StatKeys.LEVEL_4.value:
             Helper.store_state_value(user_id, StatKeys.LEVEL_4.value, 1, 'add')
+
+    @classmethod
+    def save_levels_general_stats(cls, user_id, level, amount, purchase_type):
+
+        levels_count = Helper.get_general_stat_by_key(user_id, StatKeys.LEVELS.value)
+        levels_count = levels_count + 1
+        Helper.save_general_stat_by_key(user_id, StatKeys.LEVELS.value, levels_count)
+
+        if purchase_type == StatKeys.BUY.value:
+            buy_count = Helper.get_general_stat_by_key(user_id, StatKeys.BUY.value)
+            buy_count = buy_count + 1
+            Helper.save_general_stat_by_key(user_id, StatKeys.BUY.value, buy_count)
+
+        if purchase_type == StatKeys.SELL.value:
+            sell_count = Helper.get_general_stat_by_key(user_id, StatKeys.SELL.value)
+            sell_count = sell_count + 1
+            Helper.save_general_stat_by_key(user_id, StatKeys.SELL.value, sell_count)
+
+        amount = float(amount)
+        if level == StatKeys.LEVEL_1.value:
+            level_count = Helper.get_general_stat_by_key(user_id, StatKeys.LEVEL_1.value)
+            level_count = level_count + 1
+            Helper.save_general_stat_by_key(user_id, StatKeys.LEVEL_1.value, level_count)
+
+            level_amount = Helper.get_general_stat_by_key(user_id, StatKeys.LEVEL_1_INVST.value)
+            level_amount = level_amount + amount
+            Helper.save_general_stat_by_key(user_id, StatKeys.LEVEL_1_INVST.value, level_amount)
+
+        if level == StatKeys.LEVEL_2.value:
+            level_count = Helper.get_general_stat_by_key(user_id, StatKeys.LEVEL_2.value)
+            level_count = level_count + 1
+            Helper.save_general_stat_by_key(user_id, StatKeys.LEVEL_2.value, level_count)
+
+            level_amount = Helper.get_general_stat_by_key(user_id, StatKeys.LEVEL_2_INVST.value)
+            level_amount = level_amount + amount
+            Helper.save_general_stat_by_key(user_id, StatKeys.LEVEL_2_INVST.value, level_amount)
+
+        if level == StatKeys.LEVEL_3.value:
+            level_count = Helper.get_general_stat_by_key(user_id, StatKeys.LEVEL_3.value)
+            level_count = level_count + 1
+            Helper.save_general_stat_by_key(user_id, StatKeys.LEVEL_3.value, level_count)
+
+            level_amount = Helper.get_general_stat_by_key(user_id, StatKeys.LEVEL_3_INVST.value)
+            level_amount = level_amount + amount
+            Helper.save_general_stat_by_key(user_id, StatKeys.LEVEL_3_INVST.value, level_amount)
+        if level == StatKeys.LEVEL_4.value:
+            level_count = Helper.get_general_stat_by_key(user_id, StatKeys.LEVEL_4.value)
+            level_count = level_count + 1
+            Helper.save_general_stat_by_key(user_id, StatKeys.LEVEL_4.value, level_count)
+
+            level_amount = Helper.get_general_stat_by_key(user_id, StatKeys.LEVEL_4_INVST.value)
+            level_amount = level_amount + amount
+            Helper.save_general_stat_by_key(user_id, StatKeys.LEVEL_4_INVST.value, level_amount)

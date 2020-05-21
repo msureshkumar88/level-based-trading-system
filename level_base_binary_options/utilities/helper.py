@@ -168,3 +168,22 @@ class Helper:
     @classmethod
     def get_today_date(cls):
         return date.today().strftime("%Y-%m-%d")
+
+    @classmethod
+    def get_general_stat_by_key(cls, user_id, key):
+        cursor = connection.cursor()
+        result = cursor.execute(f"SELECT * FROM general_states WHERE user_id = {user_id} "
+                                f"AND type = '{key}'")
+        result = result.one()
+        if result:
+            return result["value"]
+        return 0
+
+    @classmethod
+    def save_general_stat_by_key(cls, user_id, key, value):
+        cursor = connection.cursor()
+        cursor.execute(f"INSERT INTO general_states "
+                       f"(user_id, type, value) "
+                       f"VALUES "
+                       f"({user_id},'{key}', {value})")
+

@@ -43,6 +43,7 @@ def levels(request):
     data['auth'] = ac.is_user_logged_in()
     return render(request, 'level_based.html', data)
 
+
 # TODO: trade closing date cannot be a weekend - because on closing price available
 def create_trade(req):
     post = req.POST
@@ -201,6 +202,7 @@ def create_trade(req):
     Helper.store_state_value(user_id, StatKeys.LEVELS.value, 1, 'add')
     Trading.save_purchase_stats(user_id, purchase_type)
     Trading.save_levels_stats(user_id, select_level)
+    Trading.save_levels_general_stats(user_id, select_level, amount, purchase_type)
     # levels_by_id = LevelBasedById(transaction_id=transaction_id, created_date=time_now, created_by=user_id,
     #                               purchase_type=purchase_type,
     #                               currency=currency, staring_price=float(price), amount=float(amount),
