@@ -182,13 +182,14 @@ function add_buy_sell_graph(data) {
     };
 
     var data = [trace1, trace2];
-
+    var config = {responsive: true}
     var layout = {
+        autosize: true,
         barmode: 'group',
         xaxis: {
       tickformat: '%Y-%m-%d'
     }
     };
 
-    Plotly.newPlot('buy_sell_cht', data, layout);
+    Plotly.newPlot('buy_sell_cht', data, layout,config);
 }
