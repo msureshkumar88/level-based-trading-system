@@ -193,6 +193,7 @@ def create_trade(req):
     Helper.store_state_value(user_id, StatKeys.NUM_TRADES.value, 1, 'add')
     Helper.store_state_value(user_id, StatKeys.BINARY.value, 1, 'add')
     Trading.save_purchase_stats(user_id, purchase_type)
+    Trading.save_binary_general_stats(user_id, purchase_type)
     return JsonResponse(Helper.get_json_response(True, {'transaction_id': str(transaction_id), "user_id":str(user_id)},
                                                  ['Trade created successfully']))
 

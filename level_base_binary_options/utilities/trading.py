@@ -270,3 +270,20 @@ class Trading:
             level_amount = Helper.get_general_stat_by_key(user_id, StatKeys.LEVEL_4_INVST.value)
             level_amount = level_amount + amount
             Helper.save_general_stat_by_key(user_id, StatKeys.LEVEL_4_INVST.value, level_amount)
+
+    @classmethod
+    def save_binary_general_stats(cls, user_id, purchase_type):
+
+        binary_count = Helper.get_general_stat_by_key(user_id, StatKeys.BINARY.value)
+        binary_count = binary_count + 1
+        Helper.save_general_stat_by_key(user_id, StatKeys.BINARY.value, binary_count)
+
+        if purchase_type == StatKeys.BUY.value:
+            buy_count = Helper.get_general_stat_by_key(user_id, StatKeys.BUY.value)
+            buy_count = buy_count + 1
+            Helper.save_general_stat_by_key(user_id, StatKeys.BUY.value, buy_count)
+
+        if purchase_type == StatKeys.SELL.value:
+            sell_count = Helper.get_general_stat_by_key(user_id, StatKeys.SELL.value)
+            sell_count = sell_count + 1
+            Helper.save_general_stat_by_key(user_id, StatKeys.SELL.value, sell_count)
