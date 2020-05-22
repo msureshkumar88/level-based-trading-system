@@ -141,7 +141,31 @@
             </div>
         </div>
         <div class="tab-pane fade" id="win-loss-count-link" role="tabpanel" aria-labelledby="win-loss-count-tab">
-            ...
+            <div class="row">
+                <div class="col-md-12">
+                    <div>
+                        <div class="clearfix">&nbsp;</div>
+                        <form>
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <input type="date" class="form-control" name="win_loss_count_start_date"
+                                           data-stayetype="win_loss_count">
+                                </div>
+                                <div class="form-group  col-md-6">
+                                    <input type="date" class="form-control" name="win_loss_count_end_date"
+                                           data-stayetype="win_loss_count">
+                                </div>
+                            </div>
+                            {% csrf_token%}
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="win_loss_count_cht"></div>
+                </div>
+            </div>
         </div>
         <div class="tab-pane fade" id="win-loss-amount-link" role="tabpanel" aria-labelledby="win-loss-amount-tab">
             ...

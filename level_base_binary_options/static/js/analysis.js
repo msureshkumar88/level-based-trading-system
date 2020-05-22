@@ -15,7 +15,7 @@ $.ajax({
 });
 
 //TODO: add more charts and filters
-//TODO: fix account balance does not update for winning trades
+
 function addGraph(data) {
     if (data.hasOwnProperty('balance') && $("#account_balance").length) {
         var accountBalance = getBalanceChart(data.balance.date, data.balance.value)
@@ -28,6 +28,10 @@ function addGraph(data) {
 
     if (data.hasOwnProperty('buy') && data.hasOwnProperty('sell') && $("#buy_sell_cht").length) {
         add_buy_sell_graph(data)
+    }
+
+    if (data.hasOwnProperty('won') && data.hasOwnProperty('loss') && $("#win_loss_count_cht").length) {
+        add_won_loss_count_graph(data)
     }
 
 
@@ -133,6 +137,24 @@ buy_sell_end_date.change(function () {
     getAnalysisDataByDate(start_date, end_date, type)
 });
 
+
+var win_loss_count_start_date = $('input[name="win_loss_count_start_date"]');
+var win_loss_count_end_date = $('input[name="win_loss_count_end_date"]');
+
+win_loss_count_start_date.change(function () {
+    var start_date = $(this).val();
+    var type = $(this).data('stayetype');
+    var end_date = win_loss_count_end_date.val();
+    getAnalysisDataByDate(start_date, end_date, type);
+});
+
+win_loss_count_end_date.change(function () {
+    var end_date = $(this).val();
+    var type = $(this).data('stayetype');
+    var start_date = win_loss_count_start_date.val();
+    getAnalysisDataByDate(start_date, end_date, type);
+});
+
 function getAnalysisDataByDate(start_date, end_date, type) {
     $.ajax({
         url: BASE_URL + 'account/charts-get',
@@ -150,6 +172,9 @@ function getAnalysisDataByDate(start_date, end_date, type) {
             }
             if (type === "buy_sell") {
                 add_buy_sell_graph(data.data)
+            }
+            if (type === "win_loss_count"){
+                add_won_loss_count_graph(data.data)
             }
             addGraph(data)
 
@@ -187,9 +212,36 @@ function add_buy_sell_graph(data) {
         autosize: true,
         barmode: 'group',
         xaxis: {
-      tickformat: '%Y-%m-%d'
-    }
+            tickformat: '%Y-%m-%d'
+        }
     };
 
-    Plotly.newPlot('buy_sell_cht', data, layout,config);
+    Plotly.newPlot('buy_sell_cht', data, layout, config);
+}
+
+function add_won_loss_count_graph(data) {
+    // if (data.won.length === 0){
+    //
+    // }
+    var won = JSON.parse(data.won.value);
+    var loss = JSON.parse(data.loss.value);
+    var date = JSON.parse(data.won.date);
+
+    var trace1 = {
+        x: date,
+        y: won,
+        mode: 'lines+markers',
+        name: 'Won'
+    };
+
+    var trace2 = {
+        x: date,
+        y: loss,
+        mode: 'lines+markers',
+        name: 'Loss'
+    };
+
+    var c_data = [trace1, trace2];
+
+    Plotly.newPlot('win_loss_count_cht', c_data);
 }

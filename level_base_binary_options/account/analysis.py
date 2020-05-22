@@ -45,6 +45,9 @@ def chart(request):
     if stat_key == "buy_sell":
         return JsonResponse(
             get_chart_by_state_keys(user_id, [StatKeys.BUY.value, StatKeys.SELL.value], start_date, end_date))
+    if stat_key == "win_loss_count":
+        return JsonResponse(
+            get_chart_by_state_keys(user_id, [StatKeys.WON.value, StatKeys.LOSS.value], start_date, end_date))
 
     return JsonResponse(get_filtered_chart_data(user_id, start_date, end_date, stat_key))
 
