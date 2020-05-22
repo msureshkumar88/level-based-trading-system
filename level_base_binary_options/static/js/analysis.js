@@ -50,6 +50,13 @@ function addGraph(data) {
         data.hasOwnProperty('LEVEL_3_INVST') && data.hasOwnProperty('LEVEL_4_INVST') && $("#level_investment_cht").length) {
         add_level_investment_graph(data)
     }
+    if (data.hasOwnProperty('LEVEL_1_WON_COUNT') && data.hasOwnProperty('LEVEL_2_WON_COUNT') &&
+        data.hasOwnProperty('LEVEL_3_WON_COUNT') && data.hasOwnProperty('LEVEL_4_WON_COUNT') && $("#level_won_loss_counts_cht").length) {
+        add_levels_won_loss_counts_graph(data)
+    }
+    if ($("#level_won_loss_amount_cht").length) {
+        add_levels_won_loss_amount_graph(data)
+    }
 }
 
 function getBalanceChart(date, value) {
@@ -351,3 +358,42 @@ function add_level_investment_graph(data) {
     Plotly.newPlot('level_investment_cht', c_data);
 }
 
+function add_levels_won_loss_counts_graph(data) {
+    var trace1 = {
+        x: ['level 1', 'level 2', 'level 3', 'level 4'],
+        y: [data.LEVEL_1_WON_COUNT, data.LEVEL_2_WON_COUNT, data.LEVEL_3_WON_COUNT, data.LEVEL_4_WON_COUNT],
+        type: 'bar',
+        name: 'Won trades',
+    };
+
+    var trace2 = {
+        x: ['level 1', 'level 2', 'level 3', 'level 4'],
+        y: [data.LEVEL_1_LOSS_COUNT, data.LEVEL_2_LOSS_COUNT, data.LEVEL_3_LOSS_COUNT, data.LEVEL_4_LOSS_COUNT],
+        type: 'bar',
+        name: 'Loss trades',
+    };
+
+    var c_data = [trace1, trace2];
+    var layout = {barmode: 'group'};
+    Plotly.newPlot('level_won_loss_counts_cht', c_data, layout);
+}
+
+function add_levels_won_loss_amount_graph(data) {
+    var trace1 = {
+        x: ['level 1', 'level 2', 'level 3', 'level 4'],
+        y: [data.LEVEL_1_WON_AMOUNT, data.LEVEL_2_WON_AMOUNT, data.LEVEL_3_WON_AMOUNT, data.LEVEL_4_WON_AMOUNT],
+        type: 'bar',
+        name: 'Won trades amount',
+    };
+
+    var trace2 = {
+        x: ['level 1', 'level 2', 'level 3', 'level 4'],
+        y: [data.LEVEL_1_LOSS_AMOUNT, data.LEVEL_2_LOSS_AMOUNT, data.LEVEL_3_LOSS_AMOUNT, data.LEVEL_4_LOSS_AMOUNT],
+        type: 'bar',
+        name: 'Loss trades amount',
+    };
+
+    var c_data = [trace1, trace2];
+    var layout = {barmode: 'group'};
+    Plotly.newPlot('level_won_loss_amount_cht', c_data, layout);
+}
