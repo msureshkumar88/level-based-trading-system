@@ -38,6 +38,9 @@ function addGraph(data) {
         add_won_loss_amount_graph(data)
     }
 
+    if (data.hasOwnProperty('BINARY') && data.hasOwnProperty('LEVELS') && $("#binary_levels_cht").length) {
+        add_binary_levels_graph(data)
+    }
 
 }
 
@@ -193,10 +196,10 @@ function getAnalysisDataByDate(start_date, end_date, type) {
             if (type === "buy_sell") {
                 add_buy_sell_graph(data.data)
             }
-            if (type === "win_loss_count"){
+            if (type === "win_loss_count") {
                 add_won_loss_count_graph(data.data)
             }
-            if (type === "win_loss_amount"){
+            if (type === "win_loss_amount") {
                 add_won_loss_amount_graph(data.data)
             }
             addGraph(data)
@@ -300,4 +303,18 @@ function add_won_loss_amount_graph(data) {
     var c_data = [trace1, trace2];
 
     Plotly.newPlot('win_loss_amount_cht', c_data, layout);
+}
+
+function add_binary_levels_graph(data) {
+    var c_data = [{
+        values: [data.BINARY, data.LEVELS],
+        labels: ["Binary Trades", 'Levels based Trades'],
+        type: 'pie'
+    }];
+
+    var layout = {
+        autosize: true,
+    };
+
+    Plotly.newPlot('binary_levels_cht', c_data, layout);
 }
