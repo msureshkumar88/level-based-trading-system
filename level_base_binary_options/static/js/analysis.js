@@ -46,7 +46,10 @@ function addGraph(data) {
         data.hasOwnProperty('LEVEL_3') && data.hasOwnProperty('LEVEL_4') && $("#level_selection_cht").length) {
         add_level_selection_graph(data)
     }
-
+    if (data.hasOwnProperty('LEVEL_1_INVST') && data.hasOwnProperty('LEVEL_2_INVST') &&
+        data.hasOwnProperty('LEVEL_3_INVST') && data.hasOwnProperty('LEVEL_4_INVST') && $("#level_investment_cht").length) {
+        add_level_investment_graph(data)
+    }
 }
 
 function getBalanceChart(date, value) {
@@ -334,5 +337,17 @@ function add_level_selection_graph(data) {
     ];
 
     Plotly.newPlot('level_selection_cht', c_data);
+}
+
+function add_level_investment_graph(data) {
+    var c_data = [
+        {
+            x: ['level 1', 'level 2', 'level 3', 'level 4'],
+            y: [data.LEVEL_1_INVST, data.LEVEL_2_INVST, data.LEVEL_3_INVST, data.LEVEL_4_INVST],
+            type: 'bar'
+        }
+    ];
+
+    Plotly.newPlot('level_investment_cht', c_data);
 }
 
