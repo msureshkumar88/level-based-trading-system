@@ -103,6 +103,11 @@ def get_initial_chart_data(user_id):
 
     response[StatKeys.BINARY.name] = Helper.get_general_stat_by_key(user_id, StatKeys.BINARY.value)
     response[StatKeys.LEVELS.name] = Helper.get_general_stat_by_key(user_id, StatKeys.LEVELS.value)
+    response["all_won_count"] = Helper.get_general_stat_by_user(user_id, StatKeys.WON.value)
+    response["all_lass_count"] = Helper.get_general_stat_by_user(user_id, StatKeys.LOSS.value)
+    response["all_draw_count"] = Helper.get_general_stat_by_user(user_id, StatKeys.DRAW.value)
+    response["all_won_amount"] = Helper.get_general_stat_by_user(user_id, StatKeys.D_WON.value)
+    response["all_loss_amount"] = Helper.get_general_stat_by_user(user_id, StatKeys.D_LOSS.value)
     return response
 
 

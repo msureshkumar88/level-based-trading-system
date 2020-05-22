@@ -1,18 +1,24 @@
-$.ajax({
-    url: BASE_URL + 'account/charts-get',
-    data: {
-        'start_date': "",
-        'end_date': "",
-        'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
-    },
-    dataType: 'json',
-    method: 'POST',
-    success: function (data) {
-        console.log(data)
-        addGraph(data.data)
+var csrfmiddlewaretoken = $('input[name="csrfmiddlewaretoken"]').val();
 
-    }
-});
+if (csrfmiddlewaretoken) {
+    $.ajax({
+        url: BASE_URL + 'account/charts-get',
+        data: {
+            'start_date': "",
+            'end_date': "",
+            'csrfmiddlewaretoken': csrfmiddlewaretoken
+        },
+        dataType: 'json',
+        method: 'POST',
+        success: function (data) {
+            console.log(data)
+            addGraph(data.data)
+            fill_dashboard(data.data)
+
+        }
+    });
+}
+
 
 //TODO: add more charts and filters
 
@@ -396,4 +402,11 @@ function add_levels_won_loss_amount_graph(data) {
     var c_data = [trace1, trace2];
     var layout = {barmode: 'group'};
     Plotly.newPlot('level_won_loss_amount_cht', c_data, layout);
+}
+
+function fill_dashboard(data) {
+    $("#all_won_count").html(data.all_won_count)
+    $("#all_loss_count").html(data.all_lass_count)
+    $("#all_won_amount").html(data.all_won_amount)
+    $("#all_loss_amount").html(data.all_loss_amount)
 }

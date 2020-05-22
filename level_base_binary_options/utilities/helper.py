@@ -187,3 +187,11 @@ class Helper:
                        f"VALUES "
                        f"({user_id},'{key}', {value})")
 
+    @classmethod
+    def get_general_stat_by_user(cls,user_id, key):
+        cursor = connection.cursor()
+        result = cursor.execute(f"SELECT * FROM general_states WHERE user_id = {user_id} and type = '{key}'")
+        result = result.one()
+        if result:
+            return result["value"]
+        return 0
