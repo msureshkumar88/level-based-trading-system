@@ -411,10 +411,10 @@ function add_levels_won_loss_amount_graph(data) {
 }
 
 function fill_dashboard(data) {
-    $("#all_won_count").html(data.all_won_count)
-    $("#all_loss_count").html(data.all_lass_count)
-    $("#all_won_amount").html(data.all_won_amount)
-    $("#all_loss_amount").html(data.all_loss_amount)
+    $("#all_won_count").html(data.all_won_count);
+    $("#all_loss_count").html(data.all_lass_count);
+    $("#all_won_amount").html(data.all_won_amount + " " + data.user_currency);
+    $("#all_loss_amount").html(data.all_loss_amount + " " + data.user_currency);
 }
 
 function add_all_won_loss_graph(data) {

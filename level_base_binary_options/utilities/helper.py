@@ -12,6 +12,7 @@ from currency_converter import CurrencyConverter
 from .purchase_type import PurchaseTypes
 from .trade_levels import Levels
 from .state_keys import StatKeys
+import pandas as pd
 
 
 class Helper:
@@ -188,7 +189,7 @@ class Helper:
                        f"({user_id},'{key}', {value})")
 
     @classmethod
-    def get_general_stat_by_user(cls,user_id, key):
+    def get_general_stat_by_user(cls, user_id, key):
         cursor = connection.cursor()
         result = cursor.execute(f"SELECT * FROM general_states WHERE user_id = {user_id} and type = '{key}'")
         result = result.one()
@@ -203,3 +204,13 @@ class Helper:
                                 f"where user_id = {user_id} "
                                 f"and status='pending' limit 5")
         return result.all()
+
+    @classmethod
+    def get_latest_outcome_trades(cls, user_id):
+        cursor = connection.cursor()
+        result = cursor.execute(f"select * from transactions_by_state where user_id = {user_id} "
+                                f"and status='finished'  and outcome in ('won', 'loss', 'draw')")
+        if result:
+            df = pd.DataFrame(result)
+            return df.sort_values(by='created_date', ascending=False).head(5).iterrows()
+        return []

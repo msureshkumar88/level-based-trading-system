@@ -46,9 +46,26 @@
             <div class="card border-dark mb-3">
                 <div class="card-header">Latest Outcomes</div>
                 <div class="card-body text-success">
-                    <h5 class="card-title">Success card title</h5>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
-                        card's content.</p>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col">Currency</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col">Outcome</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {%for index, row in latest_outcomes%}
+                        <tr>
+                            <td>{{row.currency}}</td>
+                            <td>{{row.purchase_type}}</td>
+                            <td>{{row.amount}} {{user_currency}}</td>
+                            <td>{{row.outcome|capfirst}}</td>
+                        </tr>
+                        {%endfor%}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -70,7 +87,7 @@
                         <tr>
                             <td>{{order.currency}}</td>
                             <td>{{order.purchase_type}}</td>
-                            <td>{{order.amount}}</td>
+                            <td>{{order.amount}} {{user_currency}}</td>
                             <td>{{order.created_date}}</td>
                         </tr>
                         {%endfor%}

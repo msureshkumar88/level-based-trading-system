@@ -108,6 +108,7 @@ def get_initial_chart_data(user_id):
     response["all_draw_count"] = Helper.get_general_stat_by_user(user_id, StatKeys.DRAW.value)
     response["all_won_amount"] = Helper.get_general_stat_by_user(user_id, StatKeys.D_WON.value)
     response["all_loss_amount"] = Helper.get_general_stat_by_user(user_id, StatKeys.D_LOSS.value)
+    response["user_currency"] = Helper.get_user_by_id(user_id)['currency']
     return response
 
 
