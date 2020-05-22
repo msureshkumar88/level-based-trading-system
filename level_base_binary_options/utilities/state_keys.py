@@ -4,15 +4,15 @@ from enum import Enum
 class StatKeys(Enum):
     BALANCE = "balance"
     NUM_TRADES = 'num_trades'
-    WON = 'won'  # daily won count
-    LOSS = 'loss'  # daily won count
+    WON = 'won'  # daily won count and all won count
+    LOSS = 'loss'  # daily won count and all loss count
     DRAW = 'draw'  # daily draw count
     BINARY = 'binary'  # binary trade count
     LEVELS = 'levels'  # level trade count
     BUY = 'buy'  # buy trade count
     SELL = 'sell'  # sell trade count
-    D_WON = 'd_won'  # daily won amount
-    D_LOSS = 'd_loss'  # daily loss amount
+    D_WON = 'd_won'  # daily won amount and all won amount
+    D_LOSS = 'd_loss'  # daily loss amount and all loss amount
     LEVEL_1 = '1'  # level 1 selected times as a count
     LEVEL_2 = '2'  # level 2 selected count as a count
     LEVEL_3 = '3'  # level 3 selected count as a count
