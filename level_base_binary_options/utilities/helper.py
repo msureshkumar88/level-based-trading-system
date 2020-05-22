@@ -195,3 +195,11 @@ class Helper:
         if result:
             return result["value"]
         return 0
+
+    @classmethod
+    def get_latest_pending_trades(cls, user_id):
+        cursor = connection.cursor()
+        result = cursor.execute(f" select * from transactions_by_state "
+                                f"where user_id = {user_id} "
+                                f"and status='pending' limit 5")
+        return result.all()

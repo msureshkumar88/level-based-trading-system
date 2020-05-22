@@ -63,6 +63,12 @@ function addGraph(data) {
     if ($("#level_won_loss_amount_cht").length) {
         add_levels_won_loss_amount_graph(data)
     }
+
+    if ($("#total_won_loss_cht").length){
+        add_all_won_loss_graph(data)
+    }
+
+
 }
 
 function getBalanceChart(date, value) {
@@ -77,9 +83,9 @@ function getBalanceChart(date, value) {
         }
     ];
     data['layout'] = {
-        autosize: false,
-        width: 930,
-        height: 450,
+        autosize: true,
+        // width: 930,
+        // height: 450,
         yaxis: {
             automargin: false,
         },
@@ -409,4 +415,24 @@ function fill_dashboard(data) {
     $("#all_loss_count").html(data.all_lass_count)
     $("#all_won_amount").html(data.all_won_amount)
     $("#all_loss_amount").html(data.all_loss_amount)
+}
+
+function add_all_won_loss_graph(data) {
+    var trace1 = {
+        x: ['Count', 'Amount'],
+        y: [data.all_won_amount, data.all_won_count],
+        type: 'bar',
+        name: 'Won',
+    };
+
+    var trace2 = {
+        x: ['Count', 'Amount'],
+        y: [data.all_loss_amount, data.all_lass_count],
+        type: 'bar',
+        name: 'Loss',
+    };
+
+    var c_data = [trace1, trace2];
+    var layout = {barmode: 'group'};
+    Plotly.newPlot('total_won_loss_cht', c_data, layout);
 }

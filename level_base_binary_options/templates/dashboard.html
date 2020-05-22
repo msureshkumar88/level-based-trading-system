@@ -43,7 +43,7 @@
     </div>
     <div class="row">
         <div class="col-md-6">
-            <div class="card border-success mb-3">
+            <div class="card border-dark mb-3">
                 <div class="card-header">Latest Outcomes</div>
                 <div class="card-body text-success">
                     <h5 class="card-title">Success card title</h5>
@@ -53,56 +53,67 @@
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card border-success mb-3">
+            <div class="card border-dark mb-3">
                 <div class="card-header">Pending Orders</div>
                 <div class="card-body text-success">
-                    <h5 class="card-title">Success card title</h5>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
-                        card's content.</p>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col">Currency</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col">Date</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {%for order in pending_trades%}
+                        <tr>
+                            <td>{{order.currency}}</td>
+                            <td>{{order.purchase_type}}</td>
+                            <td>{{order.amount}}</td>
+                            <td>{{order.created_date}}</td>
+                        </tr>
+                        {%endfor%}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
     <div class="row">
         <div class="col-md-6">
-            <div class="card border-success mb-3">
-                <div class="card-header">Total won and loss</div>
+            <div class="card border-dark mb-3">
+                <div class="card-header">Total won vs loss</div>
                 <div class="card-body text-success">
-                    <h5 class="card-title">Success card title</h5>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
-                        card's content.</p>
+                    <div id="total_won_loss_cht"></div>
                 </div>
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card border-success mb-3">
+            <div class="card border-dark mb-3">
                 <div class="card-header">Binary vs Levels</div> <!--total won and loss for binary and levels-->
                 <div class="card-body text-success">
-                    <h5 class="card-title">Success card title</h5>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
-                        card's content.</p>
+                    <div id="binary_levels_cht"></div>
                 </div>
             </div>
         </div>
     </div>
     <div class="row">
         <div class="col-md-6">
-            <div class="card border-success mb-3">
+            <div class="card border-dark mb-3">
                 <div class="card-header">levels Earnings</div>
                 <div class="card-body text-success">
-                    <h5 class="card-title">Success card title</h5>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
-                        card's content.</p>
+                    <div id="level_won_loss_amount_cht"></div>
                 </div>
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card border-success mb-3">
+            <div class="card border-dark mb-3">
                 <div class="card-header">Account balance</div>
                 <div class="card-body text-success">
-                    <h5 class="card-title">Success card title</h5>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
-                        card's content.</p>
+                    <div>
+                        <div id="account_balance"></div>
+                    </div>
                 </div>
             </div>
         </div>
