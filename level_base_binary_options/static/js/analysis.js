@@ -64,7 +64,7 @@ function addGraph(data) {
         add_levels_won_loss_amount_graph(data)
     }
 
-    if ($("#total_won_loss_cht").length){
+    if ($("#total_won_loss_cht").length) {
         add_all_won_loss_graph(data)
     }
 
