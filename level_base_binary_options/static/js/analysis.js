@@ -42,6 +42,11 @@ function addGraph(data) {
         add_binary_levels_graph(data)
     }
 
+    if (data.hasOwnProperty('LEVEL_1') && data.hasOwnProperty('LEVEL_2') &&
+        data.hasOwnProperty('LEVEL_3') && data.hasOwnProperty('LEVEL_4') && $("#level_selection_cht").length) {
+        add_level_selection_graph(data)
+    }
+
 }
 
 function getBalanceChart(date, value) {
@@ -318,3 +323,16 @@ function add_binary_levels_graph(data) {
 
     Plotly.newPlot('binary_levels_cht', c_data, layout);
 }
+
+function add_level_selection_graph(data) {
+    var c_data = [
+        {
+            x: ['level 1', 'level 2', 'level 3', 'level 4'],
+            y: [data.LEVEL_1, data.LEVEL_2, data.LEVEL_3, data.LEVEL_4],
+            type: 'bar'
+        }
+    ];
+
+    Plotly.newPlot('level_selection_cht', c_data);
+}
+
