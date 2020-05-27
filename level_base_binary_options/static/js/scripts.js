@@ -156,4 +156,41 @@ $(".levels-btn").click(function () {
 })
 
 
+$(".trans-join-btn").click(function () {
+    var transaction_id = $(this).val();
+    var csrfmiddlewaretoken = $('input[name="csrfmiddlewaretoken"]').val();
+    var select_name = "#selected_level_" + transaction_id + " option:selected";
+    var selected_level = $(select_name).val();
 
+    $.ajax({
+        url: BASE_URL + 'account/join-trade',
+        data: {
+            'csrfmiddlewaretoken':csrfmiddlewaretoken,
+            'trans': transaction_id,
+            'selected_level': selected_level,
+
+        },
+        dataType: 'json',
+        method: 'POST',
+        success: function (data) {
+            console.log(data)
+            var message = $("#message")
+            message.html("")
+            if(data.status){
+                message.html("<div class='alert alert-success'>"+ data.message[0]+"</div>")
+            }else{
+                var err = "<div class='alert alert-danger'>";
+                err = err + "<ul>"
+                data.message.forEach(function (item, index) {
+                    console.log(item)
+                    err = err + "<li>" + item + "</li>"
+                });
+                err = err + "</ul>"
+                err = err + "</div>"
+
+                message.html(err)
+            }
+        }
+    });
+})
+//TODO : show level based trade user count in the single trade view model

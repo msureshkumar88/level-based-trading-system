@@ -26,5 +26,6 @@ urlpatterns = [
     path('account/logout', views.logout, name='logout'),
     path('account/get-transaction', restapi.get_transaction, name='get_transaction'),
     path('account/get-chart-data', restapi.get_chart_data, name='get_chart_data'),
+    path('account/join-trade', search_level_based_view.join_trade, name='join_trade'),
 ]
 

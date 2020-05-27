@@ -14,6 +14,7 @@ import pandas as pd
 
 from datetime import datetime
 import json
+from django.http import JsonResponse
 
 created_date = Helper.get_current_time_formatted()
 
@@ -30,8 +31,8 @@ def level_based_search(request):
         form = request.POST['form']
         if form == "search":
             data['results'] = search(request)
-        if form == "join":
-            join(request)
+        # if form == "join":
+        #     join(request)
 
     if request.method == "GET":
         data['results'] = initial_search(request)
@@ -43,6 +44,14 @@ def level_based_search(request):
     data['user_currency'] = current_user["currency"]
     data['auth'] = ac.is_user_logged_in()
     return render(request, 'level_trade_search.html', data)
+
+
+def join_trade(request):
+    ac = Authentication(request)
+    # if user is not logged in response user not exist
+    if not ac.is_user_logged_in():
+        return JsonResponse(Helper.get_json_response(False, [], ['Please login']))
+    return join(request)
 
 
 def initial_search(request):
@@ -57,6 +66,7 @@ def initial_search(request):
     df = df.loc[df['user_id'] != user_id]
     df = df.sort_values(by='created_date', ascending=False)
     return df.head(5).iterrows()
+
 
 def search(request):
     currency = request.POST['currency']
@@ -122,23 +132,23 @@ def search(request):
 
 def join(request):
     transaction_id = request.POST['trans']
-    selected_level = request.POST['selected_level_' + transaction_id]
+    selected_level = request.POST['selected_level']
+    ac = Authentication(request)
+    user_id = ac.get_user_session()
     error_messages = []
     error_messages.extend(validate_level_selection(selected_level))
     error_messages.extend(validate_level_already_taken(transaction_id, selected_level))
     error_messages.extend(validate_user_count_exceeded(transaction_id))
-
+    error_messages.extend(validate_level_users(transaction_id, user_id, selected_level))
     parent_trade = get_parent_trade(transaction_id)
-    ac = Authentication(request)
-    user_id = ac.get_user_session()
-    # print(parent_trade)
     error_messages.extend(validate_changes_allowed_time_exceeded(parent_trade["changes_allowed_time"]))
-    print(error_messages)
+
     if error_messages:
-        return error_messages
+        return JsonResponse(Helper.get_json_response(False, {}, error_messages))
     current_user = Helper.get_user_by_id(user_id)
     # print(current_user)
     persist_join(user_id, transaction_id, parent_trade, selected_level, current_user)
+    return JsonResponse(Helper.get_json_response(True, {}, ["Trade joined successfully"]))
 
 
 def persist_join(user_id, transaction_id, parent_trade, selected_level, current_user):
@@ -353,7 +363,7 @@ def validate_level_selection(selected_level):
     return []
 
 
-# not allow to enter more than one level
+# not allow to enter a level more than one time
 def validate_level_already_taken(transaction_id, selected_level):
     if validate_level_selection(selected_level):
         return []
@@ -363,6 +373,18 @@ def validate_level_already_taken(transaction_id, selected_level):
     results = cursor.execute(level_based_user_levels)
     if results:
         return ["The level has already taken"]
+    return []
+
+
+def validate_level_users(transaction_id, user_id, selected_level):
+    user_transactions = f"SELECT * FROM user_transactions WHERE " \
+                        f"transaction_id = {transaction_id} AND user_id = {user_id}"
+
+    cursor = connection.cursor()
+    results = cursor.execute(user_transactions)
+    results = results.one()
+    if results:
+        return [f"You have already selected {results['level_selected']}"]
     return []
 
 

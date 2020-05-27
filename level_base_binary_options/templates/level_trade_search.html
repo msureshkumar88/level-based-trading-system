@@ -45,6 +45,9 @@
     </div>
     <div class="row">
         <form action="" method="post">
+            <div id="message">
+
+            </div>
             {% csrf_token%}
             <table class="table table-striped">
                 <thead>
@@ -69,7 +72,7 @@
                         {{user_currency}} ({{result.amount}} {{result.amount_currency }})
                     </td>
                     <td>
-                        <select class="form-control" name="selected_level_{{result.transaction_id}}">
+                        <select class="form-control" id="selected_level_{{result.transaction_id}}" name="selected_level_{{result.transaction_id}}">
                             <!--<option value="">Select a level</option>-->
                             {% for al in result.available_levels %}
                             <option value="{{al}}">{{al}}</option>
@@ -86,11 +89,11 @@
                                 data-target=".chartModel">View
                         </button>
                         {% if result.purchase_type == 'buy'%}
-                        <button type="submit" class="btn btn-primary" name="trans" value="{{result.transaction_id}}">
+                        <button type="button" class="btn btn-primary trans-join-btn" name="trans" value="{{result.transaction_id}}">
                             {{result.purchase_type|capfirst}}
                         </button>
                         {% else %}
-                        <button type="submit" class="btn btn-danger" name="trans" value="{{result.transaction_id}}">
+                        <button type="button" class="btn btn-danger trans-join-btn" name="trans" value="{{result.transaction_id}}">
                             {{result.purchase_type|capfirst}}
                         </button>
                         {% endif %}
