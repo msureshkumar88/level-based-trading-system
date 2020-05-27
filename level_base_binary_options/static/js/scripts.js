@@ -76,7 +76,7 @@ $(".binary-btn").click(function () {
             var messages_ele = $("#messages").html("")
             if (!data.status) {
 
-                var err = "<div class='alert alert-success'>";
+                var err = "<div class='alert alert-danger'>";
                 err = err + "<ul>"
                 data.message.forEach(function (item, index) {
                     console.log(item)
@@ -87,7 +87,7 @@ $(".binary-btn").click(function () {
                 messages_ele.html(err)
             }
             if (data.status && start!=="start now") {
-                messages_ele.html("<div class='alert alert-danger'>Order placed successfully</div>")
+                messages_ele.html("<div class='alert alert-success'>Order placed successfully</div>")
             }
             if (start==="start now" && data.status) {
                 $('#trade_id').val(data.data.transaction_id)
