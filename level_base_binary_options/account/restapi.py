@@ -23,7 +23,7 @@ def get_transaction(request):
     if not trade:
         return JsonResponse(Helper.get_json_response(False, [], ["Trade not available"]))
     user_id = ac.get_user_session()
-    print(trade)
+    # print(trade)
 
     current_user = Helper.get_user_by_id(user_id)
     trade_data = dict()
@@ -61,7 +61,7 @@ def get_history(currency, timeframe, price_type, chart_type):
     if timeframe == 'ticks':
         start_date = Helper.get_time_formatted(datetime.now() - timedelta(hours=3))
         end_date = Helper.get_time_formatted(datetime.now())
-        print(start_date, end_date)
+        # print(start_date, end_date)
         table = "forex_pip_data"
 
     if timeframe == 'minute':

@@ -11,6 +11,8 @@ from utilities.trading import Trading
 
 from django.db import connection
 
+import pandas as pd
+
 # import findspark
 # import pyspark
 # findspark.init("C:\spark-2.4.0-bin-hadoop2.7\\")
@@ -21,6 +23,8 @@ import matplotlib.pyplot as plt
 
 from plotly.offline import plot
 import plotly.graph_objs as go
+
+
 #  TODO: fix filtering not functioning issue
 def statements(request):
     ac = Authentication(request)
@@ -100,10 +104,9 @@ def search(request):
     user_id = ac.get_user_session()
 
     cursor = connection.cursor()
-    print(status)
-    initial_query = f"SELECT * FROM transactions_by_state WHERE user_id = {user_id} "
-    if status:
-        initial_query = initial_query + filter_where_status(status)
+    # initial_query = f"SELECT * FROM transactions_by_state WHERE user_id = {user_id} "
+    # if status:
+    #     initial_query = initial_query + filter_where_status(status)
     #  TODO: fix filtering for following parameters
     # if not status:
     #     initial_query = initial_query + filter_where_status_in()
@@ -124,11 +127,37 @@ def search(request):
     # if end_date or max_amount:
     #     initial_query = initial_query + filter_less_para(end_date, max_amount)
 
-    print(initial_query)
-    results = cursor.execute(initial_query)
-    return results.all()
-    # for r in results:
-    #     print(r)
+    # print(initial_query)
+    # results = cursor.execute(initial_query)
+
+    results = cursor.execute(f"select * from transactions_by_state WHERE user_id = {user_id}")
+    if not results:
+        return []
+
+    if min_amount and max_amount:
+        min_amount = float(min_amount)
+        max_amount = float(max_amount)
+
+    df = pd.DataFrame(results)
+    if status:
+        df = df.loc[df['status'] == status]
+
+    if outcome:
+        df = df.loc[df['outcome'] == outcome]
+
+    if min_amount:
+        df = df.loc[df['amount'] >= min_amount]
+
+    if max_amount:
+        df = df.loc[df['amount'] <= max_amount]
+
+    if start_date:
+        df = df.loc[df['created_date'] >= start_date]
+
+    if end_date:
+        df = df.loc[df['created_date'] <= end_date]
+
+    return df.iterrows()
 
 
 def search_all_inputs(request):

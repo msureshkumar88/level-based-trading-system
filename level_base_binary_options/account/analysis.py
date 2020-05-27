@@ -60,7 +60,7 @@ def get_initial_chart_data(user_id):
     start = date.today() - timedelta(days=10)
     response = dict()
     for stst in StatKeys:
-        print(stst.value)
+        # print(stst.value)
         result = cursor.execute(f"SELECT * FROM states WHERE user_id = {user_id} "
                                 f"AND type = '{stst.value}'and date >= '{start}'")
         if result:

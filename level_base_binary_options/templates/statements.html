@@ -9,8 +9,8 @@
     <div class="row">
         <form action="" method="post">
             {% csrf_token%}
-            <div class="row">
-                <div class="col">
+            <div class="row  mx-0">
+                <div class="col-md-2 px-1">
                     <select class="form-control" name="status">
                         <option value="">Select status</option>
                         {%for status in trading_status%}
@@ -19,7 +19,7 @@
 
                     </select>
                 </div>
-                <div class="col">
+                <div class="col-md-2 px-1">
                     <select class="form-control" name="outcome">
                         <option value="">Select outcome</option>
                         {%for outcome in trading_outcome%}
@@ -27,24 +27,28 @@
                         {%endfor%}
                     </select>
                 </div>
-                <div class="col">
+                <div class="col-md-2 px-1">
                     <input class="form-control" type="date" name="start_date" placeholder="Select start date">
                 </div>
-                <div class="col">
+                <div class="col-md-2 px-1">
                     <input class="form-control" type="date" name="end_date"  placeholder="Select end time">
                 </div>
-                <div class="col">
+                <div class="col-md-1 px-1">
                     <input class="form-control" type="number" min="0.1" name="min_amount" placeholder="Enter min price"
                            step="0.1">
                 </div>
-                <div class="col">
+                <div class="col-md-1 px-1">
                     <input class="form-control" type="number" min="0.1" name="max_amount" placeholder="Enter max price"
                            step="0.1">
                 </div>
+                <div class="col-md-2">
+                    <input type="submit" class="btn btn-info" value="Search">
+                </div>
             </div>
-            <input type="submit">
+
         </form>
     </div>
+    <br>
     <div class="row">
         <table class="table table-striped">
             <thead>
@@ -59,7 +63,7 @@
             </tr>
             </thead>
             <tbody>
-                {% for result in results %}
+                {% for index,result in results %}
                 <tr>
                     <td>{{result.created_date}}</td>
                     <td>{{result.currency}}</td>
@@ -67,10 +71,10 @@
                        {{result.amount}} {{user_data.currency}}
                     </td>
                     <td>
-                         {{result.trade_type}}
+                         {{result.trade_type | capfirst}}
                     </td>
                     <td>
-                         {{result.purchase_type}}
+                         {{result.purchase_type | capfirst}}
                     </td>
                     <td>
                          {{result.outcome| capfirst}}
