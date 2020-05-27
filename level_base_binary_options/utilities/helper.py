@@ -36,19 +36,25 @@ class Helper:
         # TODO: check this function to get the value from database
         # TODO: change this function to work with get_current_price_instance
         # return '1.00000'
-        with requests.Session() as s:
-            download = s.get(Helper.fx_request_url(currency))
-
-            decoded_content = download.content.decode('utf-8')
-
-            cr = csv.reader(decoded_content.splitlines(), delimiter=',')
-            my_list = list(cr)
-            for row in my_list:
-                if len(row) != 0:
-                    bid = float(row[2] + row[3])
-                    offer = float(row[4] + row[5])
-                    mid_price = (bid + offer) / 2
-                    return "%.5f" % mid_price
+        cursor = connection.cursor()
+        result = cursor.execute(
+            f"SELECT * FROM forex_pip_data WHERE currency_pair = '{currency}' ORDER BY timestamp DESC  LIMIT 1")
+        data = result.one()
+        if data:
+            return str(data['open'])
+        # with requests.Session() as s:
+        #     download = s.get(Helper.fx_request_url(currency))
+        #
+        #     decoded_content = download.content.decode('utf-8')
+        #
+        #     cr = csv.reader(decoded_content.splitlines(), delimiter=',')
+        #     my_list = list(cr)
+        #     for row in my_list:
+        #         if len(row) != 0:
+        #             bid = float(row[2] + row[3])
+        #             offer = float(row[4] + row[5])
+        #             mid_price = (bid + offer) / 2
+        #             return "%.5f" % mid_price
 
     @classmethod
     def get_current_time_formatted(cls):
