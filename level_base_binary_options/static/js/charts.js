@@ -56,14 +56,14 @@ function loadChartHistoryData(transactionRef, tradeOwner) {
     });
 }
 
-var interval;
+var interval_trade;
 
 function loadChartLiveData(transactionRef, tradeOwner) {
     var payload = {user_id: tradeOwner, transaction_ref: transactionRef};
     socket = io.connect(WS_SERVER_URL);
     var cnt = 0;
 
-    interval = setInterval(function () {
+    interval_trade = setInterval(function () {
         socket.emit('get chart data live', payload);
 
         // if (++cnt === 100) {
@@ -97,7 +97,7 @@ function loadChartLiveData(transactionRef, tradeOwner) {
                     $('#close-price').html(data.closing_price == null ? data.closing_price : data.closing_price.toFixed(5));
                     $('#outcome').html(S(data.outcome).capitalize().s);
                     // }
-                    clearInterval(interval);
+                    clearInterval(interval_trade);
                     socket.disconnect();
                 }
                 if (!chart_timestamps.includes(data.timestamp) && data.status !== "finished") {
@@ -150,7 +150,7 @@ function loadSingleTrade(transactionRef, tradeOwner) {
 }
 
 chartModel.on('hidden.bs.modal', function () {
-    clearInterval(interval);
+    clearInterval(interval_trade);
     socket.disconnect()
 });
 
@@ -364,19 +364,21 @@ function getShapesByTradeType(response) {
     //
     // ]
 }
-
+var interval
 var chart_currency_ele = $("#chart_currency");
 var timeframe_ele = $("#timeframe");
 var chart_type_ele = $("#chart_type");
 var price_type_ele = $("#price_type");
+
+var socket_chart = "";
 
 if ($("#forex-chart").length) {
     load_chart_history("EUR/USD", "ticks", "close", "line")
 }
 
 chart_currency_ele.change(function () {
-    if (socket !== "") {
-        socket.disconnect();
+    if (socket_chart !== "") {
+        socket_chart.disconnect();
         clearInterval(interval);
     }
     var chart_currency = $(this).val();
@@ -387,8 +389,8 @@ chart_currency_ele.change(function () {
     load_chart_history(chart_currency, timeframe, price_type, chart_type)
 });
 timeframe_ele.change(function () {
-    if (socket !== "") {
-        socket.disconnect();
+    if (socket_chart !== "") {
+        socket_chart.disconnect();
         clearInterval(interval);
     }
     var timeframe = $(this).val();
@@ -399,8 +401,8 @@ timeframe_ele.change(function () {
 });
 
 price_type_ele.change(function () {
-    if (socket !== "") {
-        socket.disconnect();
+    if (socket_chart !== "") {
+        socket_chart.disconnect();
         clearInterval(interval);
     }
     var price_type = $(this).val();
@@ -411,8 +413,8 @@ price_type_ele.change(function () {
 })
 
 chart_type_ele.change(function () {
-    if (socket !== "") {
-        socket.disconnect();
+    if (socket_chart !== "") {
+        socket_chart.disconnect();
         clearInterval(interval);
     }
     var chart_type = $(this).val();
@@ -484,13 +486,13 @@ function load_live_chart(chart_currency, timeframe, price_type, chart_type) {
         price_type: price_type,
         chart_type: chart_type
     };
-    socket = io.connect(WS_SERVER_URL);
+    socket_chart = io.connect(WS_SERVER_URL);
     interval = setInterval(function () {
-        socket.emit('live forex data', payload);
+        socket_chart.emit('live forex data', payload);
 
     }, 500);
 
-    socket.on('forex data live', function (data) {
+    socket_chart.on('forex data live', function (data) {
         var c_data = data.data
 
 
