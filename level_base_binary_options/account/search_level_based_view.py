@@ -16,6 +16,8 @@ from datetime import datetime
 import json
 
 created_date = Helper.get_current_time_formatted()
+
+
 def level_based_search(request):
     ac = Authentication(request)
     # if user is not logged in redirect to login page
@@ -31,6 +33,9 @@ def level_based_search(request):
         if form == "join":
             join(request)
 
+    if request.method == "GET":
+        data['results'] = initial_search(request)
+
     data['purchase_type'] = Helper.get_purchase_type_list()
     data['currency_pairs'] = Helper.get_currency_pairs()
     user_id = ac.get_user_session()
@@ -39,6 +44,19 @@ def level_based_search(request):
     data['auth'] = ac.is_user_logged_in()
     return render(request, 'level_trade_search.html', data)
 
+
+def initial_search(request):
+    cursor = connection.cursor()
+    results = cursor.execute(f"SELECT * FROM transactions_levels_status WHERE status = '{Status.STARTED.value}'")
+    if not results:
+        return []
+    ac = Authentication(request)
+    user_id = ac.get_user_session()
+
+    df = pd.DataFrame(results)
+    df = df.loc[df['user_id'] != user_id]
+    df = df.sort_values(by='created_date', ascending=False)
+    return df.head(5).iterrows()
 
 def search(request):
     currency = request.POST['currency']
