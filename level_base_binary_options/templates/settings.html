@@ -49,6 +49,7 @@
         </div>
         <button type="submit" name="action" value="Update" class="btn btn-primary">Update</button>
     </form>
+    <br>
     <div class="row">
         <h2>Password</h2>
     </div>
@@ -70,6 +71,7 @@
         </div>
         <button type="submit" name="action" value="Change password" class="btn btn-primary">Change password</button>
     </form>
+    <br>
     <div class="row">
         <h2>Add funds</h2>
     </div>
@@ -83,6 +85,20 @@
                 <button class="btn btn-success" type="submit" name="action" value="Deposit" id="btnGroupAddon">Deposit</button>
             </div>
         </div>
+    </form>
+    <br>
+    <div class="row">
+        <h2>Withdraw funds</h2>
+    </div>
+    <form method="post" action="">
+        <div class="input-group">
+            <input type="text" class="form-control" name="withdraw_amount" placeholder="Enter Amount"
+                   aria-label="Input group example" aria-describedby="withdraw_amountAddon">
+            <div class="input-group-prepend">
+                <button class="btn btn-success" type="submit" name="action" value="Withdraw" id="withdraw_amountAddon">Withdraw</button>
+            </div>
+        </div>
+        {% csrf_token%}
     </form>
 
 

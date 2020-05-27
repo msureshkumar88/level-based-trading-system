@@ -41,6 +41,13 @@ def settings(request):
             else:
                 data['success'] = "Money has been deposited successfully"
 
+        if action == "Withdraw":
+            errors = withdraw(request, user_id)
+            if errors:
+                data['errors'] = errors
+            else:
+                data['success'] = "Money withdraw is successful"
+
     user_data = Helper.get_user_by_id(user_id)
 
     data['user_data'] = user_data
@@ -102,6 +109,36 @@ def deposit(request, user_id):
     user_settings = UserById(id=user_id, vcurrency=balance)
     user_settings.update()
     pass
+
+
+def withdraw(request, user_id):
+    amount = request.POST['withdraw_amount']
+    error_messages = []
+    error_messages.extend(validate_withdrawal_amount(user_id, amount))
+    if error_messages:
+        return error_messages
+    current_user = Helper.get_user_by_id(user_id)
+    new_amount = current_user["vcurrency"] - float(amount)
+    cursor = connection.cursor()
+    q = f"UPDATE user_by_id SET vcurrency = {new_amount} WHERE id = {user_id}"
+    cursor.execute(q)
+
+    return []
+
+
+def validate_withdrawal_amount(user_id, amount):
+    if not amount:
+        return ["Please enter amount to withdraw"]
+    if not amount.isnumeric():
+        return ['Please enter a valid amount']
+    amount = float(amount)
+    if amount < 1:
+        return ['Amount should be greater than 0']
+
+    current_user = Helper.get_user_by_id(user_id)
+    if current_user["vcurrency"] <= float(amount):
+        return ['Withdrawal amount cannot be greater than the account balance']
+    return []
 
 
 def validate_current_password(password, email):
