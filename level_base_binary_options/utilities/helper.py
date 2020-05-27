@@ -32,9 +32,6 @@ class Helper:
 
     @classmethod
     def get_current_price(cls, currency):
-        # TODO: should be returned as string
-        # TODO: check this function to get the value from database
-        # TODO: change this function to work with get_current_price_instance
         # return '1.00000'
         cursor = connection.cursor()
         result = cursor.execute(

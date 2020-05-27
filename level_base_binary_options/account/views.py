@@ -25,7 +25,6 @@ from utilities.trade_outcome import Outcome
 from utilities.state_keys import StatKeys
 
 
-
 # Create your views here.
 
 
@@ -58,7 +57,7 @@ def create_trade(req):
     amount = post['amount']
     purchase = post['purchase']
     trade_type = 'binary'
-    price = Helper.get_current_price(currency)
+
     # TODO: fix the price for pending trades -don't add price for pending trades, add when the trade start only binary options
     # TODO: load currency pair from currency_pairs table and add currency paris there
     error_messages = []
@@ -91,7 +90,7 @@ def create_trade(req):
     if error_messages:
         return JsonResponse(Helper.get_json_response(False, {}, error_messages))
     # create new binary trade here
-
+    price = Helper.get_current_price(currency)
     time_now_formatted = Helper.get_current_time_formatted()
     time_now = datetime.strptime(time_now_formatted, '%Y-%m-%d %H:%M:%S.%f%z')
     changes_allowed_time = Trading.get_trade_changing_blocked_time(trade_start_time, trade_end_time)
@@ -135,13 +134,23 @@ def create_trade(req):
     #                          start_time=trade_start_time, end_time=trade_end_time,
     #                          changes_allowed_time=changes_allowed_time, outcome=Outcome.NONE.value, status=status)
     # trade.save()
-    user_transactions = f"insert into user_transactions (transaction_id, user_id,created_date," \
-                        f"trade_type,purchase_type, currency,staring_price,amount,start_time,end_time," \
-                        f"changes_allowed_time,outcome,status) values ({transaction_id},{user_id}," \
-                        f"'{time_now_formatted}','{Types.BINARY.value}'," \
-                        f"'{purchase_type}','{currency}',{float(price)},{float(amount)}," \
-                        f"'{Helper.get_time_formatted(trade_start_time)}','{Helper.get_time_formatted(trade_end_time)}'," \
-                        f"'{Helper.get_time_formatted(changes_allowed_time)}','{Outcome.NONE.value}','{status}')"
+    if start == "start now":
+        user_transactions = f"insert into user_transactions (transaction_id, user_id,created_date," \
+                            f"trade_type,purchase_type, currency,staring_price,amount,start_time,end_time," \
+                            f"changes_allowed_time,outcome,status) values ({transaction_id},{user_id}," \
+                            f"'{time_now_formatted}','{Types.BINARY.value}'," \
+                            f"'{purchase_type}','{currency}',{float(price)},{float(amount)}," \
+                            f"'{Helper.get_time_formatted(trade_start_time)}','{Helper.get_time_formatted(trade_end_time)}'," \
+                            f"'{Helper.get_time_formatted(changes_allowed_time)}','{Outcome.NONE.value}','{status}')"
+    else:
+        user_transactions = f"insert into user_transactions (transaction_id, user_id,created_date," \
+                            f"trade_type,purchase_type, currency,amount,start_time,end_time," \
+                            f"changes_allowed_time,outcome,status) values ({transaction_id},{user_id}," \
+                            f"'{time_now_formatted}','{Types.BINARY.value}'," \
+                            f"'{purchase_type}','{currency}',{float(amount)}," \
+                            f"'{Helper.get_time_formatted(trade_start_time)}','{Helper.get_time_formatted(trade_end_time)}'," \
+                            f"'{Helper.get_time_formatted(changes_allowed_time)}','{Outcome.NONE.value}','{status}')"
+
     # print(user_transactions)
     cursor.execute(user_transactions)
 
@@ -194,7 +203,7 @@ def create_trade(req):
     Helper.store_state_value(user_id, StatKeys.BINARY.value, 1, 'add')
     Trading.save_purchase_stats(user_id, purchase_type)
     Trading.save_binary_general_stats(user_id, purchase_type)
-    return JsonResponse(Helper.get_json_response(True, {'transaction_id': str(transaction_id), "user_id":str(user_id)},
+    return JsonResponse(Helper.get_json_response(True, {'transaction_id': str(transaction_id), "user_id": str(user_id)},
                                                  ['Trade created successfully']))
 
 

@@ -51,11 +51,12 @@ time_to_close.change(function () {
 
 $(".binary-btn").click(function () {
     // console.log($("#binary-form").serialize())
+    var start = $('input[name=start]:checked').val()
     $.ajax({
         url: BASE_URL + 'account/save_binary',
         data: {
             'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val(),
-            'start': $('input[name=start]:checked').val(),
+            'start': start,
             'start_date': $('input[name="start_date"]').val(),
             'start_time': $('input[name="start_time"]').val(),
             'currency': $("#currency option:selected").val(),
@@ -72,8 +73,10 @@ $(".binary-btn").click(function () {
         success: function (data) {
             console.log(data)
             console.log(data.data)
+            var messages_ele = $("#messages").html("")
             if (!data.status) {
-                var err = "<div class='alert alert-danger'>";
+
+                var err = "<div class='alert alert-success'>";
                 err = err + "<ul>"
                 data.message.forEach(function (item, index) {
                     console.log(item)
@@ -81,9 +84,12 @@ $(".binary-btn").click(function () {
                 });
                 err = err + "</ul>"
                 err = err + "</div>"
-                $("#messages").html(err)
+                messages_ele.html(err)
             }
-            if (data.status) {
+            if (data.status && start!=="start now") {
+                messages_ele.html("<div class='alert alert-danger'>Order placed successfully</div>")
+            }
+            if (start==="start now" && data.status) {
                 $('#trade_id').val(data.data.transaction_id)
                 $('#user_id').val(data.data.user_id)
                 $('.chartModel').modal('show');
