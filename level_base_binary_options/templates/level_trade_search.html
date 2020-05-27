@@ -6,36 +6,40 @@
     <div class="row">
         <form action="" method="post">
             {% csrf_token%}
-            <div class="row">
-                <div class="col">
+            <div class="row mx-0">
+                <div class="col-md-2 px-1">
                     <select class="form-control" name="currency">
-                        <option value="">Select Currency pair</option>
+                        <option value="">Currency pair</option>
                         {% for c in currency_pairs%}
                         <option value="{{c.value}}">{{c.value|capfirst}}</option>
                         {%endfor%}
                     </select>
                 </div>
-                <div class="col">
+                <div class="col-md-2 px-1">
                     <select class="form-control" name="purchase_type">
-                        <option value="">Select purchase type</option>
+                        <option value="">Purchase type</option>
                         {% for p in purchase_type%}
                         <option value="{{p}}">{{p|capfirst}}</option>
                         {%endfor%}
                     </select>
                 </div>
-                <div class="col">
+                <div class="col-md-2 px-1">
                     <input class="form-control" type="date" name="closing_date" placeholder="Select closing date">
                 </div>
-                <div class="col">
+                <div class="col-md-2 px-1">
                     <input class="form-control" type="number" min="0.1" name="min_amount" placeholder="Enter min price"
                            step="0.1">
                 </div>
-                <div class="col">
+                <div class="col-md-2 px-1">
                     <input class="form-control" type="number" min="0.1" name="max_amount" placeholder="Enter max price"
                            step="0.1">
                 </div>
+                <div class="col-md-2">
+                    <input type="submit" class="btn btn-info" value="Search">
+                </div>
+
             </div>
-            <input type="submit" value="Search">
+
             <input type="hidden" name="form" value="search">
         </form>
     </div>
@@ -45,10 +49,11 @@
             <table class="table table-striped">
                 <thead>
                 <tr>
-                    <th scope="col">#</th>
+                    <!--<th scope="col">#</th>-->
                     <th scope="col">Currency</th>
                     <th scope="col">Amount</th><!--Only show matching currencies in account ex:- usd, eur-->
                     <th scope="col">Level</th>
+                    <th scope="col">Purchase Type</th>
                     <th scope="col">Closing</th><!--trade closing time-->
                     <th scope="col">Action</th>
                 </tr>
@@ -56,7 +61,7 @@
                 <tbody>
                 {% for index,result in results %}
                 <tr>
-                    <th scope="row">1</th>
+                    <!--<th scope="row">{{index}}</th>-->
                     <td>{{result.currency}}</td>
 
                     <td>
@@ -71,6 +76,7 @@
                             {%endfor%}
                         </select>
                     </td>
+                    <td>{{result.purchase_type | capfirst}}</td>
                     <td>{{result.end_time}}</td>
                     <td>
                         <!--<button type="button" class="btn btn-success">View</button>&lt;!&ndash;TODO:view trade on the chart&ndash;&gt;-->
