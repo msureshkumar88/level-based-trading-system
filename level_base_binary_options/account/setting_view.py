@@ -21,11 +21,25 @@ def settings(request):
     if request.method == "POST":
         action = request.POST['action']
         if action == "Update":
-            data['errors'] = update_settings(request, user_id)
+            errors = update_settings(request, user_id)
+            if errors:
+                data['errors'] = errors
+            else:
+                data['success'] = "General has been updated successfully"
+
         if action == "Change password":
-            data['errors'] = update_password(request, user_id)
+            errors = update_password(request, user_id)
+            if errors:
+                data['errors'] = errors
+            else:
+                data['success'] = "Password has been updated successfully"
+
         if action == "Deposit":
-            data['errors'] = deposit(request, user_id)
+            errors = deposit(request, user_id)
+            if errors:
+                data['errors'] = errors
+            else:
+                data['success'] = "Money has been deposited successfully"
 
     user_data = Helper.get_user_by_id(user_id)
 
