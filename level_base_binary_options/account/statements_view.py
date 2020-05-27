@@ -39,6 +39,8 @@ def statements(request):
     if request.method == "POST":
         data['results'] = search(request)
 
+    if request.method == "GET":
+        data['results'] = get_initial_list(user_id)
     status = []
     outcome = []
     [outcome.append(e.value) for e in Outcome]
@@ -84,6 +86,16 @@ def statements(request):
     # plt_div = plot(fig, output_type='div')
     # data['plt_div'] = plt_div
     return render(request, 'statements.html', data)
+
+
+def get_initial_list(user_id):
+    cursor = connection.cursor()
+    results = cursor.execute(f"select * from transactions_by_state WHERE user_id = {user_id}")
+    if not results:
+        return []
+    df = pd.DataFrame(results)
+    df.sort_values(by='created_date', ascending=False)
+    return df.head(5).iterrows()
 
 
 def search(request):
