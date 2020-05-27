@@ -10,6 +10,8 @@ from utilities.trade_levels import Levels
 from utilities.state_keys import StatKeys
 from utilities.trading import Trading
 
+import pandas as pd
+
 from datetime import datetime
 import json
 
@@ -44,7 +46,7 @@ def search(request):
     closing_date = request.POST['closing_date']
     min_amount = request.POST['min_amount']
     max_amount = request.POST['max_amount']
-    # TODO: Don't show user own trades show only from others
+    # TODO: don't show trades if trade change time is expired - handle this in the trade checker script
     error_messages = []
     error_messages.extend(search_all_inputs(request))
     print(error_messages)
@@ -57,25 +59,47 @@ def search(request):
     single_status = f"('{Status.STARTED.value}')"
     initial_query = f"SELECT * FROM transactions_levels_status WHERE status in {single_status} "
 
-    if currency:
-        initial_query = initial_query + filter_where_currency_pair(currency)
+    results = cursor.execute(initial_query)
 
-    if not currency:
-        initial_query = initial_query + filter_where_currency_pairs_in()
-    # TODO: fix filters end_date before filtering purchase type
+    if not results:
+        return []
+
+    df = pd.DataFrame(results)
+    df = df.loc[df['user_id'] != user_id]
+
+    if currency:
+        df = df.loc[df['currency'] == currency]
+
+    if purchase_type:
+        df = df.loc[df['purchase_type'] == purchase_type]
+
+    if closing_date:
+        df = df.loc[df['end_time'] <= closing_date]
+
+    if min_amount:
+        df = df.loc[df['amount'] >= float(min_amount)]
+
+    if max_amount:
+        df = df.loc[df['amount'] <= float(max_amount)]
+
+    return df.iterrows()
+
+    # if currency:
+    #     initial_query = initial_query + filter_where_currency_pair(currency)
+    #
+    # if not currency:
+    #     initial_query = initial_query + filter_where_currency_pairs_in()
+
     # if purchase_type:
     #     initial_query = initial_query + filter_where_purchase_type(currency)
     #
     # if not purchase_type:
     #     initial_query = initial_query + filter_where_purchase_type_in()
-
-    # TODO: extend  this search to work with trade closing date and amount range
-    # TODO: don't show trades if trade change time is expired
     # print(initial_query)
-    results = cursor.execute(initial_query)
-    if not results:
-        return []
-    return results
+    # results = cursor.execute(initial_query)
+    # if not results:
+    #     return []
+    # return results
 
 
 def join(request):
