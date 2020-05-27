@@ -93,11 +93,18 @@ def register(request):
     ac = Authentication(request)
     if ac.is_user_logged_in():
         return redirect('/account')
-    if request.method == "POST":
-        create_user(request)
+    error_messages = []
     data = dict()
+    if request.method == "POST":
+        error_messages = create_user(request)
+        if error_messages:
+            data["post_data"] = request.POST
+        else:
+            data["success"] = True
+
     data['countries'] = Helper.get_countries()
     data['currency'] = Helper.get_currency()
+    data['error_messages'] = error_messages
     return render(request, 'register.html', data)
 
 
