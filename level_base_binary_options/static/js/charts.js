@@ -4,8 +4,6 @@ WS_SERVER_URL = "http://localhost:8080/"
 var chartModel = $('.chartModel');
 
 var socket = "";
-//TODO: forex chart disconnect when trade open
-//TODO: hide error when trade created successfully
 
 var chart_timestamps = [];
 var char_price = [];
