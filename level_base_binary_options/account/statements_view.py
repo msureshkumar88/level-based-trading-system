@@ -25,7 +25,7 @@ from plotly.offline import plot
 import plotly.graph_objs as go
 
 
-#  TODO: fix filtering not functioning issue
+
 def statements(request):
     ac = Authentication(request)
     # if user is not logged in redirect to login page
@@ -119,7 +119,6 @@ def search(request):
     # initial_query = f"SELECT * FROM transactions_by_state WHERE user_id = {user_id} "
     # if status:
     #     initial_query = initial_query + filter_where_status(status)
-    #  TODO: fix filtering for following parameters
     # if not status:
     #     initial_query = initial_query + filter_where_status_in()
     #
@@ -229,4 +228,4 @@ def filter_date_amount_none():
     today = datetime.now().strftime('%Y-%m-%d')
     return f"AND (created_date,amount) >= ('{today}', {0}) AND (created_date,amount) <= ('{today}', {1000000000}) "
 
-# TODO: search not working properly fix it
+
