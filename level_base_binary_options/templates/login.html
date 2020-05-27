@@ -2,8 +2,13 @@
 {%block heading%}Login{%endblock%}
 {%block content%}
 <div class="bd-example">
-
-    {{message}}
+    {%if error_messages%}
+    <div class="alert alert-danger" role="alert">
+        {%for message in error_messages%}
+        <p>{{message}}</p>
+        {%endfor%}
+    </div>
+    {%endif%}
     <form method="post" action="">
         {% csrf_token%}
         <div class="form-group">
@@ -16,11 +21,11 @@
             <label for="password">Password</label>
             <input type="password" class="form-control" name="password" id="password" placeholder="Password"/>
         </div>
-        <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="exampleCheck1"/>
-            <label class="form-check-label" for="exampleCheck1">Check me out</label>
-        </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <!--<div class="form-check">-->
+            <!--<input type="checkbox" class="form-check-input" id="exampleCheck1"/>-->
+            <!--<label class="form-check-label" for="exampleCheck1">Check me out</label>-->
+        <!--</div>-->
+        <button type="submit" class="btn btn-primary">Login</button>
     </form>
 </div>
 {% endblock%}

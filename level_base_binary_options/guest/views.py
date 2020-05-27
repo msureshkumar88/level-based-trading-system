@@ -31,30 +31,28 @@ def login(request):
         email = request.POST['email']
         password = request.POST['password']
 
-        error_messages = []
-        error_messages.extend(UserHelper.validate_guest_email(email))
-        error_messages.extend(UserHelper.validate_guest_password(password))
+        error_messages = validate_login_inputs(email, password)
+        if not error_messages:
+            # encrypt user enter password in the login page to check with db password
+            password_encrypted = Helper.password_encrypt(password)
 
-        # encrypt user enter password in the login page to check with db password
-        password_encrypted = Helper.password_encrypt(password)
+            cursor = connection.cursor()
 
-        cursor = connection.cursor()
+            # check whether user exists in the DB
+            user = cursor.execute("SELECT *  FROM user_credential where email =" + "'" + email + "' ")
 
-        # check whether user exists in the DB
-        user = cursor.execute("SELECT *  FROM user_credential where email =" + "'" + email + "' ")
+            if user and user[0]['password'] == Helper.password_encrypt(password):
+                # get loged user details
+                q = f"SELECT *  FROM user_by_id where id = {user[0]['id']}";
+                user = cursor.execute(q)
+                # print(user[0])
 
-        if user and user[0]['password'] == Helper.password_encrypt(password):
-            # get loged user details
-            q = f"SELECT *  FROM user_by_id where id = {user[0]['id']}";
-            user = cursor.execute(q)
-            # print(user[0])
+                # create user session and store user id
+                ac.save_user_session(str(user[0]['id']))
+                print(ac.get_user_session())
+                return redirect('/account')
 
-            # create user session and store user id
-            ac.save_user_session(str(user[0]['id']))
-            print(ac.get_user_session())
-            return redirect('/account')
-
-        error_messages.append("Invalid email or password")
+            error_messages.append("Invalid email or password")
         data["error_messages"] = error_messages
 
         # return render(request, 'login.html', data)
@@ -80,6 +78,15 @@ def login(request):
         # print(email,password)
 
     return render(request, 'login.html', data)
+
+
+def validate_login_inputs(email, password):
+    error_messages = []
+    error_messages.extend(UserHelper.validate_guest_email(email))
+    error_messages.extend(UserHelper.validate_guest_password(password))
+    if error_messages:
+        return error_messages
+    return []
 
 
 def register(request):
