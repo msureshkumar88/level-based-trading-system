@@ -218,3 +218,7 @@ class Helper:
             df = pd.DataFrame(result)
             return df.sort_values(by='created_date', ascending=False).head(5).iterrows()
         return []
+
+    @classmethod
+    def remove_milliseconds(cls, timestamp):
+        return str(timestamp)[:-3] + "+0000"

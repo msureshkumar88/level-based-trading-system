@@ -10,6 +10,8 @@ from utilities.authentication import Authentication
 from utilities.helper import Helper
 from utilities.trading import Trading
 from utilities.trade_type import Types
+from utilities.trade_status import Status
+from utilities.trade_outcome import Outcome
 
 
 def get_transaction(request):
@@ -179,7 +181,108 @@ def get_pending_order(request):
     return JsonResponse(Helper.get_json_response(True, data, []))
 
 
+# TODO: repay when close trade manually
 def close_order(request):
+    ac = Authentication(request)
+    # if user is not logged in response user not exist
+    if not ac.is_user_logged_in():
+        return JsonResponse(Helper.get_json_response(False, [], ['Please login']))
+
+    user_id = ac.get_user_session()
+
     post = request.POST
     transaction_id = post['transaction_id']
-    return JsonResponse(Helper.get_json_response(True, {}, []))
+
+    transaction = Trading.get_transaction_by_id(transaction_id, user_id)
+    if not transaction:
+        return JsonResponse(Helper.get_json_response(False, {}, ["Trade data is not available"]))
+
+    if Trading.validate_changes_allowed_time_exceeded(transaction['changes_allowed_time']):
+        return JsonResponse(Helper.get_json_response(False, {}, ["Trade closing time is expired and cannot be closed"]))
+
+    update_transactions_by_state_outcome(transaction, Status.FINISHED.value, Outcome.NONE.value)
+    Trading.pay_back(user_id, transaction['amount'])
+    return JsonResponse(Helper.get_json_response(True, {}, ['Trade has been closed successfully']))
+
+
+# only binary options trade manual trade close allowed
+# the function only support binary options
+def update_transactions_by_state_outcome(transaction, status, outcome):
+    trade = transaction
+
+    cursor = connection.cursor()
+
+    closing_price = Helper.get_current_price(trade["currency"])
+
+    query_update = ""
+
+    query_update = query_update + f"UPDATE user_transactions " \
+                                  f"SET status = '{status}', outcome ='{outcome}', " \
+                                  f"closing_price = {closing_price} WHERE user_id = {transaction['user_id']} " \
+                                  f"AND transaction_id = {transaction['transaction_id']}"
+    cursor.execute("BEGIN BATCH " + query_update + "APPLY BATCH")
+
+    delete_query = ""
+
+    delete_query = delete_query + f"DELETE FROM transactions_by_state " \
+                                  f"WHERE user_id = {transaction['user_id']} AND status = '{transaction['status']}' " \
+                                  f"AND outcome = '{trade['outcome']}' " \
+                                  f"AND created_date = '{Helper.remove_milliseconds(trade['created_date'])}'"
+
+    delete_query = delete_query + f" DELETE FROM transactions_by_start_time " \
+                                  f"WHERE status = '{transaction['status']}' " \
+                                  f"AND start_time = '{Helper.remove_milliseconds(trade['start_time'])}' " \
+                                  f"AND transaction_id = {transaction['transaction_id']} " \
+                                  f"AND user_id = {transaction['user_id']}"
+
+    delete_query = delete_query + f" DELETE FROM transactions_by_end_time " \
+                                  f"WHERE status = '{transaction['status']}' " \
+                                  f"AND end_time = '{Helper.remove_milliseconds(transaction['end_time'])}' " \
+                                  f"AND transaction_id = {transaction['transaction_id']} " \
+                                  f"AND user_id = {transaction['user_id']}"
+
+    delete_query = delete_query + f" DELETE FROM transactions_changes_allowed_time " \
+                                  f"WHERE status = '{transaction['status']}' " \
+                                  f"AND changes_allowed_time = '{Helper.remove_milliseconds(trade['changes_allowed_time'])}' " \
+                                  f"AND transaction_id = {transaction['transaction_id']} " \
+                                  f"AND user_id = {transaction['user_id']}"
+    # print(delete_query)
+    cursor.execute("BEGIN BATCH " + delete_query + "APPLY BATCH")
+
+    insert_query = ""
+
+    transaction_id = trade['transaction_id']
+    user_id = trade['user_id']
+    currency = trade['currency']
+    purchase_type = trade['purchase_type']
+    created_date = Helper.remove_milliseconds(trade['created_date'])
+    amount = trade['amount']
+    trade_type = trade['trade_type']
+    start_time = Helper.remove_milliseconds(trade['start_time'])
+    end_time = Helper.remove_milliseconds(trade['end_time'])
+    changes_allowed_time = Helper.remove_milliseconds(trade['changes_allowed_time'])
+
+    insert_query = insert_query + f"INSERT INTO transactions_by_state " \
+                                  f"(transaction_id, user_id, currency, purchase_type, outcome, status, " \
+                                  f"created_date, amount, trade_type) " \
+                                  f"VALUES " \
+                                  f"({transaction_id}, {user_id},'{currency}','{purchase_type}','{outcome}'," \
+                                  f"'{status}','{created_date}',{amount},'{trade_type}')"
+
+    insert_query = insert_query + f"INSERT INTO transactions_by_start_time " \
+                                  f"(transaction_id,user_id,status,start_time) " \
+                                  f"VALUES " \
+                                  f"({transaction_id},{user_id},'{status}','{start_time}')"
+
+    insert_query = insert_query + f"INSERT INTO transactions_by_end_time " \
+                                  f"(transaction_id,user_id,status,trade_type,end_time) " \
+                                  f"VALUES " \
+                                  f"({transaction_id},{user_id},'{status}'," \
+                                  f"'{trade_type}','{end_time}')"
+
+    insert_query = insert_query + f"INSERT INTO transactions_changes_allowed_time " \
+                                  f"(transaction_id,user_id,status,changes_allowed_time) " \
+                                  f"VALUES " \
+                                  f"({transaction_id},{user_id},'{status}','{changes_allowed_time}')"
+
+    cursor.execute("BEGIN BATCH " + insert_query + "APPLY BATCH")

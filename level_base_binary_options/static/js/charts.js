@@ -820,8 +820,6 @@ function update_candlestick_chart(data) {
 }
 
 $('#join').click(function () {
-    console.log(selected_level)
-
     var transaction_id = $(this).val();
     var csrfmiddlewaretoken = $('input[name="csrfmiddlewaretoken"]').val();
     var selected_level = $("#join-options option:selected").val();
@@ -861,7 +859,38 @@ $('#join').click(function () {
 });
 $('#close_binary_trade').click(function () {
     var transaction_id = $(this).val();
-    console.log(transaction_id)
+    var csrfmiddlewaretoken = $('input[name="csrfmiddlewaretoken"]').val();
+
+
+    $.ajax({
+        url: BASE_URL + 'account/close-order',
+        data: {
+            'csrfmiddlewaretoken': csrfmiddlewaretoken,
+            'transaction_id': transaction_id,
+        },
+        dataType: 'json',
+        method: 'POST',
+        success: function (data) {
+            console.log(data)
+
+            var message = $("#action-message")
+            message.html("")
+            if (data.status) {
+                message.html("<span class='text text-success'>" + data.message[0] + "</span>")
+            } else {
+                var err = "<span class='text text-danger'>";
+
+                data.message.forEach(function (item, index) {
+                    console.log(item);
+                    err = err + item + ", "
+                });
+
+                err = err + "</span>"
+
+                message.html(err)
+            }
+        }
+    });
 });
 //https://plotly.com/javascript/shapes/
 //https://plotly.com/javascript/setting-graph-size/

@@ -287,3 +287,16 @@ class Trading:
             sell_count = Helper.get_general_stat_by_key(user_id, StatKeys.SELL.value)
             sell_count = sell_count + 1
             Helper.save_general_stat_by_key(user_id, StatKeys.SELL.value, sell_count)
+
+    @classmethod
+    def validate_changes_allowed_time_exceeded(cls, allowed_time_exceed):
+        if allowed_time_exceed <= datetime.now():
+            return ["The trade has expired please try another one"]
+        return []
+
+    @classmethod
+    def pay_back(cls, user_id, amount):
+        user_data = Helper.get_user_by_id(user_id)
+        new_balance = user_data['vcurrency'] + amount
+        cursor = connection.cursor()
+        cursor.execute(f"UPDATE user_by_id SET vcurrency = {new_balance} WHERE id = {user_id}")
