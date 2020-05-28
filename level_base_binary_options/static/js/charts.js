@@ -56,6 +56,11 @@ function loadChartHistoryData(transactionRef, tradeOwner) {
 
 var interval_trade;
 
+var traders_joined_area = $('#traders_joined_area');
+var level_selected_area = $('#level_selected_area');
+traders_joined_area.hide();
+level_selected_area.hide();
+
 function loadChartLiveData(transactionRef, tradeOwner) {
     var payload = {user_id: tradeOwner, transaction_ref: transactionRef};
     socket = io.connect(WS_SERVER_URL);
@@ -76,6 +81,8 @@ function loadChartLiveData(transactionRef, tradeOwner) {
             // drawGraph(data);
             console.log(data)
             console.log(Object.keys(data).length)
+            traders_joined_area.hide();
+            level_selected_area.hide();
             if (data.timestamp !== "" && data.close !== "") {
                 if (data.status === "finished") {
                     // if (!chart_timestamps.includes(data.timestamp)) {
@@ -115,6 +122,15 @@ function loadChartLiveData(transactionRef, tradeOwner) {
 
                 }
             }
+            if (data.trade_type === 'levels') {
+                traders_joined_area.show();
+                level_selected_area.show();
+                $('#level_selected').html(data.level_selected)
+                $('#traders_joined').html(data.user_count)
+            }else{
+                traders_joined_area.hide();
+                level_selected_area.hide();
+            }
 
         }
     )
@@ -122,6 +138,8 @@ function loadChartLiveData(transactionRef, tradeOwner) {
 }
 
 function loadSingleTrade(transactionRef, tradeOwner) {
+    traders_joined_area.hide();
+    level_selected_area.hide();
     $.ajax({
         url: BASE_URL + 'account/get-transaction',
         data: {
@@ -142,7 +160,15 @@ function loadSingleTrade(transactionRef, tradeOwner) {
             $('#close-price').html(data.closing_price == null ? data.closing_price : data.closing_price.toFixed(5));
             $('#amount').html(S(data.amount).toFloat().toFixed(2) + " " + data.user_currency.toUpperCase());
             $('#outcome').html(S(data.outcome).capitalize().s);
-
+            if (data.contract_type === 'levels') {
+                traders_joined_area.show()
+                level_selected_area.show()
+                $('#level_selected').html(data.selected_level)
+                $('#traders_joined').html(data.user_count)
+            }else{
+                traders_joined_area.hide();
+                level_selected_area.hide();
+            }
         }
     });
 }
@@ -362,6 +388,7 @@ function getShapesByTradeType(response) {
     //
     // ]
 }
+
 var interval
 var chart_currency_ele = $("#chart_currency");
 var timeframe_ele = $("#timeframe");
@@ -508,6 +535,7 @@ function load_live_chart(chart_currency, timeframe, price_type, chart_type) {
     });
 
 }
+
 //https://plotly.com/javascript/axes/
 function add_chart(data) {
     var chart_type = chart_type_ele.val();

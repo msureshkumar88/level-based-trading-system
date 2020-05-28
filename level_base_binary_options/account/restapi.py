@@ -35,6 +35,8 @@ def get_transaction(request):
     if trade['trade_type'] == Types.LEVELS.value:
         trade_data['amount'] = Helper.convert_currency(trade['amount'], trade['amount_currency'],
                                                        current_user['currency'])
+        trade_data['selected_level'] = trade['level_selected']
+        trade_data['user_count'] = 4 - len(trade['available_levels'])
     else:
         trade_data['amount'] = trade['amount']
     trade_data['user_currency'] = current_user['currency']
