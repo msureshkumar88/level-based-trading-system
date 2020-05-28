@@ -13,13 +13,15 @@ chartModel.on('show.bs.modal', function (event) {
     // var tradeOwner = button.data('owner');
     // var transactionRef = $('#trade_id').val()
     // var tradeOwner = $('#user_id').val()
-    var transactionRef = $('input[name="trade_id"]').val()
-    var tradeOwner = $('input[name="user_id"]').val()
+    var transactionRef = $('input[name="trade_id"]').val();
+    var tradeOwner = $('input[name="user_id"]').val();
 
     if (transactionRef === "" && tradeOwner === "") {
         transactionRef = button.data('transaction'); // Extract info from data-* attributes
         tradeOwner = button.data('owner');
     }
+    $('#join').val(transactionRef);
+    $('#close_binary_trade').val(transactionRef);
 
     console.log(transactionRef)
     console.log(tradeOwner)
@@ -58,8 +60,15 @@ var interval_trade;
 
 var traders_joined_area = $('#traders_joined_area');
 var level_selected_area = $('#level_selected_area');
+
+var level_join_area = $('#level_join_area')
+var binary_close_area = $('#binary_close_area')
+
 traders_joined_area.hide();
 level_selected_area.hide();
+
+level_join_area.hide();
+binary_close_area.hide()
 
 function loadChartLiveData(transactionRef, tradeOwner) {
     var payload = {user_id: tradeOwner, transaction_ref: transactionRef};
@@ -83,6 +92,9 @@ function loadChartLiveData(transactionRef, tradeOwner) {
             console.log(Object.keys(data).length)
             traders_joined_area.hide();
             level_selected_area.hide();
+            // level_join_area.hide();
+            // binary_close_area.hide();
+
             if (data.timestamp !== "" && data.close !== "") {
                 if (data.status === "finished") {
                     // if (!chart_timestamps.includes(data.timestamp)) {
@@ -125,11 +137,37 @@ function loadChartLiveData(transactionRef, tradeOwner) {
             if (data.trade_type === 'levels') {
                 traders_joined_area.show();
                 level_selected_area.show();
-                $('#level_selected').html(data.level_selected)
-                $('#traders_joined').html(data.user_count)
-            }else{
+                $('#level_selected').html(data.level_selected);
+                $('#traders_joined').html(data.user_count);
+                binary_close_area.hide();
+
+                if (data.status !== "finished") {
+                    level_join_area.show();
+                    var join_options = $('#join-options');
+                    if ($("#join-options option").length - 1 !== data.available_levels.length) {
+                        var join_options_list = "<option>Select level</option>";
+                        data.available_levels.forEach(function (item, index) {
+                            join_options_list = join_options_list + '<option>' + item + '</option>';
+                        });
+
+                        join_options.html(join_options_list)
+                    }
+                }
+
+
+            } else {
                 traders_joined_area.hide();
                 level_selected_area.hide();
+                level_join_area.hide();
+                // binary_close_area.show()
+            }
+
+            if (data.trade_type === 'binary') {
+                if(data.status === "finished"){
+                    binary_close_area.hide()
+                }else{
+                    binary_close_area.show()
+                }
             }
 
         }
@@ -140,6 +178,8 @@ function loadChartLiveData(transactionRef, tradeOwner) {
 function loadSingleTrade(transactionRef, tradeOwner) {
     traders_joined_area.hide();
     level_selected_area.hide();
+    level_join_area.hide();
+    binary_close_area.hide()
     $.ajax({
         url: BASE_URL + 'account/get-transaction',
         data: {
@@ -161,13 +201,34 @@ function loadSingleTrade(transactionRef, tradeOwner) {
             $('#amount').html(S(data.amount).toFloat().toFixed(2) + " " + data.user_currency.toUpperCase());
             $('#outcome').html(S(data.outcome).capitalize().s);
             if (data.contract_type === 'levels') {
-                traders_joined_area.show()
-                level_selected_area.show()
-                $('#level_selected').html(data.selected_level)
-                $('#traders_joined').html(data.user_count)
-            }else{
+                traders_joined_area.show();
+                level_selected_area.show();
+                $('#level_selected').html(data.selected_level);
+                $('#traders_joined').html(data.user_count);
+                binary_close_area.hide();
+
+                if (data.status !== "finished") {
+                    level_join_area.show();
+                    var join_options = $('#join-options');
+                    var join_options_list = "<option>Select level</option>";
+                    data.available_levels.forEach(function (item, index) {
+                        join_options_list = join_options_list + '<option>' + item + '</option>';
+                    });
+                    join_options.html(join_options_list);
+                }
+            } else {
                 traders_joined_area.hide();
                 level_selected_area.hide();
+                level_join_area.hide();
+                // binary_close_area.show()
+            }
+
+            if (data.trade_type === 'binary') {
+                if(data.status === "finished"){
+                    binary_close_area.hide()
+                }else{
+                    binary_close_area.show()
+                }
             }
         }
     });
@@ -758,7 +819,15 @@ function update_candlestick_chart(data) {
     }
 }
 
-
+$('#join').click(function () {
+    var transaction_id = $(this).val();
+    var selected_level = $("#join-options option:selected").val();
+    console.log(selected_level)
+});
+$('#close_binary_trade').click(function () {
+    var transaction_id = $(this).val();
+    console.log(transaction_id)
+});
 //https://plotly.com/javascript/shapes/
 //https://plotly.com/javascript/setting-graph-size/
 //https://plotly.com/javascript/time-series/

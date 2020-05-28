@@ -37,12 +37,14 @@ def get_transaction(request):
                                                        current_user['currency'])
         trade_data['selected_level'] = trade['level_selected']
         trade_data['user_count'] = 4 - len(trade['available_levels'])
+        trade_data['available_levels'] = trade['available_levels']
     else:
         trade_data['amount'] = trade['amount']
     trade_data['user_currency'] = current_user['currency']
     trade_data['staring_price'] = trade['staring_price']
     trade_data['closing_price'] = trade['closing_price']
     trade_data['outcome'] = trade['outcome']
+    trade_data['status'] = trade['status']
 
     return JsonResponse(Helper.get_json_response(True, [trade_data], []))
 
