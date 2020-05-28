@@ -3,7 +3,7 @@
 {%block content%}
 <!--TODO: show different model popup for pending orders -->
 <!--{% autoescape off %}-->
-    <!--{{plt_div}}-->
+<!--{{plt_div}}-->
 <!--{% endautoescape %}-->
 <div class="bd-example">
     <div class="row">
@@ -31,7 +31,7 @@
                     <input class="form-control" type="date" name="start_date" placeholder="Select start date">
                 </div>
                 <div class="col-md-2 px-1">
-                    <input class="form-control" type="date" name="end_date"  placeholder="Select end time">
+                    <input class="form-control" type="date" name="end_date" placeholder="Select end time">
                 </div>
                 <div class="col-md-1 px-1">
                     <input class="form-control" type="number" min="0.1" name="min_amount" placeholder="Enter min price"
@@ -63,38 +63,125 @@
             </tr>
             </thead>
             <tbody>
-                {% for index,result in results %}
-                <tr>
-                    <td>{{result.created_date}}</td>
-                    <td>{{result.currency}}</td>
-                    <td>
-                       {{result.amount}} {{user_data.currency}}
-                    </td>
-                    <td>
-                         {{result.trade_type | capfirst}}
-                    </td>
-                    <td>
-                         {{result.purchase_type | capfirst}}
-                    </td>
-                    <td>
-                         {{result.outcome| capfirst}}
-                    </td>
-                    <td>
-                        <!--<button type="button" class="btn btn-success">View</button>&lt;!&ndash;TODO:view trade on the chart&ndash;&gt;-->
-                        <button type="button" class="btn btn-success" data-toggle="modal"
-                                data-transaction="{{result.transaction_id}}"
-                                data-owner="{{result.user_id}}"
-                                data-target=".chartModel">View
-                        </button>
-                    </td>
-                </tr>
-                {%endfor%}
+            {% for index,result in results %}
+            <tr>
+                <td>{{result.created_date}}</td>
+                <td>{{result.currency}}</td>
+                <td>
+                    {{result.amount}} {{user_data.currency}}
+                </td>
+                <td>
+                    {{result.trade_type | capfirst}}
+                </td>
+                <td>
+                    {{result.purchase_type | capfirst}}
+                </td>
+                <td>
+                    {{result.outcome| capfirst}}
+                </td>
+                <td>
+                    {%if result.status == 'pending'%}
+                    <button type="button" class="btn btn-success" data-toggle="modal"
+                            data-transaction="{{result.transaction_id}}"
+                            data-owner="{{result.user_id}}"
+                            data-target=".pendingOrderModel">View
+                    </button>
+                    <!--<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">-->
+                    <!--Launch demo modal-->
+                    <!--</button>-->
+
+                    {%else%}
+                    <!--<button type="button" class="btn btn-success">View</button>&lt;!&ndash;TODO:view trade on the chart&ndash;&gt;-->
+                    <button type="button" class="btn btn-success" data-toggle="modal"
+                            data-transaction="{{result.transaction_id}}"
+                            data-owner="{{result.user_id}}"
+                            data-target=".chartModel">View
+                    </button>
+                    {%endif%}
+                </td>
+            </tr>
+            {%endfor%}
 
 
-                </tbody>
+            </tbody>
         </table>
     </div>
 </div>
 <!--TODO: remove join from  single order model-->
 {% include 'chart_model.html' %}
+
+
+<!-- Modal -->
+<div class="modal fade pendingOrderModel" id="exampleModal" tabindex="-1" role="dialog"
+     aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Pending Order</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-borderless">
+                    <!--<thead>-->
+                    <!--<tr>-->
+                    <!--<th scope="col">First</th>-->
+                    <!--<th scope="col">Last</th>-->
+                    <!--</tr>-->
+                    <!--</thead>-->
+                    <tbody>
+                    <tr>
+                        <td>Transaction</td>
+                        <td id="t_id"></td>
+
+                    </tr>
+                    <tr>
+                        <td>Trade type</td>
+                        <td id="t_type"></td>
+                    </tr>
+                    <tr>
+                        <td>Purchase Type</td>
+                        <td id="p_type"></td>
+                    </tr>
+                    <tr>
+                        <td>Currency Pair</td>
+                        <td id="c_pair"></td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td id="amt"></td>
+                    </tr>
+                    <tr>
+                        <td>Trade Start Time</td>
+                        <td id="tst"></td>
+                    </tr>
+                    <tr>
+                        <td>Trade End Time</td>
+                        <td id="ted"></td>
+                    </tr>
+                    <tr>
+                        <td>Changes Allowed Time</td>
+                        <td id="cat"></td>
+                    </tr>
+                    <tr>
+                        <td>Trade Status</td>
+                        <td id="t_status"></td>
+                    </tr>
+                    <tr>
+                        <td>Trade Outcome</td>
+                        <td id="t_outcome"></td>
+                    </tr>
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger">Close Order</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close Window</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock%}

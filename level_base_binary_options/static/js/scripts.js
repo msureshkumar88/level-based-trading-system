@@ -192,5 +192,45 @@ $(".trans-join-btn").click(function () {
             }
         }
     });
-})
+});
 //TODO : show level based trade user count in the single trade view model
+
+
+
+$('.pendingOrderModel').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget); // Button that triggered the modal
+    var transaction_id = button.data('transaction')
+    var owner = button.data('owner');
+
+    console.log(transaction_id);
+    console.log(owner);
+
+    $.ajax({
+        url: BASE_URL + 'account/get-pending-order',
+        data: {
+            'csrfmiddlewaretoken':csrfmiddlewaretoken,
+            'transaction_id': transaction_id,
+            'user_id': owner,
+
+        },
+        dataType: 'json',
+        method: 'POST',
+        success: function (data) {
+            console.log(data)
+            if(data.status){
+                var data = data.data
+                $('#t_id').html(data.transaction_id)
+                $('#t_type').html(data.trade_type)
+                $('#p_type').html(data.purchase_type)
+                $('#c_pair').html(data.currency)
+                $('#amt').html(data.amount + " " + data.amount_currency)
+                $('#tst').html(data.start_time)
+                $('#ted').html(data.end_time)
+                $('#cat').html(data.changes_allowed_time)
+                $('#t_status').html(data.status)
+                $('#t_outcome').html(data.outcome)
+            }
+
+        }
+    });
+});

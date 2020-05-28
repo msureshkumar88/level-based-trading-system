@@ -147,3 +147,31 @@ def get_history(currency, timeframe, price_type, chart_type):
         data["low"] = low
 
     return JsonResponse(Helper.get_json_response(True, data, []))
+
+
+def get_pending_order(request):
+    post = request.POST
+    transaction_id = post['transaction_id']
+    user_id = post['user_id']
+    result = Trading.get_transaction_by_id(transaction_id, user_id)
+    if not result:
+        return JsonResponse(Helper.get_json_response(False, {}, ["Trade data is not available"]))
+    user_data = Helper.get_user_by_id(user_id)
+
+    data = dict()
+    data["transaction_id"] = result["transaction_id"]
+    data["created_date"] = result["created_date"]
+    data["trade_type"] = result["trade_type"].capitalize()
+    data["purchase_type"] = result["purchase_type"].capitalize()
+    data["currency"] = result["currency"]
+    data["amount"] = result["amount"]
+    data["start_time"] = str(result["start_time"])
+    data["end_time"] = str(result["end_time"])
+    data["changes_allowed_time"] = str(result["changes_allowed_time"])
+    data["outcome"] = result["outcome"].capitalize()
+    data["status"] = result["status"].capitalize()
+    data["amount_currency"] = user_data["currency"]
+
+    return JsonResponse(Helper.get_json_response(True, data, []))
+
+

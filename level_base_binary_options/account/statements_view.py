@@ -94,7 +94,7 @@ def get_initial_list(user_id):
     if not results:
         return []
     df = pd.DataFrame(results)
-    df.sort_values(by='created_date', ascending=False)
+    df = df.sort_values(by='created_date', ascending=False)
     return df.head(5).iterrows()
 
 
