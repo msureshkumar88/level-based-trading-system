@@ -221,4 +221,6 @@ class Helper:
 
     @classmethod
     def remove_milliseconds(cls, timestamp):
+        if timestamp.microsecond == 0:
+            return str(timestamp) + '.000+0000'
         return str(timestamp)[:-3] + "+0000"
