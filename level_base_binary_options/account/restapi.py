@@ -175,3 +175,7 @@ def get_pending_order(request):
     return JsonResponse(Helper.get_json_response(True, data, []))
 
 
+def close_order(request):
+    post = request.POST
+    transaction_id = post['transaction_id']
+    return JsonResponse(Helper.get_json_response(True, {}, []))

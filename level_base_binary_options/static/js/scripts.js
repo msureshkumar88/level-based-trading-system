@@ -86,10 +86,10 @@ $(".binary-btn").click(function () {
                 err = err + "</div>"
                 messages_ele.html(err)
             }
-            if (data.status && start!=="start now") {
+            if (data.status && start !== "start now") {
                 messages_ele.html("<div class='alert alert-success'>Order placed successfully</div>")
             }
-            if (start==="start now" && data.status) {
+            if (start === "start now" && data.status) {
                 $('#trade_id').val(data.data.transaction_id)
                 $('#user_id').val(data.data.user_id)
                 $('.chartModel').modal('show');
@@ -165,7 +165,7 @@ $(".trans-join-btn").click(function () {
     $.ajax({
         url: BASE_URL + 'account/join-trade',
         data: {
-            'csrfmiddlewaretoken':csrfmiddlewaretoken,
+            'csrfmiddlewaretoken': csrfmiddlewaretoken,
             'trans': transaction_id,
             'selected_level': selected_level,
 
@@ -176,9 +176,9 @@ $(".trans-join-btn").click(function () {
             console.log(data)
             var message = $("#message")
             message.html("")
-            if(data.status){
-                message.html("<div class='alert alert-success'>"+ data.message[0]+"</div>")
-            }else{
+            if (data.status) {
+                message.html("<div class='alert alert-success'>" + data.message[0] + "</div>")
+            } else {
                 var err = "<div class='alert alert-danger'>";
                 err = err + "<ul>"
                 data.message.forEach(function (item, index) {
@@ -196,7 +196,7 @@ $(".trans-join-btn").click(function () {
 //TODO : show level based trade user count in the single trade view model
 
 
-
+var close_order_btn = $('#close-order-btn')
 $('.pendingOrderModel').on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget); // Button that triggered the modal
     var transaction_id = button.data('transaction')
@@ -204,11 +204,11 @@ $('.pendingOrderModel').on('show.bs.modal', function (event) {
 
     console.log(transaction_id);
     console.log(owner);
-
+    close_order_btn.val(transaction_id)
     $.ajax({
         url: BASE_URL + 'account/get-pending-order',
         data: {
-            'csrfmiddlewaretoken':csrfmiddlewaretoken,
+            'csrfmiddlewaretoken': csrfmiddlewaretoken,
             'transaction_id': transaction_id,
             'user_id': owner,
 
@@ -217,7 +217,7 @@ $('.pendingOrderModel').on('show.bs.modal', function (event) {
         method: 'POST',
         success: function (data) {
             console.log(data)
-            if(data.status){
+            if (data.status) {
                 var data = data.data
                 $('#t_id').html(data.transaction_id)
                 $('#t_type').html(data.trade_type)
@@ -230,6 +230,24 @@ $('.pendingOrderModel').on('show.bs.modal', function (event) {
                 $('#t_status').html(data.status)
                 $('#t_outcome').html(data.outcome)
             }
+
+        }
+    });
+});
+
+close_order_btn.click(function () {
+    var transaction_id = $(this).val()
+    $.ajax({
+        url: BASE_URL + 'account/close-order',
+        data: {
+            'csrfmiddlewaretoken': csrfmiddlewaretoken,
+            'transaction_id': transaction_id,
+        },
+        dataType: 'json',
+        method: 'POST',
+        success: function (data) {
+            console.log(data)
+
 
         }
     });
