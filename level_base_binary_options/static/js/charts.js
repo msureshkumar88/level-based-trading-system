@@ -603,14 +603,17 @@ function add_chart(data) {
     var timeframe = timeframe_ele.val();
     var price_type = price_type_ele.val();
 
+    var timeframe_label = $("#timeframe option:selected").html();
+    var currency_label = $("#chart_currency option:selected").html();
+
     if (chart_type === "candlestick" && timeframe !== "ticks") {
         var trace1 = {
 
             x: JSON.parse(data.timestamp),
             close: JSON.parse(data.close),
-            decreasing: {line: {color: '#7F7F7F'}},
+            decreasing: {line: {color: '#ff0800'}},
             high: JSON.parse(data.high),
-            increasing: {line: {color: '#17BECF'}},
+            increasing: {line: {color: '#00fa00'}},
             line: {color: 'rgba(31,119,180,1)'},
             low: JSON.parse(data.low),
             open: JSON.parse(data.open),
@@ -622,13 +625,14 @@ function add_chart(data) {
         var chart_data = [trace1];
 
         var layout = {
+            title: currency_label + " - " + timeframe_label,
             dragmode: 'zoom',
-            margin: {
-                r: 10,
-                t: 25,
-                b: 40,
-                l: 60
-            },
+            // margin: {
+            //     r: 10,
+            //     t: 25,
+            //     b: 40,
+            //     l: 60
+            // },
             showlegend: false,
             xaxis: {
                 autorange: true,
@@ -644,7 +648,8 @@ function add_chart(data) {
                 autorange: true,
                 domain: [0, 1],
                 // range: [114.609999778, 137.410004222],
-                type: 'linear'
+                type: 'linear',
+                title: 'Price',
             }
         };
 
@@ -657,7 +662,7 @@ function add_chart(data) {
             mode: "lines",
             name: 'AAPL High',
             x: JSON.parse(data.timestamp),
-            line: {color: '#17BECF'}
+            line: {color: '#00037f'}
         };
 
         if (price_type === "close") {
@@ -676,7 +681,13 @@ function add_chart(data) {
         var data = [trace1];
 
         var layout = {
-            title: 'Basic Time Series',
+            title: currency_label + " - " + timeframe_label,
+            xaxis: {
+                title: 'Date',
+            },
+            yaxis: {
+                title: 'Price',
+            }
         };
 
         Plotly.newPlot('forex-chart', data, layout);
