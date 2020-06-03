@@ -181,7 +181,7 @@ def get_pending_order(request):
     return JsonResponse(Helper.get_json_response(True, data, []))
 
 
-# TODO: repay when close trade manually
+# TODO: check database changes when closing the trade manually
 def close_order(request):
     ac = Authentication(request)
     # if user is not logged in response user not exist

@@ -26,7 +26,7 @@ from utilities.state_keys import StatKeys
 
 
 # Create your views here.
-
+# TODO: binary options won outcome must pay invested amount and profits - the same amount as invested amount
 
 def account(request):
     ac = Authentication(request)
