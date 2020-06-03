@@ -246,7 +246,8 @@ function drawGraph(response) {
         {
             x: timestamp,
             y: close,
-            type: 'lines'
+            type: 'lines',
+            line: {color: '#00037f'}
         }
     ];
     var layout = {

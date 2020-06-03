@@ -281,14 +281,17 @@ function add_won_loss_count_graph(data) {
         x: date,
         y: won,
         mode: 'lines+markers',
-        name: 'Won'
+        name: 'Won',
+        line: {color: '#dc3545'}
+
     };
 
     var trace2 = {
         x: date,
         y: loss,
         mode: 'lines+markers',
-        name: 'Loss'
+        name: 'Loss',
+        line: {color: '#28a745'}
     };
     var layout = {
         autosize: true,
@@ -311,14 +314,16 @@ function add_won_loss_amount_graph(data) {
         x: date,
         y: won,
         mode: 'lines+markers',
-        name: 'Won amount'
+        name: 'Won amount',
+        line: {color: '#28a745'}
     };
 
     var trace2 = {
         x: date,
         y: loss,
         mode: 'lines+markers',
-        name: 'Loss amount'
+        name: 'Loss amount',
+        line: {color: '#dc3545'}
     };
     var layout = {
         autosize: true,
@@ -376,6 +381,9 @@ function add_levels_won_loss_counts_graph(data) {
         y: [data.LEVEL_1_WON_COUNT, data.LEVEL_2_WON_COUNT, data.LEVEL_3_WON_COUNT, data.LEVEL_4_WON_COUNT],
         type: 'bar',
         name: 'Won trades',
+        marker: {
+            color: '#dc3545'
+        }
     };
 
     var trace2 = {
@@ -383,6 +391,9 @@ function add_levels_won_loss_counts_graph(data) {
         y: [data.LEVEL_1_LOSS_COUNT, data.LEVEL_2_LOSS_COUNT, data.LEVEL_3_LOSS_COUNT, data.LEVEL_4_LOSS_COUNT],
         type: 'bar',
         name: 'Loss trades',
+        marker: {
+            color: '#28a745'
+        }
     };
 
     var c_data = [trace1, trace2];
@@ -396,6 +407,9 @@ function add_levels_won_loss_amount_graph(data) {
         y: [data.LEVEL_1_WON_AMOUNT, data.LEVEL_2_WON_AMOUNT, data.LEVEL_3_WON_AMOUNT, data.LEVEL_4_WON_AMOUNT],
         type: 'bar',
         name: 'Won trades amount',
+        marker: {
+            color: '#28a745'
+        }
     };
 
     var trace2 = {
@@ -403,6 +417,9 @@ function add_levels_won_loss_amount_graph(data) {
         y: [data.LEVEL_1_LOSS_AMOUNT, data.LEVEL_2_LOSS_AMOUNT, data.LEVEL_3_LOSS_AMOUNT, data.LEVEL_4_LOSS_AMOUNT],
         type: 'bar',
         name: 'Loss trades amount',
+        marker: {
+            color: '#dc3545'
+        }
     };
 
     var c_data = [trace1, trace2];
@@ -423,6 +440,9 @@ function add_all_won_loss_graph(data) {
         y: [data.all_won_amount, data.all_won_count],
         type: 'bar',
         name: 'Won',
+        marker: {
+            color: '#28a745'
+        }
     };
 
     var trace2 = {
@@ -430,6 +450,9 @@ function add_all_won_loss_graph(data) {
         y: [data.all_loss_amount, data.all_lass_count],
         type: 'bar',
         name: 'Loss',
+        marker: {
+            color: '#dc3545'
+        }
     };
 
     var c_data = [trace1, trace2];
