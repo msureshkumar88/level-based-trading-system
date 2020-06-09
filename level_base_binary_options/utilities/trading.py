@@ -21,6 +21,8 @@ class Trading:
     # generate trade end time
     @classmethod
     def get_trade_end_time(cls, time_to_close, date, time, time_slot, time_count, start, start_time):
+        if not time_count.isnumeric():
+            return []
         if time_to_close == 'end_time':
             return Trading.make_date_time_stamp(date, time)
 

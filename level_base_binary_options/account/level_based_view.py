@@ -377,7 +377,7 @@ def gap_pips_to_float(price, pips):
 
 # generate ending time
 def get_trade_end_time(time_to_close, date, time, time_slot, time_count, start_time):
-    if not time_to_close or not date or not time or not time_slot or not time_count or not start_time:
+    if not time_count.isnumeric() and not time_to_close or not date or not time or not time_slot or not time_count or not start_time:
         return []
     if time_to_close == 'end_time':
         if Trading.validate_binary_trade_times(Trading.make_date_time_stamp(date, time)):
