@@ -136,6 +136,7 @@ $(".levels-btn").click(function () {
                 $('#trade_id').val(data.data.transaction_id)
                 $('#user_id').val(data.data.user_id)
                 $('.chartModel').modal('show');
+                $("#messages").html("")
 
             }
         }
