@@ -253,3 +253,4 @@ close_order_btn.click(function () {
         }
     });
 });
+$('[data-toggle="tooltip"]').tooltip();
