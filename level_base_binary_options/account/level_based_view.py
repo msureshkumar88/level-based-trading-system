@@ -87,7 +87,7 @@ def create_trade(req):
     # final method to get trade closing time
     trade_closing_time = get_trade_end_time(time_to_close, end_date, end_time, time_slot, time_count, start_time)
     error_messages.extend(Trading.validate_close_time_day(trade_closing_time))
-
+    error_messages.extend(Trading.validate_end_time(trade_closing_time))
     # encode as a json string
     # cc = json.dumps(levels_price)
     # decode a json string
@@ -270,7 +270,9 @@ def validate_levels(level):
 
 
 def validated_end_date(time_to_close, end_date, end_time, time_slot, time_count, start_time):
-    if not time_count.isnumeric() and not time_to_close or not end_date or not end_time or not time_count:
+    if not time_to_close or not end_date or not end_time or not time_count:
+        return []
+    if time_count and not time_count.isnumeric():
         return []
 
     if time_to_close == 'end_time':
@@ -377,17 +379,23 @@ def gap_pips_to_float(price, pips):
 
 # generate ending time
 def get_trade_end_time(time_to_close, date, time, time_slot, time_count, start_time):
-    if not time_count.isnumeric() and not time_to_close or not date or not time or not time_slot or not time_count or not start_time:
+    if not time_to_close or not start_time:
         return []
     if time_to_close == 'end_time':
+        if not date or not time:
+            return []
         if Trading.validate_binary_trade_times(Trading.make_date_time_stamp(date, time)):
             return Trading.make_date_time_stamp(date, time)
         return ""
-    time_count = int(time_count)
+
     # Enable this if trade closing wants be more than 15 minutes
     # if (time_slot == "minutes" and time_count < 15) or time_count < 1:
     #     return ""
-
+    if not time_slot or not time_count:
+        return []
+    if time_count and not time_count.isnumeric():
+        return []
+    time_count = int(time_count)
     if time_count < 1:
         return ""
     # Remove this this if trade closing wants be more than 15 minutes

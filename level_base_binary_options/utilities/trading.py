@@ -21,13 +21,15 @@ class Trading:
     # generate trade end time
     @classmethod
     def get_trade_end_time(cls, time_to_close, date, time, time_slot, time_count, start, start_time):
-        if not time_count.isnumeric():
-            return []
         if time_to_close == 'end_time':
             return Trading.make_date_time_stamp(date, time)
 
         if not time_count:
             return []
+
+        if time_count and not time_count.isnumeric():
+            return []
+
         time_count = int(time_count)
         adding_time = datetime.now()
         if start == "start later":
@@ -95,6 +97,12 @@ class Trading:
         if not start_date or not end_date:
             return []
         if start_date >= end_date:
+            return ["Trade closing date must be future date"]
+        return []
+
+    @classmethod
+    def validate_end_time(cls, end_date):
+        if not end_date:
             return ["Trade closing date must be future date"]
         return []
 

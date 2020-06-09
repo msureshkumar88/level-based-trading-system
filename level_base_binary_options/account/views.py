@@ -58,7 +58,7 @@ def create_trade(req):
     purchase = post['purchase']
     trade_type = 'binary'
 
-    # TODO: fix the price for pending trades -don't add price for pending trades, add when the trade start only binary options
+
     # TODO: load currency pair from currency_pairs table and add currency paris there
     error_messages = []
 
