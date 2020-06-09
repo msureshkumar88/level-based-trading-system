@@ -110,8 +110,8 @@ def search(request):
     error_messages.extend(search_all_inputs(request))
 
     print(error_messages)
-    if error_messages:
-        return error_messages
+    # if error_messages:
+    #     return error_messages
     ac = Authentication(request)
     user_id = ac.get_user_session()
 

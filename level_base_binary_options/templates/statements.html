@@ -1,7 +1,7 @@
 {% extends 'guest_base.html'%}
 {%block heading%}Statements{%endblock%}
 {%block content%}
-<!--TODO: show different model popup for pending orders -->
+{% load finance %}
 <!--{% autoescape off %}-->
 <!--{{plt_div}}-->
 <!--{% endautoescape %}-->
@@ -68,7 +68,7 @@
                 <td>{{result.created_date}}</td>
                 <td>{{result.currency}}</td>
                 <td>
-                    {{result.amount}} {{user_data.currency}}
+                    {%format_currency result.amount%} {{user_data.currency}}
                 </td>
                 <td>
                     {{result.trade_type | capfirst}}

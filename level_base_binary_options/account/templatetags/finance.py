@@ -13,6 +13,12 @@ def convert_currency(amount, trade_currency, user_currency):
 
 # TODO: replace this with good currency converter
 
+@register.simple_tag(name='format_currency')
+def format_currency(amount):
+
+    amount = float(amount)
+    return "%.2f" % round(amount, 2)
+
 # @register.simple_tag(name='add_text')
 # def add_text(text1, text2):
 #     return text1 + text2 + "it works"
