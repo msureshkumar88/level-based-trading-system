@@ -157,10 +157,10 @@ def search(request):
         df = df.loc[df['outcome'] == outcome]
 
     if min_amount:
-        df = df.loc[df['amount'] >= min_amount]
+        df = df.loc[df['amount'] >= float(min_amount)]
 
     if max_amount:
-        df = df.loc[df['amount'] <= max_amount]
+        df = df.loc[df['amount'] <= float(max_amount)]
 
     if start_date:
         df = df.loc[df['created_date'] >= start_date]
