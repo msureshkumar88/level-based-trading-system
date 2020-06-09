@@ -41,6 +41,8 @@ def levels(request):
     if request.method == "POST":
         data['errors'] = create_trade(request)
     data['auth'] = ac.is_user_logged_in()
+    user_id = ac.get_user_session()
+    data['current_user'] = user_id
     return render(request, 'level_based.html', data)
 
 

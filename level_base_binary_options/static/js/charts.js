@@ -142,16 +142,22 @@ function loadChartLiveData(transactionRef, tradeOwner) {
                 binary_close_area.hide();
 
                 if (data.status !== "finished") {
-                    level_join_area.show();
-                    var join_options = $('#join-options');
-                    if ($("#join-options option").length - 1 !== data.available_levels.length) {
-                        var join_options_list = "<option value=''>Select level</option>";
-                        data.available_levels.forEach(function (item, index) {
-                            join_options_list = join_options_list + '<option>' + item + '</option>';
-                        });
+                    var current_user = $('input[name="current_user"]').val()
+                    if (data.trade_created_by !== current_user) {
+                        level_join_area.show();
+                        var join_options = $('#join-options');
+                        if ($("#join-options option").length - 1 !== data.available_levels.length) {
+                            var join_options_list = "<option value=''>Select level</option>";
+                            data.available_levels.forEach(function (item, index) {
+                                join_options_list = join_options_list + '<option>' + item + '</option>';
+                            });
 
-                        join_options.html(join_options_list)
+                            join_options.html(join_options_list)
+                        }
+                    }else{
+                        level_join_area.hide();
                     }
+
                 }
 
 
@@ -257,9 +263,9 @@ function drawGraph(response) {
         yaxis: {
             automargin: true,
         },
-        xaxis: {
-            title: 'Y-axis Title',
-        },
+        // xaxis: {
+        //     title: 'Y-axis Title',
+        // },
     };
     layout['shapes'] = getShapesByTradeType(response);
     Plotly.newPlot('fx-chart', data, layout);

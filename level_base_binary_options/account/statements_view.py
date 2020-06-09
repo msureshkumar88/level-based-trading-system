@@ -49,7 +49,7 @@ def statements(request):
     data["trading_outcome"] = outcome
     data['today_date'] = datetime.now().strftime("%Y-%m-%d")
     data['auth'] = ac.is_user_logged_in()
-
+    data['current_user'] = user_id
     # query = f"SELECT * from transactions_by_state where status in {tuple(status)}"
     # print(query)
     # cursor = connection.cursor()
