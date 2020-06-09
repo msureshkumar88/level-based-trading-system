@@ -62,7 +62,6 @@ def create_trade(req):
     trade_type = 'levels'
     start_time = datetime.now()
 
-    price = Helper.get_current_price(currency)
     ac = Authentication(req)
     user_id = ac.get_user_session()
 
@@ -97,6 +96,7 @@ def create_trade(req):
     if error_messages:
         # print(error_messages)
         return JsonResponse(Helper.get_json_response(False, {}, error_messages))
+    price = Helper.get_current_price(currency)
     # time_now = datetime.now()
     changes_allowed_time = Trading.get_trade_changing_blocked_time(start_time, trade_closing_time)
     level_owners = get_level_owner(select_level, user_id)
@@ -270,7 +270,7 @@ def validate_levels(level):
 
 
 def validated_end_date(time_to_close, end_date, end_time, time_slot, time_count, start_time):
-    if not time_to_close or not end_date or not end_time or not time_count:
+    if not time_count.isnumeric() and not time_to_close or not end_date or not end_time or not time_count:
         return []
 
     if time_to_close == 'end_time':
