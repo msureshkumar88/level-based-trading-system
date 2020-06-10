@@ -234,8 +234,17 @@ function getAnalysisDataByDate(start_date, end_date, type) {
 function add_buy_sell_graph(data) {
     var buy = JSON.parse(data.buy.value);
     var sell = JSON.parse(data.sell.value);
-    var date = JSON.parse(data.buy.date);
+    var date = []
 
+    var b_date = JSON.parse(data.buy.date);
+    var s_date = JSON.parse(data.sell.date);
+
+    if (b_date.length !== 0){
+        date = b_date
+    }
+    if (s_date.length !== 0){
+        date = s_date
+    }
     var trace1 = {
         x: date,
         y: buy,
