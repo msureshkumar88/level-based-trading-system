@@ -14,6 +14,7 @@ def view(request):
         return redirect('/login')
     cursor = connection.cursor()
     data["currency_pairs"] = cursor.execute("SELECT * FROM currency_pairs")
+    data['auth'] = ac.is_user_logged_in()
     return render(request, 'insights.html', data)
 
 

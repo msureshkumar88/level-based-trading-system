@@ -238,8 +238,6 @@ $("#forecast-btn").click(function () {
             if (data.status) {
                 var date = JSON.parse(data.data.date)
                 var forecast_value = JSON.parse(data.data.value)
-                console.log(date)
-                console.log(forecast_value)
                 var chart_data = [
                     {
                         x: date,
