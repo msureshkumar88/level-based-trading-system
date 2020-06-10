@@ -27,7 +27,10 @@ from utilities.state_keys import StatKeys
 
 # Create your views here.
 
-
+# TODO: binary options won outcome must pay invested amount and profits - the same amount as invested amount -  trade checker script
+# TODO: add profit for level-based trades -  trade checker script
+# todo: update stat and account balance according to trade outcome -  trade checker script
+# TODO: test the outcome for trade buy and sell trades -  trade checker script
 def account(request):
     ac = Authentication(request)
     # if user is not logged in redirect to login page

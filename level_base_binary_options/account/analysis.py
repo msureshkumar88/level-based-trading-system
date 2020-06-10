@@ -70,6 +70,13 @@ def get_initial_chart_data(user_id):
             item['date'] = df['date'].astype(str).to_json(orient='records')
             item['value'] = df['value'].astype(float).to_json(orient='records')
             response[stst.value] = item
+        else:
+            item = dict()
+
+            item['date'] = json.dumps([])
+            item['value'] = json.dumps([])
+            response[stst.value] = item
+
     response[StatKeys.LEVEL_1.name] = Helper.get_general_stat_by_key(user_id, StatKeys.LEVEL_1.value)
     response[StatKeys.LEVEL_2.name] = Helper.get_general_stat_by_key(user_id, StatKeys.LEVEL_2.value)
     response[StatKeys.LEVEL_3.name] = Helper.get_general_stat_by_key(user_id, StatKeys.LEVEL_3.value)

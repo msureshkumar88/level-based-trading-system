@@ -266,14 +266,22 @@ function add_buy_sell_graph(data) {
 function add_won_loss_count_graph(data) {
     var won = JSON.parse(data.won.value);
     var loss = JSON.parse(data.loss.value);
-    var date = JSON.parse(data.won.date);
+    var date = [];
+    var w_date = JSON.parse(data.won.date);
+    var l_date = JSON.parse(data.loss.date);
 
+    if (w_date.length !== 0){
+        date = w_date
+    }
+    if (l_date.length !== 0){
+        date = l_date
+    }
     var trace1 = {
         x: date,
         y: won,
         mode: 'lines+markers',
         name: 'Won',
-        line: {color: '#dc3545'}
+        line: {color: '#28a745'}
 
     };
 
@@ -282,7 +290,7 @@ function add_won_loss_count_graph(data) {
         y: loss,
         mode: 'lines+markers',
         name: 'Loss',
-        line: {color: '#28a745'}
+        line: {color: '#dc3545'}
     };
     var layout = {
         autosize: true,
@@ -299,8 +307,17 @@ function add_won_loss_count_graph(data) {
 function add_won_loss_amount_graph(data) {
     var won = JSON.parse(data.d_won.value);
     var loss = JSON.parse(data.d_loss.value);
-    var date = JSON.parse(data.d_loss.date);
+    var date = [];
 
+    var w_date = JSON.parse(data.d_won.date);
+    var l_date = JSON.parse(data.d_loss.date);
+    if (w_date.length !== 0){
+        date = w_date
+    }
+
+    if (l_date.length !== 0){
+        date = l_date
+    }
     var trace1 = {
         x: date,
         y: won,
