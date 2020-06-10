@@ -26,7 +26,7 @@ from utilities.state_keys import StatKeys
 
 
 # Create your views here.
-# TODO: binary options won outcome must pay invested amount and profits - the same amount as invested amount
+
 
 def account(request):
     ac = Authentication(request)
@@ -35,8 +35,6 @@ def account(request):
         return redirect('/login')
 
     data = Trading.load_static_data()
-    # if request.method == "POST":
-    #     data["errors"] = create_trade(request)
 
     data['auth'] = ac.is_user_logged_in()
     return render(request, 'account.html', data)
@@ -57,9 +55,6 @@ def create_trade(req):
     amount = post['amount']
     purchase = post['purchase']
     trade_type = 'binary'
-
-
-    # TODO: load currency pair from currency_pairs table and add currency paris there
     error_messages = []
 
     trade_start_time = ""
@@ -86,7 +81,6 @@ def create_trade(req):
     purchase_type = Trading.get_trade_type(purchase)
     status = Trading.get_trade_status(start)
 
-    print(error_messages)
     if error_messages:
         return JsonResponse(Helper.get_json_response(False, {}, error_messages))
     # create new binary trade here
@@ -96,44 +90,14 @@ def create_trade(req):
     changes_allowed_time = Trading.get_trade_changing_blocked_time(trade_start_time, trade_end_time)
 
     current_user = Helper.get_user_by_id(user_id)
-
-    # print(trade_start_time)
-    # print(Helper.get_time_formatted(trade_start_time))
-
-    # use_trade = UserTransactionsIdBinary(user_id=user_id, created_date=time_now)
     user_transaction = TransactionsByUser(user_id=user_id, created_date=time_now)
 
     user_transaction.save()
-
-    # new_d = time_now.strftime("%Y-%m-%d %H:%M:%S.%f%z")
-    # print(new_d)
-    # return
     cursor = connection.cursor()
-    # q = f"SELECT * FROM user_transactions_id_binary WHERE user_id = {user_id} and created_date = '{time_now_formatted}'"
     q = f"SELECT * FROM transactions_by_user WHERE user_id = {user_id} and created_date = '{time_now_formatted}'"
-    # print(q)
 
     transaction_id = cursor.execute(q)
     transaction_id = transaction_id[0]["id"]
-
-    # trade = UserTransactionsBinary(id=transaction_id, user_id=user_id, created_date=time_now,
-    #                                trade_type=trade_type, purchase_type=purchase_type,
-    #                                currency=currency, staring_price=price, amount=float(amount),
-    #                                start_time=trade_start_time, end_time=trade_end_time, status=status)
-    # trade.save()
-    # trades_by_status = TransactionsByStatusBinary(id=transaction_id, user_id=user_id, created_date=time_now,
-    #                                               trade_type=trade_type, purchase_type=purchase_type,
-    #                                               currency=currency, staring_price=price, amount=float(amount),
-    #                                               start_time=trade_start_time, end_time=trade_end_time, status=status)
-    #
-    # trades_by_status.save()
-
-    # trade = UserTransactions(transaction_id=transaction_id, user_id=user_id, created_date=time_now,
-    #                          trade_type=Types.BINARY.value,
-    #                          purchase_type=purchase_type, currency=currency, staring_price=price, amount=float(amount),
-    #                          start_time=trade_start_time, end_time=trade_end_time,
-    #                          changes_allowed_time=changes_allowed_time, outcome=Outcome.NONE.value, status=status)
-    # trade.save()
     if start == "start now":
         user_transactions = f"insert into user_transactions (transaction_id, user_id,created_date," \
                             f"trade_type,purchase_type, currency,staring_price,amount,start_time,end_time," \
@@ -151,7 +115,6 @@ def create_trade(req):
                             f"'{Helper.get_time_formatted(trade_start_time)}','{Helper.get_time_formatted(trade_end_time)}'," \
                             f"'{Helper.get_time_formatted(changes_allowed_time)}','{Outcome.NONE.value}','{status}')"
 
-    # print(user_transactions)
     cursor.execute(user_transactions)
 
     state_transactions = TransactionsByState(transaction_id=transaction_id, user_id=user_id,
@@ -160,32 +123,16 @@ def create_trade(req):
                                              trade_type=Types.BINARY.value)
     state_transactions.save()
 
-    # transactions_by_start_time = TransactionsByStartTime(transaction_id=transaction_id, user_id=user_id, status=status,
-    #                                                      start_time=Helper.get_time_formatted(trade_start_time))
-    # transactions_by_start_time.save()
-
     transactions_by_start_time = f"INSERT INTO transactions_by_start_time (transaction_id,user_id,status,start_time) " \
                                  f"VALUES ({transaction_id},{user_id},'{status}'," \
                                  f"'{Helper.get_time_formatted(trade_start_time)}')"
 
     cursor.execute(transactions_by_start_time)
-
-    # transactions_by_end_time = TransactionsByEndTime(transaction_id=transaction_id, user_id=user_id, status=status,
-    #                                                  end_time=Helper.get_time_formatted(trade_end_time),
-    #                                                  trade_type=Types.BINARY.value)
-    #
-    # transactions_by_end_time.save()
     transactions_by_end_time = f"INSERT INTO transactions_by_end_time (transaction_id,user_id,status,end_time," \
                                f"trade_type) VALUES ({transaction_id},{user_id},'{status}'," \
                                f"'{Helper.get_time_formatted(trade_end_time)}','{Types.BINARY.value}')"
 
     cursor.execute(transactions_by_end_time)
-
-    # transactions_changes_allowed_time = TransactionsChangesAllowedTime(transaction_id=transaction_id, user_id=user_id,
-    #                                                                    status=status,
-    #                                                                    changes_allowed_time=Helper.get_time_formatted(
-    #                                                                        changes_allowed_time))
-    # transactions_changes_allowed_time.save()
 
     transactions_changes_allowed_time = f"INSERT INTO transactions_changes_allowed_time " \
                                         f"(transaction_id,user_id,status,changes_allowed_time) " \

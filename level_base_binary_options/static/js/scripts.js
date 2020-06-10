@@ -50,7 +50,6 @@ time_to_close.change(function () {
 });
 
 $(".binary-btn").click(function () {
-    // console.log($("#binary-form").serialize())
     var start = $('input[name=start]:checked').val()
     $.ajax({
         url: BASE_URL + 'account/save_binary',
@@ -71,15 +70,12 @@ $(".binary-btn").click(function () {
         dataType: 'json',
         method: 'POST',
         success: function (data) {
-            console.log(data)
-            console.log(data.data)
             var messages_ele = $("#messages").html("")
             if (!data.status) {
 
                 var err = "<div class='alert alert-danger'>";
                 err = err + "<ul>"
                 data.message.forEach(function (item, index) {
-                    console.log(item)
                     err = err + "<li>" + item + "</li>"
                 });
                 err = err + "</ul>"
@@ -100,7 +96,6 @@ $(".binary-btn").click(function () {
 });
 
 $(".levels-btn").click(function () {
-    console.log($("#binary-form").serialize())
     $.ajax({
         url: BASE_URL + 'account/save_levels',
         data: {
@@ -119,13 +114,10 @@ $(".levels-btn").click(function () {
         dataType: 'json',
         method: 'POST',
         success: function (data) {
-            console.log(data)
-            console.log(data.data)
             if (!data.status) {
                 var err = "<div class='alert alert-danger'>";
                 err = err + "<ul>"
                 data.message.forEach(function (item, index) {
-                    console.log(item)
                     err = err + "<li>" + item + "</li>"
                 });
                 err = err + "</ul>"
@@ -141,19 +133,6 @@ $(".levels-btn").click(function () {
             }
         }
     });
-    // console.log( {
-    //         'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val(),
-    //         'currency': $("#currency option:selected").val(),
-    //         'time_to_close': $("#time_to_close option:selected").val(),
-    //         'time_slot': $("#time_slot option:selected").val(),
-    //         'time_count': $('input[name="time_count"]').val(),
-    //         'end_date': $('input[name="end_date"]').val(),
-    //         'end_time': $('input[name="end_time"]').val(),
-    //         'amount': $('input[name="amount"]').val(),
-    //         'purchase': $(this).val(),
-    //         'gap_pips': $('input[name="gap_pips"]').val(),
-    //         'select_level': $("#select_level option:selected").val(),
-    //     })
 })
 
 
@@ -174,7 +153,6 @@ $(".trans-join-btn").click(function () {
         dataType: 'json',
         method: 'POST',
         success: function (data) {
-            console.log(data)
             var message = $("#message")
             message.html("")
             if (data.status) {
@@ -183,7 +161,6 @@ $(".trans-join-btn").click(function () {
                 var err = "<div class='alert alert-danger'>";
                 err = err + "<ul>"
                 data.message.forEach(function (item, index) {
-                    console.log(item)
                     err = err + "<li>" + item + "</li>"
                 });
                 err = err + "</ul>"
@@ -194,17 +171,12 @@ $(".trans-join-btn").click(function () {
         }
     });
 });
-//TODO : show level based trade user count in the single trade view model
-
 
 var close_order_btn = $('#close-order-btn')
 $('.pendingOrderModel').on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget); // Button that triggered the modal
     var transaction_id = button.data('transaction')
     var owner = button.data('owner');
-
-    console.log(transaction_id);
-    console.log(owner);
     close_order_btn.val(transaction_id)
     $.ajax({
         url: BASE_URL + 'account/get-pending-order',
@@ -217,7 +189,6 @@ $('.pendingOrderModel').on('show.bs.modal', function (event) {
         dataType: 'json',
         method: 'POST',
         success: function (data) {
-            console.log(data)
             if (data.status) {
                 var data = data.data
                 $('#t_id').html(data.transaction_id)
@@ -247,8 +218,6 @@ close_order_btn.click(function () {
         dataType: 'json',
         method: 'POST',
         success: function (data) {
-            console.log(data)
-
 
         }
     });

@@ -31,8 +31,6 @@ def level_based_search(request):
         form = request.POST['form']
         if form == "search":
             data['results'] = search(request)
-        # if form == "join":
-        #     join(request)
 
     if request.method == "GET":
         data['results'] = initial_search(request)
@@ -75,10 +73,8 @@ def search(request):
     closing_date = request.POST['closing_date']
     min_amount = request.POST['min_amount']
     max_amount = request.POST['max_amount']
-    # TODO: don't show trades if trade change time is expired - handle this in the trade checker script
     error_messages = []
     error_messages.extend(search_all_inputs(request))
-    print(error_messages)
     if error_messages:
         return error_messages
 
@@ -113,23 +109,6 @@ def search(request):
 
     return df.iterrows()
 
-    # if currency:
-    #     initial_query = initial_query + filter_where_currency_pair(currency)
-    #
-    # if not currency:
-    #     initial_query = initial_query + filter_where_currency_pairs_in()
-
-    # if purchase_type:
-    #     initial_query = initial_query + filter_where_purchase_type(currency)
-    #
-    # if not purchase_type:
-    #     initial_query = initial_query + filter_where_purchase_type_in()
-    # print(initial_query)
-    # results = cursor.execute(initial_query)
-    # if not results:
-    #     return []
-    # return results
-
 
 def join(request):
     transaction_id = request.POST['trans']
@@ -147,7 +126,6 @@ def join(request):
     if error_messages:
         return JsonResponse(Helper.get_json_response(False, {}, error_messages))
     current_user = Helper.get_user_by_id(user_id)
-    # print(current_user)
     persist_join(user_id, transaction_id, parent_trade, selected_level, current_user)
     return JsonResponse(Helper.get_json_response(True, {}, ["Trade joined successfully"]))
 
@@ -180,9 +158,6 @@ def persist_user_transactions(user_id, transaction_id, parent_trade, selected_le
     start_time = Helper.get_time_formatted(parent_trade['start_time'])
     end_time = Helper.get_time_formatted(parent_trade['end_time'])
     changes_allowed_time = Helper.get_time_formatted(parent_trade['changes_allowed_time'])
-    # created_date = Helper.get_time_formatted(parent_trade['created_date'])
-    # print(changes_allowed_time)
-    # return
 
     fields = "(transaction_id,user_id,created_date,trade_type,purchase_type,currency,staring_price," \
              "amount,amount_currency,start_time,end_time,changes_allowed_time,outcome,status,level_pips,levels_price,level_owners," \
@@ -198,14 +173,12 @@ def persist_user_transactions(user_id, transaction_id, parent_trade, selected_le
              f"{selected_level},{parent_trade['created_by']},{parent_trade['user_id']},{True}, {available_levels})"
 
     user_transactions = f"INSERT INTO user_transactions {fields} VALUES {values}"
-    # print(user_transactions)
     cursor = connection.cursor()
     cursor.execute(user_transactions)
     Trading.save_levels_general_stats(user_id, selected_level, converted_amount, parent_trade['purchase_type'])
 
 
 def persist_transactions_by_state(transaction_id, user_id, parent_trade):
-    # created_date = Helper.get_current_time_formatted()
     current_user = Helper.get_user_by_id(user_id)
     converted_amount = Helper.convert_currency(parent_trade['amount'], parent_trade['amount_currency'],
                                                current_user['currency'])
@@ -280,18 +253,7 @@ def update_other_trades(transaction_id, user_id, selected_level, parent_trade):
     current_user_trade = current_user_trade[0]
 
     for trade in existing_trades:
-        # print("here")
-        # print(trade['user_id'], user_id)
         if trade['user_id'] != user_id:
-            # trade_reloaded_query = f"SELECT * FROM user_transactions WHERE " \
-            #                        f"transaction_id = {transaction_id} AND user_id = {trade['user_id']}"
-            #
-            # trade_reloaded = cursor.execute(trade_reloaded_query)
-            # trade_reloaded = trade_reloaded[0]
-            #
-            # available_levels = get_available_levels(current_user_trade["available_levels"], selected_level)
-            # level_owners = add_level_owners(current_user_trade['level_owners'], user_id, selected_level)
-
             update = f"UPDATE user_transactions SET available_levels = {current_user_trade['available_levels']}" \
                      f",level_owners = '{current_user_trade['level_owners']}' " \
                      f"WHERE transaction_id = {transaction_id} and user_id = {trade['user_id']}"
@@ -308,7 +270,6 @@ def update_other_trades(transaction_id, user_id, selected_level, parent_trade):
                                         f"AND transaction_id = {parent_trade['transaction_id']} " \
                                         f"AND user_id = {parent_trade['user_id']}"
 
-    # print(update_transactions_levels_status)
     cursor.execute(update_transactions_levels_status)
 
 
@@ -327,7 +288,6 @@ def update_user_account_fields(user_id, current_user, parent_trade):
 def save_stats(current_user, parent_trade, selected_level):
     converted_amount = Helper.convert_currency(parent_trade['amount'], parent_trade['amount_currency'],
                                                current_user['currency'])
-    # print('converted_amount',converted_amount)
     Helper.store_state_value(current_user['id'], StatKeys.BALANCE.value, converted_amount, 'subtract')
     Helper.store_state_value(current_user['id'], StatKeys.NUM_TRADES.value, 1, 'add')
     Helper.store_state_value(current_user['id'], StatKeys.LEVELS.value, 1, 'add')
@@ -353,7 +313,6 @@ def get_selected_level_price(ranges, selected_level):
 
 def get_available_levels(available_levels, selected_level):
     available_levels_copy = available_levels.copy()
-    # print(available_levels_copy)
     available_levels_copy.remove(int(selected_level))
     return available_levels_copy
 
@@ -447,8 +406,6 @@ def filter_where_closing_time(closing_time):
 def filter_where_amount(min_amount, max_amount):
     return f"AND amount > {min_amount} AND amount < {max_amount} "
 
-
-# TODO: filter when both amount and closing date submitted
 
 def search_all_inputs(request):
     for filed in request.POST:

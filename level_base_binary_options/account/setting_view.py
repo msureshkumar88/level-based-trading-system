@@ -87,7 +87,6 @@ def update_password(request, user_id):
 
     error_message.extend(validate_current_password(crrpassword, user_data['email']))
     error_message.extend(validate_new_password(password, repassword))
-    print(error_message)
     if error_message:
         return error_message
 

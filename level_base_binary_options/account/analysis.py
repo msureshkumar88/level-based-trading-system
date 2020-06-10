@@ -60,7 +60,6 @@ def get_initial_chart_data(user_id):
     start = date.today() - timedelta(days=10)
     response = dict()
     for stst in StatKeys:
-        # print(stst.value)
         result = cursor.execute(f"SELECT * FROM states WHERE user_id = {user_id} "
                                 f"AND type = '{stst.value}'and date >= '{start}'")
         if result:
@@ -136,8 +135,6 @@ def get_chart_by_state_keys(user_id, key_list, start_date, end_date):
             item['date'] = df['date'].astype(str).to_json(orient='records')
             item['value'] = df['value'].astype(float).to_json(orient='records')
             response[stat_key] = item
-            # return Helper.get_json_response(True, response, [''])
-        # return Helper.get_json_response(False, dict(), ['Data not available for this range'])
     return Helper.get_json_response(True, response, [])
 
 

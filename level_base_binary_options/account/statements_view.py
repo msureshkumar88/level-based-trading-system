@@ -13,10 +13,6 @@ from django.db import connection
 
 import pandas as pd
 
-# import findspark
-# import pyspark
-# findspark.init("C:\spark-2.4.0-bin-hadoop2.7\\")
-
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -31,7 +27,6 @@ def statements(request):
     # if user is not logged in redirect to login page
     if not ac.is_user_logged_in():
         return redirect('/login')
-    # print(list(map(str, Status)))
     data = dict()
     user_id = ac.get_user_session()
     user_data = Helper.get_user_by_id(user_id)
@@ -50,41 +45,6 @@ def statements(request):
     data['today_date'] = datetime.now().strftime("%Y-%m-%d")
     data['auth'] = ac.is_user_logged_in()
     data['current_user'] = user_id
-    # query = f"SELECT * from transactions_by_state where status in {tuple(status)}"
-    # print(query)
-    # cursor = connection.cursor()
-    # results = cursor.execute(query)
-    # print(results)
-
-    # spark - pyspark
-    # val = sc.textFile("C:\\Users\\suresh\\AppData\\Local\\Programs\\Python\\Python37\\LICENSE.txt").collect()
-    # print(len(val))
-    # data1 = ["pandas", "i like pandas"]
-    # sc = pyspark.SparkContext.getOrCreate()
-    # lines = sc.parallelize(data1)
-    # aa = lines.collect()
-    # print(aa)
-
-    # pandas
-
-    # s = pd.Series([1, 3, 5, np.nan, 6, 8])
-    # print(s)
-    # ts = pd.Series(np.random.randn(1000), index = pd.date_range('1/1/2000', periods=1000))
-    # ts = ts.cumsum()
-    #
-    # # img = ts.savefig('myfig')
-    # plt.plot([1, 2, 3,4])
-    # img = plt.savefig('myfig')
-    # # ts.plot()
-    # data['cc'] = img
-    #
-    # fig = go.Figure()
-    # scatter = go.Scatter(x=[0, 1, 2, 3], y=[0, 1, 2, 3],
-    #                      mode='lines', name='test',
-    #                      opacity=0.8, marker_color='green')
-    # fig.add_trace(scatter)
-    # plt_div = plot(fig, output_type='div')
-    # data['plt_div'] = plt_div
     return render(request, 'statements.html', data)
 
 
@@ -108,38 +68,10 @@ def search(request):
 
     error_messages = []
     error_messages.extend(search_all_inputs(request))
-
-    print(error_messages)
-    # if error_messages:
-    #     return error_messages
     ac = Authentication(request)
     user_id = ac.get_user_session()
 
     cursor = connection.cursor()
-    # initial_query = f"SELECT * FROM transactions_by_state WHERE user_id = {user_id} "
-    # if status:
-    #     initial_query = initial_query + filter_where_status(status)
-    # if not status:
-    #     initial_query = initial_query + filter_where_status_in()
-    #
-    # if outcome:
-    #     initial_query = initial_query + filter_where_outcome(outcome)
-    #
-    # if not outcome:
-    #     initial_query = initial_query + filer_where_outcome_in()
-    #
-    #
-    # if not start_date and not end_date and not min_amount and not max_amount:
-    #     initial_query = initial_query + filter_date_amount_none()
-    #
-    # if start_date or min_amount:
-    #     initial_query = initial_query + filter_greater_para(start_date, min_amount)
-    #
-    # if end_date or max_amount:
-    #     initial_query = initial_query + filter_less_para(end_date, max_amount)
-
-    # print(initial_query)
-    # results = cursor.execute(initial_query)
 
     results = cursor.execute(f"select * from transactions_by_state WHERE user_id = {user_id}")
     if not results:
@@ -206,7 +138,6 @@ def filer_where_outcome_in():
     return f"AND outcome in {tuple(get_outcome_list())} "
 
 
-# https://www.datastax.com/blog/2015/06/deep-look-cql-where-clause
 def filter_greater_para(start_date, min_amount):
     if not min_amount:
         min_amount = 0

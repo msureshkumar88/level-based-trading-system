@@ -5,11 +5,9 @@ class Authentication:
 
     def save_user_session(self, value):
          self.request.session[self.user_session] = value
-        # request.session['email'] = "my email"
 
     def get_user_session(self):
         return self.request.session[self.user_session]
-        # return request.session[name]
 
     def is_user_logged_in(self):
         if self.user_session in self.request.session.keys():

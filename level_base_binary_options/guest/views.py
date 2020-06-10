@@ -45,37 +45,13 @@ def login(request):
                 # get loged user details
                 q = f"SELECT *  FROM user_by_id where id = {user[0]['id']}";
                 user = cursor.execute(q)
-                # print(user[0])
 
                 # create user session and store user id
                 ac.save_user_session(str(user[0]['id']))
-                print(ac.get_user_session())
                 return redirect('/account')
 
             error_messages.append("Invalid email or password")
         data["error_messages"] = error_messages
-
-        # return render(request, 'login.html', data)
-        # request.session['email'] = email
-
-        # ac.save_user_session(email)
-        # print(ac.get_user_session())
-
-        # temp_email = "sam@gmail.com"
-        # temp_pass = "123"
-        # if ac.is_user_logged_in():
-        #     return redirect('/account')
-        #
-        # if email == temp_email and password == temp_pass:
-        #     ac.save_user_session(email)
-        #
-        # else:
-        #     data['message'] = "User does not exists"
-
-        # del request.session['user_session']
-        # print(ac.get_user_session())
-        # print(request.session['email'])
-        # print(email,password)
 
     return render(request, 'login.html', data)
 
@@ -130,10 +106,8 @@ def create_user(request):
     error_messages.extend(UserHelper.validate_country(country))
     error_messages.extend(UserHelper.validate_currency(currency))
     error_messages.extend(UserHelper.validate_amount(virtual_currency))
-    print(error_messages)
     if error_messages:
         return error_messages
-    # return render(request, 'register.html')
 
     cursor = connection.cursor()
     user = cursor.execute("SELECT id  FROM user_credential where email =" + "'" + email + "'")

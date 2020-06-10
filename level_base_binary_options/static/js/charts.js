@@ -9,10 +9,6 @@ var chart_timestamps = [];
 var char_price = [];
 chartModel.on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget);// Button that triggered the modal
-    // var transactionRef = button.data('transaction'); // Extract info from data-* attributes
-    // var tradeOwner = button.data('owner');
-    // var transactionRef = $('#trade_id').val()
-    // var tradeOwner = $('#user_id').val()
     var transactionRef = $('input[name="trade_id"]').val();
     var tradeOwner = $('input[name="user_id"]').val();
 
@@ -22,15 +18,9 @@ chartModel.on('show.bs.modal', function (event) {
     }
     $('#join').val(transactionRef);
     $('#close_binary_trade').val(transactionRef);
-
-    console.log(transactionRef)
-    console.log(tradeOwner)
     chart_timestamps = [];
     loadSingleTrade(transactionRef, tradeOwner);
     loadChartHistoryData(transactionRef, tradeOwner);
-    // loadChartLiveData(transactionRef, tradeOwner);
-
-
 });
 
 
@@ -40,19 +30,12 @@ function loadChartHistoryData(transactionRef, tradeOwner) {
     socket.emit('get chart data history', payload);
 
     socket.on('chart data history', function (data) {
-        // socket.disconnect()
         chart_timestamps.push(...JSON.parse(data.timestamp))
         char_price.push(...JSON.parse(data.close))
-
-        // console.log(chart_timestamps)
-        console.log('---------------')
-        console.log(data)
         drawGraph(data);
         if (data.status !== "finished") {
-            //todo: fix if history data is not available live data not loading issue
             loadChartLiveData(transactionRef, tradeOwner)
         }
-        console.log(data)
     });
 }
 
@@ -77,27 +60,14 @@ function loadChartLiveData(transactionRef, tradeOwner) {
 
     interval_trade = setInterval(function () {
         socket.emit('get chart data live', payload);
-
-        // if (++cnt === 100) {
-        //     clearInterval(interval);
-        //     socket.disconnect();
-        // }
     }, 500);
 
 
     socket.on('chart data live', function (data) {
-            // socket.disconnect()
-            // drawGraph(data);
-            console.log(data)
-            console.log(Object.keys(data).length)
             traders_joined_area.hide();
             level_selected_area.hide();
-            // level_join_area.hide();
-            // binary_close_area.hide();
-
             if (data.timestamp !== "" && data.close !== "") {
                 if (data.status === "finished") {
-                    // if (!chart_timestamps.includes(data.timestamp)) {
                     var update = {
                         x: [[data.timestamp]],
                         y: [[data.close]]
@@ -113,7 +83,7 @@ function loadChartLiveData(transactionRef, tradeOwner) {
                     Plotly.relayout('fx-chart', update_layout);
                     $('#close-price').html(data.closing_price == null ? data.closing_price : data.closing_price.toFixed(5));
                     $('#outcome').html(S(data.outcome).capitalize().s);
-                    // }
+
                     clearInterval(interval_trade);
                     socket.disconnect();
                 }
@@ -165,7 +135,6 @@ function loadChartLiveData(transactionRef, tradeOwner) {
                 traders_joined_area.hide();
                 level_selected_area.hide();
                 level_join_area.hide();
-                // binary_close_area.show()
             }
 
             if (data.trade_type === 'binary') {
@@ -226,7 +195,6 @@ function loadSingleTrade(transactionRef, tradeOwner) {
                 traders_joined_area.hide();
                 level_selected_area.hide();
                 level_join_area.hide();
-                // binary_close_area.show()
             }
 
             if (data.trade_type === 'binary') {
@@ -263,34 +231,9 @@ function drawGraph(response) {
         yaxis: {
             automargin: true,
         },
-        // xaxis: {
-        //     title: 'Y-axis Title',
-        // },
     };
     layout['shapes'] = getShapesByTradeType(response);
     Plotly.newPlot('fx-chart', data, layout);
-
-    // var update = {
-    // x:  [[timestamp]],
-    // y: [[close]]
-    // };
-
-    // var old = {
-    //         x: [[timestamp[0],timestamp[1],timestamp[2]]],
-    //         y: [[close[0],close[1],close[2]]]
-    //     };
-    // var old = {
-    //         x: [timestamp],
-    //         y: [close]
-    //     };
-    // Plotly.extendTraces('fx-chart', old, [0])
-    // var update = {
-    //         x: [["2020-01-03 00:01:00","2020-01-03 00:02:00","2020-01-03 00:03:00"]],
-    //         y: [[1.11704,1.11708,1.11711]]
-    //     };
-    //
-    // Plotly.extendTraces('fx-chart', update, [0])
-
 }
 
 function getShapesByTradeType(response) {
@@ -326,7 +269,6 @@ function getShapesByTradeType(response) {
             })
         });
 
-        console.log(response.status)
         //trade end line
         if (response.status === "finished") {
             levelMap.push(
@@ -345,20 +287,6 @@ function getShapesByTradeType(response) {
         }
         //trade start line
         levelMap.push(
-            //         {
-            //   type: 'circle',
-            //   xref: 'x',
-            //   yref: 'y',
-            //   fillcolor: 'rgba(50, 171, 96, 0.1)',
-            //   x0: response.start_time,
-            //   y0: response.start_price,
-            //   x1: chart_timestamps[15],
-            //   y1: response.start_price+0.00001,
-            //   line: {
-            //     color: 'rgba(50, 171, 96, 1)'
-            //   }
-            // }
-
             {
                 type: 'line',
                 x0: chart_timestamps[0],
@@ -373,7 +301,6 @@ function getShapesByTradeType(response) {
         );
         return levelMap
     }
-    //todo: fix trade shapes for binary trading
     if (response.trade_type === "binary") {
         var levelMap = [
             //start line
@@ -419,42 +346,6 @@ function getShapesByTradeType(response) {
         }
         return levelMap
     }
-
-    // return [
-    //     {
-    //         type: 'line',
-    //         x0: response.start_time,
-    //         y0: response.line_start,
-    //         x1: response.start_time,
-    //         y1: response.line_end,
-    //         line: {
-    //             color: 'rgb(55, 128, 191)',
-    //             width: 3
-    //         },
-    //     },
-    //     {
-    //         type: 'line', x0: response.end_date, y0: response.line_start, x1: response.end_date, y1: response.line_end,
-    //         line: {
-    //             color: 'rgb(55, 128, 191)',
-    //             width: 3,
-    //             dash: 'dot'
-    //         },
-    //     },
-    //     {
-    //         type: 'line',
-    //         x0: response.start_time,
-    //         y0: response.start_price,
-    //         x1: response.end_date,
-    //         y1: response.start_price,
-    //         line: {
-    //             color: 'rgb(250, 37, 37)',
-    //             width: 4,
-    //             dash: 'dot'
-    //         }
-    //     }
-    //
-    //
-    // ]
 }
 
 var interval
@@ -541,7 +432,6 @@ function load_chart_history(chart_currency, timeframe, price_type, chart_type) {
         dataType: 'json',
         method: 'POST',
         success: function (data) {
-            console.log(data.data)
             if (data.status) {
                 var c_data = data.data
                 add_chart(c_data)
@@ -595,16 +485,10 @@ function load_live_chart(chart_currency, timeframe, price_type, chart_type) {
         if (chart_type === "candlestick") {
             update_candlestick_chart(c_data)
         }
-        // console.log(hist_price_open)
-        // console.log(hist_price_close)
-        // console.log(hist_price_high)
-        // console.log(hist_price_low)
-
     });
 
 }
 
-//https://plotly.com/javascript/axes/
 function add_chart(data) {
     var chart_type = chart_type_ele.val();
     var timeframe = timeframe_ele.val();
@@ -634,27 +518,16 @@ function add_chart(data) {
         var layout = {
             title: currency_label + " - " + timeframe_label,
             dragmode: 'zoom',
-            // margin: {
-            //     r: 10,
-            //     t: 25,
-            //     b: 40,
-            //     l: 60
-            // },
             showlegend: false,
             xaxis: {
                 autorange: true,
                 domain: [0, 1],
-                // range: ['2017-01-03 12:00', '2017-02-15 12:00'],
-                // rangeslider: {range: ['2017-01-03 12:00', '2017-02-15 12:00']},
                 title: 'Date',
                 type: 'date'
             },
             yaxis: {
-                // autotick: false,
-                // dtick: 0.00030,
                 autorange: true,
                 domain: [0, 1],
-                // range: [114.609999778, 137.410004222],
                 type: 'linear',
                 title: 'Price',
             }
@@ -703,7 +576,6 @@ function add_chart(data) {
 }
 
 function update_line_chart(data) {
-    console.log(data)
     var update = {};
     if (hist_timestamp.includes(data.timestamp)) {
         var update_required = false;
@@ -819,7 +691,6 @@ function update_candlestick_chart(data) {
 
     }
     if (!hist_timestamp.includes(data.timestamp)) {
-        console.log(data)
         hist_timestamp.push(data.timestamp);
         hist_price_open.push(data.open);
         hist_price_close.push(data.close);
@@ -853,8 +724,6 @@ $('#join').click(function () {
         dataType: 'json',
         method: 'POST',
         success: function (data) {
-            console.log(data)
-
             var message = $("#action-message")
             message.html("")
             if (data.status) {
@@ -863,7 +732,6 @@ $('#join').click(function () {
                 var err = "<span class='text text-danger'>";
 
                 data.message.forEach(function (item, index) {
-                    console.log(item);
                     err = err + item + ", "
                 });
 
@@ -889,8 +757,6 @@ $('#close_binary_trade').click(function () {
         dataType: 'json',
         method: 'POST',
         success: function (data) {
-            console.log(data)
-
             var message = $("#action-message")
             message.html("")
             if (data.status) {
@@ -899,7 +765,6 @@ $('#close_binary_trade').click(function () {
                 var err = "<span class='text text-danger'>";
 
                 data.message.forEach(function (item, index) {
-                    console.log(item);
                     err = err + item + ", "
                 });
 
@@ -910,167 +775,7 @@ $('#close_binary_trade').click(function () {
         }
     });
 });
-//https://plotly.com/javascript/shapes/
-//https://plotly.com/javascript/setting-graph-size/
-//https://plotly.com/javascript/time-series/
-//https://simpleisbetterthancomplex.com/tutorial/2016/08/29/how-to-work-with-ajax-request-with-django.html
-//https://plotly.com/javascript/streaming/
-//https://plotly.com/javascript/spc-control-charts/
-/*
-var data = [
-    {
-        x: ['2013-10-04 22:23:00', '2013-11-04 22:23:00', '2013-12-04 22:23:00'],
-        y: [1, 3, 6],
-        type: 'scatter'
-    }
-];
-var layout = {
-    autosize: false,
-    width: 780,
-    height: 600,
-    yaxis: {
-        automargin: true,
-    },
-    xaxis: {
-        title: 'Y-axis Title',
-    },
-    shapes: [
-        {
-            type: 'line',
-            x0: '2013-10-04 22:23:00',
-            y0: 0,
-            x1: '2013-10-04 22:23:00',
-            y1: 12,
-            line: {
-                color: 'rgb(55, 128, 191)',
-                width: 3
-            },
-        },
-        {
-            type: 'line',
-            x0: '2013-12-04 22:23:00',
-            y0: 0,
-            x1: '2013-12-04 22:23:00',
-            y1: 12,
-            line: {
-                color: 'rgb(55, 128, 191)',
-                width: 3,
-                dash: 'dot'
-            },
-        },
-        {
-            type: 'line',
-            x0: '2013-10-04 22:23:00',
-            y0: 4,
-            x1: '2013-12-04 22:23:00',
-            y1: 4,
-            line: {
-                color: 'rgb(128, 0, 128)',
-                width: 4,
-                dash: 'dot'
-            }
-        }
-
-
-    ]
-
-
-};
-Plotly.newPlot('fx-chart', data, layout);
-*/
-
-/*
-function rand() {
-    console.log(Math.random())
-  return Math.random();
-}
-
-Plotly.newPlot('fx-chart', [{
-  y: [1,2,3].map(rand),
-  mode: 'lines',
-  line: {color: '#80CAF6'}
-}]);
-
-var cnt = 0;
-
-var interval = setInterval(function() {
-
-  Plotly.extendTraces('fx-chart', {
-    y: [[rand()]]
-  }, [0])
-
-  if(++cnt === 100) clearInterval(interval);
-}, 300);
-*/
-
 function rand() {
     return Math.random();
 }
-
-// var time = new Date();
-//
-// var data = [{
-//   x: [time],
-//   y: [rand()],
-//   mode: 'lines',
-//   line: {color: '#80CAF6'}
-// }]
-//
-//
-// Plotly.newPlot('fx-chart', data);
-//
-// var cnt = 0;
-//
-// var interval = setInterval(function() {
-//
-//   var time = new Date();
-//
-//   var update = {
-//   x:  [[time]],
-//   y: [[rand()]]
-//   }
-//
-//   Plotly.extendTraces('fx-chart', update, [0])
-//
-//   if(++cnt === 100) clearInterval(interval);
-// }, 1000);
-// function print(val) {
-//     console.log(val)
-// }
-
-
-// socket.on('connect', onConnect());
-
-// socket.on('connect', onConnect());
-// socket.on('chat_message', function () {
-//     socket.emit('my custom event', {"sid": "121212121212", "data": "chat_message"});
-// });
-// socket.on('disconnect', function () {
-//     socket.emit('my custom event', {"sid": "11111", "data": "user is disconnected"});
-// });
-//
-// socket.on('connect', function () {
-//     socket.emit('my custom event', {"sid": "11111", "data": "user is connected"});
-// })
-// socket.emit('my custom event', {"sid": "11111", "data": "user sent a new message"});
-//
-// socket.emit('chat_message', {"sid": "121212121212", "data": "chat_message"});
-// setInterval(function () {
-//     socket.emit('chat_message', {"sid": "121212121212", "data": "chat_message"});
-// }, 1000);
-//
-// // setTimeout(function(){
-// //     socket.emit('chat_message', {"sid": "121212121212", "data": "chat_message"});
-// // }, 1000);
-//
-// socket.on('reply', function (data) {
-//     console.log(data)
-// })
-// socket.on('new_server_reply', function (data) {
-//     console.log(data)
-// })
-//
-// socket.on('my event', function (data) {
-//     console.log(data)
-// })
 

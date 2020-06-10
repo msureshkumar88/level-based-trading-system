@@ -25,7 +25,6 @@ def get_transaction(request):
     if not trade:
         return JsonResponse(Helper.get_json_response(False, [], ["Trade not available"]))
     user_id = ac.get_user_session()
-    # print(trade)
 
     current_user = Helper.get_user_by_id(user_id)
     trade_data = dict()
@@ -67,7 +66,6 @@ def get_history(currency, timeframe, price_type, chart_type):
     if timeframe == 'ticks':
         start_date = Helper.get_time_formatted(datetime.now() - timedelta(hours=3))
         end_date = Helper.get_time_formatted(datetime.now())
-        # print(start_date, end_date)
         table = "forex_pip_data"
 
     if timeframe == 'minute':
@@ -181,7 +179,6 @@ def get_pending_order(request):
     return JsonResponse(Helper.get_json_response(True, data, []))
 
 
-# TODO: check database changes when closing the trade manually
 def close_order(request):
     ac = Authentication(request)
     # if user is not logged in response user not exist
@@ -246,7 +243,7 @@ def update_transactions_by_state_outcome(transaction, status, outcome):
                                   f"AND changes_allowed_time = '{Helper.remove_milliseconds(trade['changes_allowed_time'])}' " \
                                   f"AND transaction_id = {transaction['transaction_id']} " \
                                   f"AND user_id = {transaction['user_id']}"
-    # print(delete_query)
+
     cursor.execute("BEGIN BATCH " + delete_query + "APPLY BATCH")
 
     insert_query = ""

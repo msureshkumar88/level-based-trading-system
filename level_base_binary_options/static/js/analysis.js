@@ -11,7 +11,6 @@ if (csrfmiddlewaretoken) {
         dataType: 'json',
         method: 'POST',
         success: function (data) {
-            console.log(data)
             addGraph(data.data)
             fill_dashboard(data.data)
 
@@ -19,8 +18,6 @@ if (csrfmiddlewaretoken) {
     });
 }
 
-
-//TODO: add more charts and filters
 
 function addGraph(data) {
     if (data.hasOwnProperty('balance') && $("#account_balance").length) {
@@ -84,8 +81,6 @@ function getBalanceChart(date, value) {
     ];
     data['layout'] = {
         autosize: true,
-        // width: 930,
-        // height: 450,
         yaxis: {
             automargin: false,
         },
@@ -217,7 +212,6 @@ function getAnalysisDataByDate(start_date, end_date, type) {
         dataType: 'json',
         method: 'POST',
         success: function (data) {
-            console.log(data)
             if (Object.keys(data).length !== 0) {
             }
             if (type === "buy_sell") {
@@ -241,10 +235,7 @@ function add_buy_sell_graph(data) {
     var buy = JSON.parse(data.buy.value);
     var sell = JSON.parse(data.sell.value);
     var date = JSON.parse(data.buy.date);
-    console.log(buy)
-    console.log(sell)
-    console.log(date)
-    // console.log(data)
+
     var trace1 = {
         x: date,
         y: buy,

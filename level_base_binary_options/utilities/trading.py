@@ -205,7 +205,6 @@ class Trading:
         query = f"SELECT * FROM  user_transactions WHERE  transaction_id = {transaction_id} AND " \
                 f"user_id = {user_id}"
         transaction = cursor.execute(query)
-        print(transaction)
         if transaction:
             return transaction[0]
         return []

@@ -14,6 +14,5 @@ def view(request):
     data["pending_trades"] = Helper.get_latest_pending_trades(user_id)
     data["latest_outcomes"] = Helper.get_latest_outcome_trades(user_id)
     data["user_currency"] = Helper.get_user_by_id(user_id)['currency']
-    print(data["latest_outcomes"])
     return render(request, 'dashboard.html', data)
 

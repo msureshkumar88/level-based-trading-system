@@ -32,14 +32,10 @@ class Helper:
 
     @classmethod
     def get_current_price(cls, currency):
-        # return '1.00000'
         cursor = connection.cursor()
         result = cursor.execute(
             f"SELECT * FROM forex_pip_data WHERE currency_pair = '{currency}' ORDER BY timestamp DESC  LIMIT 1")
         data = result.one()
-        # if data:
-        #     return str(data['open'])
-        #TODO: fix above price
         with requests.Session() as s:
             download = s.get(Helper.fx_request_url(currency))
 
