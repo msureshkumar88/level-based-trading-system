@@ -223,3 +223,40 @@ close_order_btn.click(function () {
     });
 });
 $('[data-toggle="tooltip"]').tooltip();
+
+$("#forecast-btn").click(function () {
+    var currency_pair = $("#currency_pair option:selected").val()
+    $.ajax({
+        url: BASE_URL + 'account/get-insights',
+        data: {
+            'csrfmiddlewaretoken': csrfmiddlewaretoken,
+            'currency_pair': currency_pair,
+        },
+        dataType: 'json',
+        method: 'POST',
+        success: function (data) {
+            if (data.status) {
+                var date = JSON.parse(data.data.date)
+                var forecast_value = JSON.parse(data.data.value)
+                console.log(date)
+                console.log(forecast_value)
+                var chart_data = [
+                    {
+                        x: date,
+                        y: forecast_value,
+                        type: 'scatter',
+                        line: {color: '#ff0000'}
+                    }
+                ];
+                var layout = {
+                    xaxis: {
+                        tickformat: '%Y-%m-%d',
+                        tickmode: "linear",
+                    }
+                };
+
+                Plotly.newPlot('forecast-cht', chart_data, layout);
+            }
+        }
+    });
+})

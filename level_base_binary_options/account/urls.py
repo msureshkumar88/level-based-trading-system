@@ -8,6 +8,7 @@ from . import search_level_based_view
 from . import restapi
 from . import analysis
 from . import dashboard
+from . import insights_view
 
 from django.conf import settings
 from django.conf.urls.static import static
@@ -29,5 +30,7 @@ urlpatterns = [
     path('account/get-pending-order', restapi.get_pending_order, name='get_pending_order'),
     path('account/close-order', restapi.close_order, name='close_order'),
     path('account/join-trade', search_level_based_view.join_trade, name='join_trade'),
+    path('account/insights', insights_view.view, name='insights'),
+    path('account/get-insights', insights_view.get_forecast, name='insights'),
 ]
 

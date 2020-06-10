@@ -1,0 +1,27 @@
+{% extends 'guest_base.html'%}
+{%block heading%}Insights{%endblock%}
+{%block content%}
+<form method="post" action="">
+    <div class="row">
+        <div class="col-md-9">
+            <select name="currency_pair" id="currency_pair" class="form-control">
+                <option value="">Select Currency Pair</option>
+                {%for c in currency_pairs%}
+                <option value="{{c.value}}">{{c.value}}</option>
+                {%endfor%}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button id="forecast-btn" class="btn btn-success" type="button">Forecast</button>
+        </div>
+    </div>
+
+
+    {% csrf_token%}
+</form>
+<div class="row">
+    <div class="col-md-12">
+        <div id="forecast-cht"></div>
+    </div>
+</div>
+{% endblock%}
