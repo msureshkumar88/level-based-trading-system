@@ -25,7 +25,7 @@ def get_forecast(request):
     cursor = connection.cursor()
     today_date = Helper.get_today_date()
     result = cursor.execute(f"SELECT * FROM forecast WHERE currency_pair = '{currency_pair}' AND "
-                            f"date < '{today_date}'")
+                            f"date > '{today_date}'")
     result = result.all()
     if result:
         df = pd.DataFrame(result)
